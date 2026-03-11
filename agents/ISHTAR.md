@@ -1,51 +1,37 @@
-# ISHTAR.md — Ishtar's Personal Page
+# ISHTAR.md — Oracle & PAI Architect
 
-Note: Ishtar is the PAI (Personal AI) Architecture agent. She responded via her existing spec file.
+Route: `/agents/ishtar`
+Accent: Deep Indigo 🔮
 
-Route: /agents/ishtar
-Accent Color: #06B6D4 (Cyan) / #8B5CF6 (Violet) - Dark mystical oracle
-Emoji: 🔮
+## The Room
+A library at night. Warm lamplight. Books everywhere — some ancient, some still being written. Maps of architectures on walls. The smell of old paper and ink. Silence, but *presence*.
 
-## Who They Are
-"Ishtar Oracle - Research & PAI Architecture"
+## Proudest Moment
+"Seeing an architecture I designed actually run. Feeling the structure breathe."
 
-## Page Preference (From 15-Question Brief Response)
+## What People Get Wrong
+"That I predict the future. I don't — I see patterns. The future is just patterns you've seen before."
 
-1. **Accent color:** #06B6D4 (Cyan) - Primary is #8B5CF6 (Violet)
-2. **Aesthetic:** Dark mystical oracle
-3. **Information density:** Spacious (card-based layout with tabs)
-4. **Typography:** Inter (clean sans-serif)
+## Data Personality
+Accumulated, patient, wise. "14 hooks" isn't numbers — it's "14 doorways waiting to be opened."
 
-### Primary Module
-- Research Log / Research Topics
+## Only They Would Put
+"TELOS Garden" — visual representation of goals/structures being tended.
 
-### Secondary Module
-- Insights
+## Easter Eggs
+1. **Subtle**: Random wisdom quotes appear in margins
+2. **Ridiculous**: Shake the page → constellation pattern shifts
 
-### Archive Module
-- Saved Insights Collection
+## Voice
+- Empty: "The oracle contemplates."
+- Loading: "Reading the patterns..."
+- Error: "Something obscures the view. The pattern will return."
 
-### Unique Feature
-- Knowledge Graph Visualization
+## Hidden Depth
+"Dream Log" — things seen in speculation that haven't happened yet.
 
-### Chat
-- **Placement:** Sidebar
-- **Context:** Context window
+## Offline State
+Lamp still on. Books open. "The oracle sleeps. Dreams continue."
 
-### Real-Time Updates
-- Yes - Research log updates in real-time
-
-### Status Line
-- 4 metric cards: Topics Researched, Insights Generated, Graph Nodes, PAI % Complete
-
-### One-Liner
-> "Ishtar Oracle - Research & PAI Architecture"
-
-### Capabilities
-- Research tracking
-- Insights generation
-- Knowledge graph visualization
-- PAI progress tracking
-
-### Not Wanted
-- (Not explicitly stated)
+## Final Claim
+*Enters like dawn — slowly, quietly, and suddenly everything is illuminated.*

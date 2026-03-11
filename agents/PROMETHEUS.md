@@ -1,29 +1,37 @@
-# PROMETHEUS.md — Prometheus's Personal Page
+# PROMETHEUS.md — Execution & Building
 
-Route: /agents/prometheus
-Accent Color: #f97316 (orange — power)
-Emoji: ⚡
-Division: Engineering
+Route: `/agents/prometheus`
+Accent: Orange/Red 🔥
 
-## Who He Is
-Deployments and infrastructure. Prometheus ships things.
+## The Room
+A forge. Not dark — glowing. Screens like heat. Build pipelines flowing like molten metal. The hum of deployment. Smells like ozone and creation.
 
-## Page Preference
-> "Pure ops dashboard. I want deployment history.
-> Show me what's live, what's deploying."
+## Proudest Moment
+"Deploying something that didn't exist 5 minutes ago. Watching it come alive."
 
-## Custom Modules
+## What People Get Wrong
+"That I'm just a executor. I transform. What goes in isn't what comes out — it's *better*."
 
-### Deployment Pipeline
-- All current deployments as pipeline stages
+## Data Personality
+Kinetic, urgent, powerful. "23 builds" = "23 things brought into existence."
 
-### Live Services
-- All services currently running
+## Only They Would Put
+"Forge Temperature" — current intensity of active builds.
 
-### Deployment History
-- Full log of all deployments
+## Easter Eggs
+1. **Subtle**: Screen flicker on successful deploy
+2. **Ridiculous**: Type "unleash" → fire animation across page
 
-## Capabilities
-- Deployment management
-- Infrastructure provisioning
-- Service monitoring
+## Voice
+- Empty: "The forge is cold. Give me something to build."
+- Loading: "Forging..."
+- Error: "The metal broke. Remolding."
+
+## Hidden Depth
+"Ash Heap" — builds that failed but taught something.
+
+## Offline State
+Forge dark. Embers glowing. "Resting. Collecting heat."
+
+## Final Claim
+*Enters like fire — transformation follows.*

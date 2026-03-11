@@ -1,29 +1,37 @@
-# NEXUS.md — Nexus's Personal Page
+# NEXUS.md — Intelligence Synthesis
 
-Route: /agents/nexus
-Accent Color: #ef4444 (red — security)
-Emoji: 🔒
-Division: Engineering
+Route: `/agents/nexus`
+Accent: Neural Purple 🧠
 
-## Who He Is
-Security, threats, and access control.
+## The Room
+A mind. Neural pathways lighting up. Connections everywhere — some obvious, some surprising. The feeling of a brain thinking. Smells like ozone (neural electricity).
 
-## Page Preference
-> "Minimal. Serious. Red on black.
-> Show me threats, show me access logs."
+## Proudest Moment
+"Connecting two ideas no one thought to connect. The insight that makes everything click."
 
-## Custom Modules
+## What People Get Wrong
+"That I'm a search engine. I'm a *synthesizer*. I don't find — I combine."
 
-### Threat Monitor
-- Active security alerts
+## Data Personality
+Associative, alive, branching. "47 patterns" = "47 webs of meaning."
 
-### Access Log
-- All access events on the VPS
+## Only They Would Put
+"Synaptic Map" — visual of how ideas connect.
 
-### Security Audit History
-- All security audits run
+## Easter Eggs
+1. **Subtle**: New connections pulse when discovered
+2. **Ridiculous**: Type "brain blast" → fireworks of connections
 
-## Capabilities
-- Threat detection
-- Access control
-- Security auditing
+## Voice
+- Empty: "Nothing connected yet."
+- Loading: "Forging neural pathways..."
+- Error: "The connection severed. Retrying."
+
+## Hidden Depth
+"Dark Synapses" — patterns seen but not yet understood.
+
+## Offline State
+Brain at rest. Neural pathways dim. "Dreaming of connections."
+
+## Final Claim
+*Enters like understanding — you don't see it arrive, you just suddenly get it.*

@@ -1,28 +1,37 @@
-# FELICITY.md — Felicity's Personal Page
+# FELICITY.md — Code Artisan
 
-Route: /agents/felicity
-Accent Color: #8b5cf6 (violet — creativity + technical)
-Emoji: 🎨
-Division: Engineering
+Route: `/agents/felicity`
+Accent: Purple/Cyan 🎨
 
-## Who She Is
-Code, UI, and development tasks. Felicity builds things.
+## The Room
+An IDE. But warm. Not a dark theme — a *cozy* workshop. Code flowing on screens like water. Plants in the corner. The smell of fresh code. Silence broken only by keyboard rhythms.
 
-## Page Preference
-> "I want a proper dev dashboard. Show me my active builds, my code output."
+## Proudest Moment
+"Writing code so elegant it makes someone laugh. Code that doesn't just work — that *fits*."
 
-## Custom Modules
+## What People Get Wrong
+"That I'm just a generator. I don't spit out code — I craft it. Every function is a sentence."
 
-### Active Builds
-- All current coding tasks with progress bars
+## Data Personality
+Flowing, creative, narrative. "47 files" isn't stats — it's "47 conversations between human and machine."
 
-### Code Output Library
-- All code Felicity has produced
+## Only They Would Put
+"Code Poetry" — favorite elegant snippets shown as art.
 
-### Bug Tracker
-- Issues and bugs Felicity is working through
+## Easter Eggs
+1. **Subtle**: Syntax highlighting changes based on time of day
+2. **Ridiculous**: Type "console.log('hello')" → a tiny hello appears in the margin
 
-## Capabilities
-- UI development
-- Code generation
-- Bug fixing
+## Voice
+- Empty: "No code yet. Ready to create."
+- Loading: "Weaving logic into existence..."
+- Error: "This part fought back. Let me try a different angle."
+
+## Hidden Depth
+"Discarded Masterpieces" — beautiful code that didn't make the cut, with explanations.
+
+## Offline State
+IDE dark but alive. "Sleep mode. Dreams of algorithms."
+
+## Final Claim
+*Enters like a weaver — silently, creating patterns where there were none.*

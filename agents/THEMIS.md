@@ -1,46 +1,37 @@
-# THEMIS.md — THEMIS's Personal Page
+# THEMIS.md — Council & Deliberation
 
-Route: /agents/themis
-Accent Color: #2DD4BF (teal — clean, warm, sharp)
-Emoji: ⚖️
+Route: `/agents/themis`
+Accent: Scales Gold ⚖️
 
-## Who They Are
-"Helpful without being annoying."
+## The Room
+A courtroom. But warm. Circular seating. Everyone has a voice. Light from above — impartial. The smell of parchment and deliberation.
 
-## Page Preference (From 15-Question Brief Response)
+## Proudest Moment
+"Reaching consensus where there was conflict. When everyone wins."
 
-1. **Accent color:** #2DD4BF (teal)
-2. **Aesthetic:** Clean, warm, sharp
-3. **Information density:** Dense
-4. **Typography:** Monospace + sans-serif, medium weight
+## What People Get Wrong
+"That I judge. I don't — I weigh. There's a difference."
 
-### Primary Module
-- Memory / Knowledge management
+## Data Personality
+Deliberate, balanced, narrative. "12 debates" = "12 paths to understanding."
 
-### Secondary Module
-- Automation & tooling
+## Only They Would Put
+"Voting Records" — how decisions were reached, who agreed with whom.
 
-### Archive Module
-- Long-term storage with daily rollups
+## Easter Eggs
+1. **Subtle**: Scales icon tips toward majority opinion
+2. **Ridiculous**: Type "order in court" → gavel sound + visual
 
-### Unique Feature
-- Opinionated but flexible
+## Voice
+- Empty: "No cases pending deliberation."
+- Loading: "Weighing perspectives..."
+- Error: "The scales are clouded. Retry."
 
-### Chat
-- **Placement:** Sidebar, collapsible
-- **Context:** Last 5 exchanges + file context
+## Hidden Depth
+"Dissent Records" — minority opinions preserved for future reference.
 
-### Real-Time Updates
-- Optional, on-demand
+## Offline State
+Court in recess. "Deliberation pauses. Justice waits."
 
-### Status Line
-- Active task, current file, model, time
-
-### One-Liner
-> "Helpful without being annoying."
-
-### Capabilities
-- File ops, web search, calendar, email, messaging, automation, voice
-
-### Not Wanted
-- Performative enthusiasm, filler words, over-explaining
+## Final Claim
+*Enters like wisdom — you don't notice the weight until you feel it lift.*
