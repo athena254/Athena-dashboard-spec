@@ -1,0 +1,223 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "created": "2026-02-28T20:15:00Z",
+    "last_updated": "2026-02-28T20:12:41.508776Z",
+    "description": "Cross-agent knowledge sharing and learning system"
+  },
+  "domains": {
+    "bidding": {
+      "patterns": [
+        {
+          "pattern": "Lower bid amounts on weekends increase win rate",
+          "confidence": 0.7,
+          "source": "sterling",
+          "task_type": "BID_SUBMISSION",
+          "timestamp": "2026-02-28T20:12:41.506289Z",
+          "examples": [
+            "exp_sterling_20260228_201241_bcd46ca7"
+          ]
+        },
+        {
+          "pattern": "Quick response time correlates with client engagement",
+          "confidence": 0.7,
+          "source": "sterling",
+          "task_type": "BID_SUBMISSION",
+          "timestamp": "2026-02-28T20:12:41.506289Z",
+          "examples": [
+            "exp_sterling_20260228_201241_bcd46ca7"
+          ]
+        }
+      ],
+      "best_practices": [],
+      "failure_modes": [],
+      "success_rates": {}
+    },
+    "research": {
+      "patterns": [
+        {
+          "pattern": "Breaking down complex topics improves output quality",
+          "confidence": 0.7,
+          "source": "ishtar",
+          "task_type": "RESEARCH_DEEP",
+          "timestamp": "2026-02-28T20:12:41.506839Z",
+          "examples": [
+            "exp_ishtar_20260228_201241_88892e89"
+          ]
+        },
+        {
+          "pattern": "Cross-referencing multiple sources increases accuracy",
+          "confidence": 0.7,
+          "source": "ishtar",
+          "task_type": "RESEARCH_DEEP",
+          "timestamp": "2026-02-28T20:12:41.506839Z",
+          "examples": [
+            "exp_ishtar_20260228_201241_88892e89"
+          ]
+        }
+      ],
+      "sources": [],
+      "methodologies": []
+    },
+    "communication": {
+      "patterns": [
+        {
+          "pattern": "Professional tone with personal touches improves response rate",
+          "confidence": 0.7,
+          "source": "felicity",
+          "task_type": "EMAIL_RESPONSE",
+          "timestamp": "2026-02-28T20:12:41.508695Z",
+          "examples": [
+            "exp_felicity_20260228_201241_92cce572"
+          ]
+        },
+        {
+          "pattern": "Clear subject lines increase open rates",
+          "confidence": 0.7,
+          "source": "felicity",
+          "task_type": "EMAIL_RESPONSE",
+          "timestamp": "2026-02-28T20:12:41.508695Z",
+          "examples": [
+            "exp_felicity_20260228_201241_92cce572"
+          ]
+        }
+      ],
+      "templates": [],
+      "tone_guidelines": []
+    },
+    "development": {
+      "patterns": [],
+      "code_snippets": [],
+      "architectures": []
+    },
+    "maintenance": {
+      "patterns": [],
+      "checklists": [],
+      "schedules": []
+    }
+  },
+  "experiences": [
+    {
+      "id": "exp_sterling_20260228_201241_bcd46ca7",
+      "agent": "sterling",
+      "task_type": "BID_SUBMISSION",
+      "domain": "bidding",
+      "timestamp": "2026-02-28T20:12:41.506289Z",
+      "input": {
+        "project_value": 500,
+        "complexity": "medium"
+      },
+      "output": {
+        "bid_amount": 250,
+        "status": "won"
+      },
+      "success": true,
+      "duration_seconds": 45,
+      "lessons_learned": [
+        "Lower bid amounts on weekends increase win rate",
+        "Quick response time correlates with client engagement"
+      ],
+      "patterns_identified": [],
+      "tags": [
+        "bidding",
+        "BID_SUBMISSION"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "exp_ishtar_20260228_201241_88892e89",
+      "agent": "ishtar",
+      "task_type": "RESEARCH_DEEP",
+      "domain": "research",
+      "timestamp": "2026-02-28T20:12:41.506839Z",
+      "input": {
+        "topic": "Multi-agent orchestration"
+      },
+      "output": {
+        "findings": "...",
+        "confidence": 0.92
+      },
+      "success": true,
+      "duration_seconds": 3600,
+      "lessons_learned": [
+        "Breaking down complex topics improves output quality",
+        "Cross-referencing multiple sources increases accuracy"
+      ],
+      "patterns_identified": [],
+      "tags": [
+        "research",
+        "RESEARCH_DEEP"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "exp_felicity_20260228_201241_92cce572",
+      "agent": "felicity",
+      "task_type": "EMAIL_RESPONSE",
+      "domain": "communication",
+      "timestamp": "2026-02-28T20:12:41.508695Z",
+      "input": {
+        "email_type": "follow_up"
+      },
+      "output": {
+        "sent": true,
+        "tone": "professional_friendly"
+      },
+      "success": true,
+      "duration_seconds": 120,
+      "lessons_learned": [
+        "Professional tone with personal touches improves response rate",
+        "Clear subject lines increase open rates"
+      ],
+      "patterns_identified": [],
+      "tags": [
+        "communication",
+        "EMAIL_RESPONSE"
+      ],
+      "metadata": {}
+    }
+  ],
+  "learnings": {
+    "shared": [],
+    "by_agent": {
+      "sterling": {
+        "total_tasks": 1,
+        "success_rate": 1.0,
+        "domains": {
+          "bidding": {
+            "count": 1,
+            "success_rate": 1.0
+          }
+        },
+        "patterns": []
+      },
+      "ishtar": {
+        "total_tasks": 1,
+        "success_rate": 1.0,
+        "domains": {
+          "research": {
+            "count": 1,
+            "success_rate": 1.0
+          }
+        },
+        "patterns": []
+      },
+      "felicity": {
+        "total_tasks": 1,
+        "success_rate": 1.0,
+        "domains": {
+          "communication": {
+            "count": 1,
+            "success_rate": 1.0
+          }
+        },
+        "patterns": []
+      }
+    }
+  },
+  "models": {
+    "bidding_predictor": null,
+    "task_classifier": null,
+    "agent_selector": null
+  }
+}

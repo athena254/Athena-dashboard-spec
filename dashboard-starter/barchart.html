@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bar Chart</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+        }
+
+        .chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 300px;
+            padding: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .bar-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            max-width: 80px;
+        }
+
+        .bar {
+            width: 60px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px 8px 0 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            animation: grow 0.8s ease-out;
+        }
+
+        .bar:hover {
+            transform: scaleY(1.05);
+            filter: brightness(1.2);
+        }
+
+        .bar .value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-weight: bold;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .bar:hover .value {
+            opacity: 1;
+        }
+
+        .label {
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 10px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        @keyframes grow {
+            from {
+                transform: scaleY(0);
+            }
+            to {
+                transform: scaleY(1);
+            }
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="chart-container">
+        <h1>📊 Sample Bar Chart</h1>
+        <div class="chart" id="chart"></div>
+        <div class="legend" id="legend"></div>
+    </div>
+
+    <script>
+        const data = [
+            { label: 'Jan', value: 65, color: '#667eea' },
+            { label: 'Feb', value: 45, color: '#764ba2' },
+            { label: 'Mar', value: 90, color: '#f093fb' },
+            { label: 'Apr', value: 55, color: '#f5576c' },
+            { label: 'May', value: 80, color: '#4facfe' },
+            { label: 'Jun', value: 70, color: '#00f2fe' }
+        ];
+
+        const maxValue = Math.max(...data.map(d => d.value));
+        const chart = document.getElementById('chart');
+        const legend = document.getElementById('legend');
+
+        data.forEach((item, index) => {
+            // Create bar wrapper
+            const wrapper = document.createElement('div');
+            wrapper.className = 'bar-wrapper';
+            wrapper.style.animationDelay = `${index * 0.1}s`;
+
+            // Create bar
+            const bar = document.createElement('div');
+            bar.className = 'bar';
+            bar.style.height = `${(item.value / maxValue) * 250}px`;
+            bar.style.background = `linear-gradient(180deg, ${item.color} 0%, ${item.color}dd 100%)`;
+
+            // Add value label
+            const valueLabel = document.createElement('span');
+            valueLabel.className = 'value';
+            valueLabel.textContent = item.value;
+            bar.appendChild(valueLabel);
+
+            // Add label
+            const label = document.createElement('div');
+            label.className = 'label';
+            label.textContent = item.label;
+
+            wrapper.appendChild(bar);
+            wrapper.appendChild(label);
+            chart.appendChild(wrapper);
+
+            // Create legend
+            const legendItem = document.createElement('div');
+            legendItem.className = 'legend-item';
+            legendItem.innerHTML = `
+                <div class="legend-color" style="background: ${item.color}"></div>
+                <span>${item.label}: ${item.value}</span>
+            `;
+            legend.appendChild(legendItem);
+        });
+    </script>
+</body>
+</html>

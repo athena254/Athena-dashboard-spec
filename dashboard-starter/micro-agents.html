@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Micro-Agents Hub | Athena</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    [data-theme="dark"] { --bg-base: #0c0f1a; --bg-surface: #111827; --bg-elevated: #1f2937; --border: #1f2937; --text-primary: #f9fafb; --text-secondary: #d1d5db; --text-muted: #9ca3af; }
+    
+    .micro-header { background: var(--gradient-card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: var(--space-xl); margin-bottom: var(--space-2xl); position: relative; overflow: hidden; }
+    .micro-header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #6366f1, #22d3ee, #10b981); }
+    .micro-header-content { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-lg); }
+    .micro-header-title-section { display: flex; align-items: center; gap: var(--space-md); }
+    .micro-header-icon { width: 56px; height: 56px; border-radius: var(--radius-lg); background: linear-gradient(135deg, #6366f1, #22d3ee); display: flex; align-items: center; justify-content: center; font-size: 1.75rem; }
+    .micro-header h1 { font-size: 1.75rem; font-weight: 700; color: var(--text-primary); margin: 0; }
+    .micro-header-subtitle { font-size: 0.875rem; color: var(--text-muted); margin: 4px 0 0; }
+    .micro-back-btn { display: inline-flex; align-items: center; gap: var(--space-sm); padding: var(--space-sm) var(--space-md); background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-secondary); font-size: 0.875rem; text-decoration: none; transition: var(--transition-fast); }
+    .micro-back-btn:hover { background: var(--bg-hover); border-color: var(--primary); color: var(--text-primary); }
+    
+    .micro-section { background: var(--gradient-card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: var(--space-xl); margin-bottom: var(--space-2xl); }
+    .micro-section-title { font-size: 1.125rem; font-weight: 600; color: var(--text-primary); margin: 0 0 var(--space-lg); display: flex; align-items: center; gap: var(--space-sm); }
+    .micro-section-title::before { content: ''; width: 4px; height: 20px; background: var(--primary); border-radius: 2px; }
+    
+    .micro-intro { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-xl); }
+    .micro-intro-text h3 { font-size: 1rem; font-weight: 600; color: var(--text-primary); margin: 0 0 var(--space-sm); }
+    .micro-intro-text p { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6; margin: 0; }
+    .micro-intro-text p strong { color: var(--accent); }
+    .micro-intro-diff { background: var(--bg-elevated); border-radius: var(--radius-lg); padding: var(--space-lg); }
+    .micro-intro-diff h4 { font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin: 0 0 var(--space-md); }
+    .micro-diff-item { display: flex; align-items: flex-start; gap: var(--space-sm); padding: var(--space-sm) 0; font-size: 0.8125rem; }
+    .micro-diff-item .icon { color: var(--success); font-size: 1rem; }
+    .micro-diff-item .subagent { color: var(--text-muted); }
+    .micro-diff-item .micro { color: var(--accent); font-weight: 500; }
+    
+    .micro-agents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: var(--space-lg); }
+    .micro-agent-card { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: var(--space-lg); transition: var(--transition-base); position: relative; }
+    .micro-agent-card:hover { transform: translateY(-4px); border-color: var(--agent-color); box-shadow: 0 0 30px rgba(99, 102, 241, 0.15); }
+    .micro-agent-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--agent-color); opacity: 0.6; border-radius: var(--radius-xl) var(--radius-xl) 0 0; }
+    .micro-agent-header { display: flex; align-items: center; gap: var(--space-md); margin-bottom: var(--space-md); }
+    .micro-agent-avatar { width: 48px; height: 48px; border-radius: var(--radius-lg); background: linear-gradient(135deg, var(--agent-color), var(--agent-color-light)); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .micro-agent-info { flex: 1; }
+    .micro-agent-name { font-size: 1.125rem; font-weight: 600; color: var(--text-primary); }
+    .micro-agent-repo { font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); }
+    .micro-agent-desc { font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: var(--space-md); line-height: 1.5; }
+    .micro-agent-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-sm); margin-bottom: var(--space-md); }
+    .micro-agent-stat { background: var(--bg-surface); border-radius: var(--radius-md); padding: var(--space-sm) var(--space-md); display: flex; align-items: center; gap: var(--space-sm); }
+    .micro-agent-stat .label { font-size: 0.6875rem; color: var(--text-muted); text-transform: uppercase; }
+    .micro-agent-stat .value { font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); }
+    .micro-agent-stat .status-active { color: var(--success); }
+    .micro-agent-stat .status-inactive { color: var(--text-muted); }
+    .micro-agent-actions { display: flex; gap: var(--space-sm); }
+    .micro-launch-btn { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: var(--space-sm); padding: var(--space-sm) var(--space-md); background: var(--agent-color); border: none; border-radius: var(--radius-md); color: white; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: var(--transition-fast); text-decoration: none; }
+    .micro-launch-btn:hover { background: var(--agent-color-light); transform: translateY(-1px); }
+    .micro-launch-btn.secondary { background: var(--bg-surface); border: 1px solid var(--border); color: var(--text-secondary); }
+    .micro-launch-btn.secondary:hover { background: var(--bg-hover); color: var(--text-primary); }
+    
+    .micro-add-card { background: var(--bg-surface); border: 2px dashed var(--border); border-radius: var(--radius-xl); padding: var(--space-xl); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-height: 280px; transition: var(--transition-base); cursor: pointer; }
+    .micro-add-card:hover { border-color: var(--primary); background: var(--bg-elevated); }
+    .micro-add-icon { width: 64px; height: 64px; border-radius: 50%; background: var(--bg-elevated); display: flex; align-items: center; justify-content: center; font-size: 1.75rem; margin-bottom: var(--space-md); }
+    .micro-add-text { font-size: 1rem; font-weight: 500; color: var(--text-primary); margin-bottom: var(--space-xs); }
+    .micro-add-subtext { font-size: 0.8125rem; color: var(--text-muted); }
+    
+    .micro-activity-feed { display: flex; flex-direction: column; gap: var(--space-md); }
+    .micro-activity-item { display: flex; align-items: flex-start; gap: var(--space-md); padding: var(--space-md); background: var(--bg-elevated); border-radius: var(--radius-lg); transition: var(--transition-fast); }
+    .micro-activity-item:hover { background: var(--bg-hover); }
+    .micro-activity-icon { width: 36px; height: 36px; border-radius: var(--radius-md); background: var(--bg-surface); display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+    .micro-activity-content { flex: 1; min-width: 0; }
+    .micro-activity-title { font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 2px; }
+    .micro-activity-meta { font-size: 0.75rem; color: var(--text-muted); }
+    .micro-activity-status { padding: 2px 8px; border-radius: var(--radius-sm); font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; }
+    .micro-activity-status.success { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+    .micro-activity-status.running { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
+    .micro-activity-status.failed { background: rgba(239, 68, 68, 0.1); color: var(--error); }
+    
+    .micro-history-table { width: 100%; border-collapse: collapse; }
+    .micro-history-table th { text-align: left; padding: var(--space-md); font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    .micro-history-table td { padding: var(--space-md); font-size: 0.875rem; color: var(--text-secondary); border-bottom: 1px solid var(--border); }
+    .micro-history-table tr:hover td { background: var(--bg-elevated); }
+    .micro-history-table .mono { font-family: var(--font-mono); font-size: 0.8125rem; }
+    .micro-history-table .status { display: inline-flex; align-items: center; gap: 6px; }
+    .micro-history-table .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .micro-history-table .status-dot.success { background: var(--success); }
+    .micro-history-table .status-dot.failed { background: var(--error); }
+    .micro-history-table .status-dot.running { background: var(--primary); animation: pulse 2s infinite; }
+    
+    .micro-empty { text-align: center; padding: var(--space-2xl); color: var(--text-muted); }
+    .micro-empty-icon { font-size: 3rem; margin-bottom: var(--space-md); opacity: 0.5; }
+    
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    @media (max-width: 768px) { .micro-intro { grid-template-columns: 1fr; } .micro-agents-grid { grid-template-columns: 1fr; } .micro-header-content { flex-direction: column; align-items: flex-start; } }
+  </style>
+</head>
+<body>
+  <div class="loading-overlay" id="loader"><div class="loader"></div><p class="loading-text">Loading Micro-Agents Hub...</p></div>
+  
+  <main class="container">
+    <!-- Header -->
+    <header class="micro-header animate-fade-in">
+      <div class="micro-header-content">
+        <div class="micro-header-title-section">
+          <div class="micro-header-icon">🎯</div>
+          <div>
+            <h1>Micro-Agents Hub</h1>
+            <p class="micro-header-subtitle">Purpose-built agents from external GitHub repositories</p>
+          </div>
+        </div>
+        <a href="index.html" class="micro-back-btn">← Back to Master Dashboard</a>
+      </div>
+    </header>
+
+    <!-- What are Micro-Agents? -->
+    <section class="micro-section animate-fade-in">
+      <h2 class="micro-section-title">What are Micro-Agents?</h2>
+      <div class="micro-intro">
+        <div class="micro-intro-text">
+          <h3>Lightweight, Specialized Agents</h3>
+          <p>Micro-Agents are <strong>purpose-built agents</strong> sourced from external GitHub repositories. Unlike Athena's core subagents, each micro-agent is designed for a <strong>specific domain</strong> — from AI penetration testing to cybersecurity automation.</p>
+          <p style="margin-top: 12px;">They run independently, can be launched on-demand, and maintain their own mission histories.</p>
+        </div>
+        <div class="micro-intro-diff">
+          <h4>How they differ from Subagents:</h4>
+          <div class="micro-diff-item">
+            <span class="icon">✓</span>
+            <span><span class="subagent">Subagents</span> — Built into Athena, unified architecture, share context</span>
+          </div>
+          <div class="micro-diff-item">
+            <span class="icon">✓</span>
+            <span><span class="micro">Micro-Agents</span> — External repos, standalone, domain-specific</span>
+          </div>
+          <div class="micro-diff-item">
+            <span class="icon">✓</span>
+            <span><span class="subagent">Subagents</span> — Core operations (bidding, research, etc.)</span>
+          </div>
+          <div class="micro-diff-item">
+            <span class="icon">✓</span>
+            <span><span class="micro">Micro-Agents</span> — Specialized tasks (pentesting, security audits)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Agent Cards -->
+    <section class="micro-section animate-fade-in">
+      <h2 class="micro-section-title">Available Micro-Agents</h2>
+      <div class="micro-agents-grid">
+        
+        <!-- Shannon - AI Pentester -->
+        <div class="micro-agent-card" style="--agent-color: #ef4444; --agent-color-light: #f87171;">
+          <div class="micro-agent-header">
+            <div class="micro-agent-avatar">🛡️</div>
+            <div class="micro-agent-info">
+              <div class="micro-agent-name">Shannon</div>
+              <div class="micro-agent-repo">KeygraphHQ/shannon</div>
+            </div>
+          </div>
+          <p class="micro-agent-desc">AI-powered penetration testing agent. Identifies vulnerabilities, exploits weaknesses, and generates comprehensive security reports.</p>
+          <div class="micro-agent-stats">
+            <div class="micro-agent-stat">
+              <span class="label">Status</span>
+              <span class="value status-active">● Active</span>
+            </div>
+            <div class="micro-agent-stat">
+              <span class="label">Last Run</span>
+              <span class="value">2 hrs ago</span>
+            </div>
+          </div>
+          <div class="micro-agent-actions">
+            <a href="shannon-mission.html" class="micro-launch-btn">🚀 Launch</a>
+          </div>
+        </div>
+
+        <!-- Katie - Cybersecurity AI -->
+        <div class="micro-agent-card" style="--agent-color: #22d3ee; --agent-color-light: #67e8f9;">
+          <div class="micro-agent-header">
+            <div class="micro-agent-avatar">🔐</div>
+            <div class="micro-agent-info">
+              <div class="micro-agent-name">Katie</div>
+              <div class="micro-agent-repo">aliasrobotics/cai</div>
+            </div>
+          </div>
+          <p class="micro-agent-desc">Cybersecurity AI orchestrator with 25+ specialized agents. Covers threat detection, vulnerability assessment, incident response, and more.</p>
+          <div class="micro-agent-stats">
+            <div class="micro-agent-stat">
+              <span class="label">Status</span>
+              <span class="value status-active">● Active</span>
+            </div>
+            <div class="micro-agent-stat">
+              <span class="label">Last Run</span>
+              <span class="value">5 hrs ago</span>
+            </div>
+          </div>
+          <div class="micro-agent-actions">
+            <a href="katie-mission.html" class="micro-launch-btn">🚀 Launch</a>
+          </div>
+        <!-- Strix -->
+        <div class="micro-agent-card" style="--agent-color: #ff6b35;">
+          <div class="micro-agent-header">
+            <div class="micro-agent-avatar">🦉</div>
+            <div class="micro-agent-info">
+              <div class="micro-agent-name">Strix</div>
+              <div class="micro-agent-repo">github.com/usestrix/strix</div>
+            </div>
+          </div>
+          <p class="micro-agent-desc">Autonomous AI Hacker — finds and fixes vulnerabilities with real PoC validation.</p>
+          <div class="micro-agent-stats">
+            <div class="micro-agent-stat">
+              <span class="label">Status</span>
+              <span class="value status-active">Ready</span>
+            </div>
+            <div class="micro-agent-stat">
+              <span class="label">Last Run</span>
+              <span class="value">Never</span>
+            </div>
+            <div class="micro-agent-stat">
+              <span class="label">Type</span>
+              <span class="value">Hacker</span>
+            </div>
+            <div class="micro-agent-stat">
+              <span class="label">Vulns</span>
+              <span class="value">0</span>
+            </div>
+          </div>
+          <div class="micro-agent-actions">
+            <a href="strix-mission.html" class="micro-launch-btn">🚀 Launch</a>
+          </div>
+        </div>
+        </div>
+
+        <!-- Add New Micro-Agent -->
+        <div class="micro-add-card" onclick="alert('Add Micro-Agent feature coming soon!')">
+          <div class="micro-add-icon">➕</div>
+          <div class="micro-add-text">Add Micro-Agent</div>
+          <div class="micro-add-subtext">Connect a new repo</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Combined Activity Feed -->
+    <section class="micro-section animate-fade-in">
+      <h2 class="micro-section-title">Combined Activity Feed</h2>
+      <div class="micro-activity-feed">
+        <div class="micro-activity-item">
+          <div class="micro-activity-icon">🛡️</div>
+          <div class="micro-activity-content">
+            <div class="micro-activity-title">Shannon completed vulnerability scan on api.athena.io</div>
+            <div class="micro-activity-meta">Shannon • 2 hours ago</div>
+          </div>
+          <span class="micro-activity-status success">Success</span>
+        </div>
+        <div class="micro-activity-item">
+          <div class="micro-activity-icon">🔐</div>
+          <div class="micro-activity-content">
+            <div class="micro-activity-title">Katie ran threat detection on 12 endpoints</div>
+            <div class="micro-activity-meta">Katie • 5 hours ago</div>
+          </div>
+          <span class="micro-activity-status success">Success</span>
+        </div>
+        <div class="micro-activity-item">
+          <div class="micro-activity-icon">🛡️</div>
+          <div class="micro-activity-content">
+            <div class="micro-activity-title">Shannon executing SQL injection test</div>
+            <div class="micro-activity-meta">Shannon • Running</div>
+          </div>
+          <span class="micro-activity-status running">Running</span>
+        </div>
+        <div class="micro-activity-item">
+          <div class="micro-activity-icon">🔐</div>
+          <div class="micro-activity-content">
+            <div class="micro-activity-title">Katie - Incident response workflow triggered</div>
+            <div class="micro-activity-meta">Katie • Yesterday</div>
+          </div>
+          <span class="micro-activity-status success">Success</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Global Run History -->
+    <section class="micro-section animate-fade-in">
+      <h2 class="micro-section-title">Global Run History</h2>
+      <table class="micro-history-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Agent</th>
+            <th>Target</th>
+            <th>Status</th>
+            <th>Duration</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">2026-02-27 16:00</td>
+            <td>🛡️ Shannon</td>
+            <td class="mono">api.athena.io</td>
+            <td><span class="status"><span class="status-dot success"></span>Success</span></td>
+            <td>4m 32s</td>
+          </tr>
+          <tr>
+            <td class="mono">2026-02-27 13:15</td>
+            <td>🔐 Katie</td>
+            <td class="mono">endpoints-*.prod</td>
+            <td><span class="status"><span class="status-dot success"></span>Success</span></td>
+            <td>12m 18s</td>
+          </tr>
+          <tr>
+            <td class="mono">2026-02-27 11:30</td>
+            <td>🛡️ Shannon</td>
+            <td class="mono">auth.athena.io</td>
+            <td><span class="status"><span class="status-dot success"></span>Success</span></td>
+            <td>6m 45s</td>
+          </tr>
+          <tr>
+            <td class="mono">2026-02-27 09:00</td>
+            <td>🔐 Katie</td>
+            <td class="mono">incident-2026-027</td>
+            <td><span class="status"><span class="status-dot success"></span>Success</span></td>
+            <td>28m 12s</td>
+          </tr>
+          <tr>
+            <td class="mono">2026-02-26 22:45</td>
+            <td>🛡️ Shannon</td>
+            <td class="mono">db.athena.internal</td>
+            <td><span class="status"><span class="status-dot failed"></span>Failed</span></td>
+            <td>2m 18s</td>
+          </tr>
+          <tr>
+            <td class="mono">2026-02-26 18:30</td>
+            <td>🔐 Katie</td>
+            <td class="mono">full-scan-prod</td>
+            <td><span class="status"><span class="status-dot success"></span>Success</span></td>
+            <td>45m 02s</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script>
+    // Hide loader when page loads
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const loader = document.getElementById('loader');
+        if (loader) loader.style.opacity = '0';
+        setTimeout(() => loader?.remove(), 300);
+      }, 800);
+    });
+  </script>
+</body>
+</html>

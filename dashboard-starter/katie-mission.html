@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Katie - Cybersecurity AI Micro-Agent</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg-primary:#0a0f14;--bg-secondary:#111921;--bg-tertiary:#1a222d;--bg-card:#151d26;--bg-card-hover:#1c2633;--accent-primary:#00d4aa;--accent-secondary:#00b894;--accent-glow:rgba(0,212,170,0.15);--accent-warning:#f39c12;--accent-error:#e74c3c;--accent-info:#3498db;--text-primary:#e8edf3;--text-secondary:#8b9cb3;--text-muted:#5a6a7d;--border-color:#2a3544;--border-glow:rgba(0,212,170,0.3);--shadow-sm:0 2px 8px rgba(0,0,0,0.3);--shadow-md:0 4px 20px rgba(0,0,0,0.4);--shadow-glow:0 0 30px var(--accent-glow);--radius-sm:6px;--radius-md:10px;--radius-lg:16px;--transition:all 0.25s cubic-bezier(0.4,0,0.2,1)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Outfit",-apple-system,sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;line-height:1.6}
+.mono{font-family:"JetBrains Mono",monospace}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:var(--bg-secondary)}
+::-webkit-scrollbar-thumb{background:var(--border-color);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--text-muted)}
+.app-container{display:grid;grid-template-columns:280px 1fr 350px;grid-template-rows:auto 1fr;min-height:100vh}
+.header{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:var(--bg-secondary);border-bottom:1px solid var(--border-color);position:sticky;top:0;z-index:100}
+.header-left{display:flex;align-items:center;gap:16px}
+.back-btn{display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-md);color:var(--text-secondary);font-size:14px;font-weight:500;cursor:pointer;transition:var(--transition);text-decoration:none}
+.back-btn:hover{background:var(--bg-card-hover);color:var(--accent-primary);border-color:var(--accent-primary)}
+.logo-section{display:flex;align-items:center;gap:12px}
+.logo-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:var(--shadow-glow)}
+.logo-text h1{font-size:20px;font-weight:700;color:var(--text-primary);letter-spacing:-0.5px}
+.logo-text span{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px}
+.status-badge{display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-md)}
+.status-dot{width:10px;height:10px;border-radius:50%;background:var(--text-muted);animation:pulse 2s infinite}
+.status-dot.idle{background:var(--text-muted);animation:none}
+.status-dot.running{background:var(--accent-primary);box-shadow:0 0 12px var(--accent-primary)}
+.status-dot.error{background:var(--accent-error);box-shadow:0 0 12px var(--accent-error);animation:none}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.status-label{font-size:13px;font-weight:600;color:var(--text-secondary)}
+.sidebar{background:var(--bg-secondary);border-right:1px solid var(--border-color);padding:20px;overflow-y:auto;max-height:calc(100vh - 73px)}
+.sidebar-section{margin-bottom:24px}
+.sidebar-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-muted);margin-bottom:12px}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius-md);padding:14px;text-align:center;transition:var(--transition)}
+.stat-card:hover{border-color:var(--accent-primary);box-shadow:0 0 20px var(--accent-glow)}
+.stat-value{font-size:24px;font-weight:700;color:var(--accent-primary);font-family:"JetBrains Mono",monospace}
+.stat-label{font-size:11px;color:var(--text-muted);margin-top:4px}
+.run-controls{background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius-lg);padding:20px}
+.control-group{margin-bottom:16px}
+.control-label{font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:8px;display:block}
+.control-select,.control-input{width:100%;padding:10px 14px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-size:14px;font-family:"Outfit",sans-serif;transition:var(--transition)}
+.control-select:focus,.control-input:focus{outline:none;border-color:var(--accent-primary);box-shadow:0 0 0 3px var(--accent-glow)}
+.control-select option{background:var(--bg-secondary)}
+.config-options{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.config-chip{padding:6px 12px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:20px;font-size:12px;color:var(--text-secondary);cursor:pointer;transition:var(--transition)}
+.config-chip:hover,.config-chip.active{background:var(--accent-primary);color:var(--bg-primary);border-color:var(--accent-primary)}
+.btn-group{display:flex;gap:10px}
+.btn{flex:1;padding:12px 20px;border:none;border-radius:var(--radius-md);font-size:14px;font-weight:600;cursor:pointer;transition:var(--transition);display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-primary{background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));color:var(--bg-primary);box-shadow:var(--shadow-glow)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 4px 20px var(--accent-glow)}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.btn-danger{background:var(--accent-error);color:#fff}
+.btn-danger:hover{background:#c0392b}
+.main-content{padding:24px;overflow-y:auto;max-height:calc(100vh - 73px);background:var(--bg-primary)}
+.agent-selector{margin-bottom:24px}
+.search-box{position:relative;margin-bottom:16px}
+.search-input{width:100%;padding:12px 16px 12px 44px;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:var(--radius-md);color:var(--text-primary);font-size:14px;transition:var(--transition)}
+.search-input:focus{outline:none;border-color:var(--accent-primary);box-shadow:0 0 0 3px var(--accent-glow)}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted)}
+.category-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.category-tab{padding:8px 16px;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:var(--radius-sm);font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:var(--transition)}
+.category-tab:hover,.category-tab.active{background:var(--accent-primary);color:var(--bg-primary);border-color:var(--accent-primary)}
+.agent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.agent-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius-md);padding:16px;cursor:pointer;transition:var(--transition);position:relative;overflow:hidden}
+.agent-card::before{content:"";position:absolute;top:0;left:0;width:3px;height:100%;background:var(--border-color);transition:var(--transition)}
+.agent-card:hover{background:var(--bg-card-hover);border-color:var(--accent-primary);transform:translateY(-2px)}
+.agent-card:hover::before{background:var(--accent-primary)}
+.agent-card.selected{border-color:var(--accent-primary);box-shadow:var(--shadow-glow)}
+.agent-card.selected::before{background:var(--accent-primary)}
+.agent-icon{width:36px;height:36px;background:var(--bg-tertiary);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;margin-bottom:10px;font-size:18px}
+.agent-name{font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px}
+.agent-category{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px}
+.templates-section{margin-top:24px}
+.templates-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.template-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius-md);padding:16px;cursor:pointer;transition:var(--transition)}
+.template-card:hover{border-color:var(--accent-primary);box-shadow:var(--shadow-glow)}
+.template-icon{font-size:24px;margin-bottom:8px}
+.template-name{font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px}
+.template-desc{font-size:12px;color:var(--text-muted)}
+.right-panel{background:var(--bg-secondary);border-left:1px solid var(--border-color);display:flex;flex-direction:column;max-height:calc(100vh - 73px)}
+.panel-section{padding:20px;border-bottom:1px solid var(--border-color)}
+.panel-section:last-child{border-bottom:none;flex:1;overflow:hidden;display:flex;flex-direction:column}
+.panel-title{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:16px}
+.activity-feed{flex:1;overflow-y:auto;max-height:250px}
+.activity-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border-color);animation:slideIn 0.3s ease}
+@keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+.activity-item:last-child{border-bottom:none}
+.activity-icon{width:32px;height:32px;background:var(--bg-tertiary);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.activity-content{flex:1}
+.activity-text{font-size:13px;color:var(--text-primary);margin-bottom:4px}
+.activity-time{font-size:11px;color:var(--text-muted)}
+.phase-indicator{display:flex;align-items:center;gap:8px;padding:12px;background:var(--bg-card);border-radius:var(--radius-md);margin-bottom:16px}
+.phase-dot{width:12px;height:12px;border-radius:50%;background:var(--text-muted)}
+.phase-dot.active{background:var(--accent-primary);animation:pulse 1s infinite}
+.phase-text{font-size:13px;font-weight:500;color:var(--text-secondary)}
+.output-panel{flex:1;display:flex;flex-direction:column;min-height:0}
+.output-tabs{display:flex;gap:8px;margin-bottom:12px}
+.output-tab{padding:6px 14px;background:transparent;border:1px solid var(--border-color);border-radius:var(--radius-sm);font-size:12px;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:var(--transition)}
+.output-tab:hover,.output-tab.active{background:var(--accent-primary);color:var(--bg-primary);border-color:var(--accent-primary)}
+.output-content{flex:1;background:var(--bg-primary);border:1px solid var(--border-color);border-radius:var(--radius-md);padding:16px;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--accent-primary);overflow-y:auto;white-space:pre-wrap;word-break:break-all;min-height:200px;max-height:300px}
+.output-placeholder{color:var(--text-muted);font-style:italic}
+.history-section{padding:20px;flex:1;overflow:hidden;display:flex;flex-direction:column}
+.history-filters{display:flex;gap:10px;margin-bottom:16px}
+.filter-select{padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-size:13px}
+.history-table-container{flex:1;overflow-y:auto}
+.history-table{width:100%;border-collapse:collapse}
+.history-table th{text-align:left;padding:10px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);background:var(--bg-tertiary);border-bottom:1px solid var(--border-color);position:sticky;top:0}
+.history-table td{padding:12px;font-size:13px;border-bottom:1px solid var(--border-color);color:var(--text-secondary)}
+.history-table tr:hover td{background:var(--bg-card)}
+.status-tag{display:inline-block;padding:4px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.status-tag.success{background:rgba(0,212,170,0.15);color:var(--accent-primary)}
+.status-tag.running{background:rgba(52,152,219,0.15);color:var(--accent-info)}
+.status-tag.error{background:rgba(231,76,60,0.15);color:var(--accent-error)}
+@media (max-width:1400px){.app-container{grid-template-columns:260px 1fr 300px}}
+@media (max-width:1200px){.app-container{grid-template-columns:1fr;grid-template-rows:auto auto 1fr auto}.sidebar{max-height:none;border-right:none;border-bottom:1px solid var(--border-color)}.right-panel{border-left:none;border-top:1px solid var(--border-color);max-height:400px}}
+.agent-card[data-category="attack"]::before{background:#e74c3c}
+.agent-card[data-category="defense"]::before{background:#3498db}
+.agent-card[data-category="forensics"]::before{background:#9b59b6}
+.agent-card[data-category="analysis"]::before{background:#f39c12}
+.agent-card[data-category="specialized"]::before{background:#1abc9c}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.fade-in{animation:fadeIn 0.5s ease}
+</style>
+</head>
+<body>
+<div class="app-container">
+<header class="header">
+<div class="header-left">
+<a href="micro-agents.html" class="back-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back to Micro-Agents Hub</a>
+<div class="logo-section"><div class="logo-icon">🛡️</div><div class="logo-text"><h1>Katie</h1><span>Cybersecurity AI</span></div></div>
+</div>
+<div class="status-badge"><div class="status-dot idle" id="mainStatusDot"></div><span class="status-label" id="mainStatusLabel">Idle</span></div>
+</header>
+<aside class="sidebar">
+<div class="sidebar-section">
+<div class="sidebar-title">Quick Stats</div>
+<div class="stats-grid"><div class="stat-card"><div class="stat-value" id="totalRuns">47</div><div class="stat-label">Total Runs</div></div><div class="stat-card"><div class="stat-value" id="successRate">94%</div><div class="stat-label">Success Rate</div></div><div class="stat-card"><div class="stat-value" id="activeAgents">3</div><div class="stat-label">Active Agents</div></div><div class="stat-card"><div class="stat-value" id="lastRun">2h</div><div class="stat-label">Last Run</div></div></div>
+</div>
+<div class="sidebar-section">
+<div class="sidebar-title">Run Controls</div>
+<div class="run-controls">
+<div class="control-group"><label class="control-label">Select Agent</label><select class="control-select" id="agentSelect"><option value="">Choose an agent...</option><optgroup label="Attack"><option value="web_pentester">Web Pentester</option><option value="red_teamer">Red Teamer</option><option value="bug_bounter">Bug Bounter</option><option value="wifi_security_tester">WiFi Security Tester</option><option value="replay_attack_agent">Replay Attack Agent</option></optgroup><optgroup label="Defense"><option value="blue_teamer">Blue Teamer</option><option value="dfir">DFIR</option><option value="guardrails">Guardrails</option></optgroup><optgroup label="Forensics"><option value="memory_analysis_agent">Memory Analysis</option><option value="reverse_engineering_agent">Reverse Engineering</option></optgroup><optgroup label="Analysis"><option value="codeagent">Code Agent</option><option value="network_traffic_analyzer">Network Traffic Analyzer</option><option value="android_sast_agent">Android SAST</option></optgroup><optgroup label="Specialized"><option value="mail">Mail Agent</option><option value="flag_discriminator">Flag Discriminator</option><option value="subghz_sdr_agent">SubGHz SDR Agent</option><option value="retester">Retester</option><option value="reporter">Reporter</option></optgroup></select></div>
+<div class="control-group"><label class="control-label">Target</label><input type="text" class="control-input" id="targetInput" placeholder="https://target.com or IP address"></div>
+<div class="control-group"><label class="control-label">Options</label><div class="config-options"><span class="config-chip active" data-option="verbose">Verbose</span><span class="config-chip" data-option="json">JSON Output</span><span class="config-chip" data-option="stealth">Stealth Mode</span><span class="config-chip" data-option="deep">Deep Scan</span></div></div>
+<div class="btn-group"><button class="btn btn-primary" id="startBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>Start</button><button class="btn btn-danger" id="stopBtn" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16"/></svg>Stop</button></div>
+</div>
+</div>
+</aside>
+<main class="main-content">
+<section class="agent-selector">
+<div class="sidebar-title">Agent Selector</div>
+<div class="search-box"><svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><input type="text" class="search-input" id="agentSearch" placeholder="Search agents..."></div>
+<div class="category-tabs"><button class="category-tab active" data-category="all">All</button><button class="category-tab" data-category="attack">Attack</button><button class="category-tab" data-category="defense">Defense</button><button class="category-tab" data-category="forensics">Forensics</button><button class="category-tab" data-category="analysis">Analysis</button><button class="category-tab" data-category="specialized">Specialized</button></div>
+<div class="agent-grid" id="agentGrid"></div>
+</section>
+<section class="templates-section">
+<div class="sidebar-title">Workflow Templates</div>
+<div class="templates-grid"><div class="template-card" data-template="bug_bounty"><div class="template-icon">🎯</div><div class="template-name">Bug Bounty</div><div class="template-desc">Recon → Scan → Exploit → Report</div></div><div class="template-card" data-template="ctf"><div class="template-icon">🚩</div><div class="template-name">CTF</div><div class="template-desc">Capture The Flag workflow</div></div><div class="template-card" data-template="code_review"><div class="template-icon">🔍</div><div class="template-name">Code Review</div><div class="template-desc">Static analysis & vulnerability scan</div></div><div class="template-card" data-template="full_pentest"><div class="template-icon">🛠️</div><div class="template-name">Full Pentest</div><div class="template-desc">Comprehensive penetration test</div></div><div class="template-card" data-template="research"><div class="template-icon">📚</div><div class="template-name">Research</div><div class="template-desc">Threat intelligence & analysis</div></div></div>
+</section>
+</main>
+<aside class="right-panel">
+<div class="panel-section">
+<div class="panel-title">Live Activity Feed</div>
+<div class="phase-indicator"><div class="phase-dot" id="phaseDot"></div><span class="phase-text" id="phaseText">Ready</span></div>
+<div class="activity-feed" id="activityFeed"><div class="activity-item"><div class="activity-icon">⚡</div><div class="activity-content"><div class="activity-text">System initialized</div><div class="activity-time">Just now</div></div></div><div class="activity-item"><div class="activity-icon">✓</div><div class="activity-content"><div class="activity-text">All 25 agents loaded</div><div class="activity-time">2 minutes ago</div></div></div><div class="activity-item"><div class="activity-icon">🛡️</div><div class="activity-content"><div class="activity-text">Guardrails active</div><div class="activity-time">5 minutes ago</div></div></div></div>
+</div>
+<div class="panel-section output-panel">
+<div class="panel-title">Output / Results</div>
+<div class="output-tabs"><button class="output-tab active" data-tab="console">Console</button><button class="output-tab" data-tab="raw">Raw</button><button class="output-tab" data-tab="report">Report</button></div>
+<div class="output-content" id="outputContent"><span class="output-placeholder">Select an agent and run to see output...</span></div>
+</div>
+<div class="history-section">
+<div class="panel-title">Run History</div>
+<div class="history-filters"><select class="filter-select" id="historyStatusFilter"><option value="all">All Status</option><option value="success">Success</option><option value="running">Running</option><option value="error">Error</option></select><select class="filter-select" id="historyAgentFilter"><option value="all">All Agents</option></select></div>
+<div class="history-table-container"><table class="history-table"><thead><tr><th>Date</th><th>Agent</th><th>Target</th><th>Status</th><th>Duration</th></tr></thead><tbody id="historyTableBody"></tbody></table></div>
+</div>
+</aside>
+</div>
+<script>
+const agents=[{id:"web_pentester",name:"Web Pentester",category:"attack",icon:"🌐"},{id:"red_teamer",name:"Red Teamer",category:"attack",icon:"🎭"},{id:"bug_bounter",name:"Bug Bounter",category:"attack",icon:"🐛"},{id:"wifi_security_tester",name:"WiFi Security",category:"attack",icon:"📡"},{id:"replay_attack_agent",name:"Replay Attack",category:"attack",icon:"🔄"},{id:"blue_teamer",name:"Blue Teamer",category:"defense",icon:"🛡️"},{id:"dfir",name:"DFIR",category:"defense",icon:"🔍"},{id:"guardrails",name:"Guardrails",category:"defense",icon:"🚧"},{id:"memory_analysis_agent",name:"Memory Analysis",category:"forensics",icon:"💾"},{id:"reverse_engineering_agent",name:"Reverse Engineering",category:"forensics",icon:"⚙️"},{id:"codeagent",name:"Code Agent",category:"analysis",icon:"💻"},{id:"network_traffic_analyzer",name:"Network Traffic",category:"analysis",icon:"📊"},{id:"android_sast_agent",name:"Android SAST",category:"analysis",icon:"📱"},{id:"mail",name:"Mail Agent",category:"specialized",icon:"📧"},{id:"flag_discriminator",name:"Flag Discriminator",category:"specialized",icon:"🏳️"},{id:"subghz_sdr_agent",name:"SubGHz SDR",category:"specialized",icon:"📻"},{id:"retester",name:"Retester",category:"specialized",icon:"🔁"},{id:"reporter",name:"Reporter",category:"specialized",icon:"📝"}];
+let isRunning=false,selectedAgent=null,currentPhase="Ready",phaseIndex=0;
+let runHistory=[{date:"2026-02-27 15:30",agent:"web_pentester",target:"example.com",status:"success",duration:"4m 23s"},{date:"2026-02-27 14:15",agent:"blue_teamer",target:"192.168.1.1",status:"success",duration:"2m 45s"},{date:"2026-02-27 11:00",agent:"codeagent",target:"repo/auth",status:"error",duration:"1m 12s"},{date:"2026-02-26 18:45",agent:"dfir",target:"logdump.tar",status:"success",duration:"8m 30s"},{date:"2026-02-26 16:20",agent:"bug_bounter",target:"api.target.io",status:"success",duration:"12m 15s"}];
+const phases=["Ready","Initializing","Scanning","Analyzing","Exploiting","Reporting","Complete"];
+function init(){renderAgents();renderHistory();populateHistoryAgentFilter();setupEventListeners()}
+function renderAgents(filter="all",search=""){const grid=document.getElementById("agentGrid");const filtered=agents.filter(a=>{const matchCat=filter==="all"||a.category===filter;const matchSearch=a.name.toLowerCase().includes(search.toLowerCase())||a.id.includes(search.toLowerCase());return matchCat&&matchSearch});grid.innerHTML=filtered.map(a=>'<div class="agent-card '+(selectedAgent===a.id?"selected":"")+'" data-category="'+a.category+'" data-id="'+a.id+'"><div class="agent-icon">'+a.icon+'</div><div class="agent-name">'+a.name+'</div><div class="agent-category">'+a.category+'</div></div>').join("")}
+function renderHistory(){const tbody=document.getElementById("historyTableBody");const statusFilter=document.getElementById("historyStatusFilter").value;const agentFilter=document.getElementById("historyAgentFilter").value;const filtered=runHistory.filter(r=>{const matchStatus=statusFilter==="all"||r.status===statusFilter;const matchAgent=agentFilter==="all"||r.agent===agentFilter;return matchStatus&&matchAgent});tbody.innerHTML=filtered.map(r=>'<tr><td class="mono">'+r.date+'</td><td>'+(agents.find(a=>a.id===r.agent)?.name||r.agent)+'</td><td class="mono">'+r.target+'</td><td><span class="status-tag '+r.status+'">'+r.status+'</span></td><td class="mono">'+r.duration+'</td></tr>').join("")}
+function populateHistoryAgentFilter(){const select=document.getElementById("historyAgentFilter");agents.forEach(a=>{const opt=document.createElement("option");opt.value=a.id;opt.textContent=a.name;select.appendChild(opt)})}
+function setupEventListeners(){document.getElementById("agentSearch").addEventListener("input",e=>renderAgents(document.querySelector(".category-tab.active").dataset.category,e.target.value));document.querySelectorAll(".category-tab").forEach(btn=>{btn.addEventListener("click",()=>{document.querySelectorAll(".category-tab").forEach(b=>b.classList.remove("active"));btn.classList.add("active");renderAgents(btn.dataset.category,document.getElementById("agentSearch").value)})});document.getElementById("agentGrid").addEventListener("click",e=>{const card=e.target.closest(".agent-card");if(card){selectedAgent=card.dataset.id;document.getElementById("agentSelect").value=selectedAgent;renderAgents(document.querySelector(".category-tab.active").dataset.category,document.getElementById("agentSearch").value)}});document.getElementById("agentSelect").addEventListener("change",e=>{selectedAgent=e.target.value;renderAgents(document.querySelector(".category-tab.active").dataset.category,document.getElementById("agentSearch").value)});document.querySelectorAll(".config-chip").forEach(chip=>{chip.addEventListener("click",()=>chip.classList.toggle("active"))});document.getElementById("startBtn").addEventListener("click",startRun);document.getElementById("stopBtn").addEventListener("click",stopRun);document.getElementById("historyStatusFilter").addEventListener("change",renderHistory);document.getElementById("historyAgentFilter").addEventListener("change",renderHistory);document.querySelectorAll(".template-card").forEach(card=>{card.addEventListener("click",()=>selectTemplate(card.dataset.template))})}
+function addActivity(icon,text){const feed=document.getElementById("activityFeed");const item=document.createElement("div");item.className="activity-item";item.innerHTML='<div class="activity-icon">'+icon+'</div><div class="activity-content"><div class="activity-text">'+text+'</div><div class="activity-time">Just now</div></div>';feed.insertBefore(item,feed.firstChild)}
+function updateStatus(status){const dot=document.getElementById("mainStatusDot");const label=document.getElementById("mainStatusLabel");dot.className="status-dot "+status;label.textContent=status.charAt(0).toUpperCase()+status.slice(1)}
+function updatePhase(phase){const dot=document.getElementById("phaseDot");const text=document.getElementById("phaseText");currentPhase=phase;if(phase==="Complete"||phase==="Ready"){dot.classList.remove("active")}else{dot.classList.add("active")}text.textContent=phase}
+function startRun(){if(!selectedAgent){alert("Please select an agent first");return}const target=document.getElementById("targetInput").value;if(!target){alert("Please enter a target");return}isRunning=true;document.getElementById("startBtn").disabled=true;document.getElementById("stopBtn").disabled=false;updateStatus("running");phaseIndex=0;updatePhase(phases[0]);addActivity("🚀","Starting "+agents.find(a=>a.id===selectedAgent).name+" on "+target);const output=document.getElementById("outputContent");output.innerHTML="";let outputText="";const interval=setInterval(()=>{if(phaseIndex<phases.length-1){phaseIndex++;updatePhase(phases[phaseIndex]);outputText+="["+phases[phaseIndex]+"] Processing...
+";output.innerText=outputText}else{clearInterval(interval);isRunning=false;document.getElementById("startBtn").disabled=false;document.getElementById("stopBtn").disabled=true;updateStatus("idle");updatePhase("Complete");outputText+="
+✅ Scan complete! Found 3 vulnerabilities:
+- SQL Injection (Critical)
+- XSS (High)
+- Information Disclosure (Medium)";output.innerText=outputText;addActivity("✅","Run completed successfully");runHistory.unshift({date:new Date().toISOString().replace("T"," ").substring(0,16),agent:selectedAgent,target:target,status:"success",duration:"3m 45s"});renderHistory()}},1500)}
+function stopRun(){if(!isRunning)return;isRunning=false;document.getElementById("startBtn").disabled=false;document.getElementById("stopBtn").disabled=true;updateStatus("idle");updatePhase("Ready");addActivity("⏹️","Run stopped by user");document.getElementById("outputContent").innerHTML='<span class="output-placeholder">Run stopped</span>'}
+function selectTemplate(template){const templates={bug_bounty:{agent:"web_pentester",target:"https://"},ctf:{agent:"flag_discriminator",target:""},code_review:{agent:"codeagent",target:""},full_pentest:{agent:"red_teamer",target:""},research:{agent:"network_traffic_analyzer",target:""}};const t=templates[template];if(t){selectedAgent=t.agent;document.getElementById("agentSelect").value=t.agent;document.getElementById("targetInput").value=t.target;renderAgents();addActivity("📋","Template loaded: "+template)}}
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Athena Live — Real-Time Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0e17;
+            --bg-card: #111827;
+            --bg-hover: #1f2937;
+            --accent: #10b981;
+            --accent-dim: rgba(16, 185, 129, 0.15);
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text: #f3f4f6;
+            --text-dim: #9ca3af;
+            --border: #374151;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-dark); color: var(--text); min-height: 100vh; }
+        
+        /* Header */
+        .header { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .logo { display: flex; align-items: center; gap: 12px; font-size: 24px; font-weight: 700; }
+        .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), #059669); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .live-badge { display: flex; align-items: center; gap: 8px; background: var(--accent-dim); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--accent); }
+        .live-badge::before { content: ''; width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        
+        /* Main Grid */
+        .container { max-width: 1600px; margin: 0 auto; padding: 24px; }
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        @media (max-width: 1200px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+        
+        /* Cards */
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .card-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-dim); }
+        
+        /* Health Gauge */
+        .gauge-container { display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .gauge { width: 120px; height: 120px; position: relative; }
+        .gauge-bg { fill: none; stroke: var(--bg-hover); stroke-width: 10; }
+        .gauge-fill { fill: none; stroke: var(--accent); stroke-width: 10; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dasharray 1s ease; }
+        .gauge-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+        .gauge-value { font-size: 32px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+        .gauge-label { font-size: 11px; color: var(--text-dim); }
+        
+        /* Stats */
+        .stat { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+        .stat:last-child { border-bottom: none; }
+        .stat-label { color: var(--text-dim); font-size: 13px; }
+        .stat-value { font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+        .stat-value.good { color: var(--accent); }
+        .stat-value.warning { color: var(--warning); }
+        .stat-value.danger { color: var(--danger); }
+        
+        /* Progress Bar */
+        .progress { height: 8px; background: var(--bg-hover); border-radius: 4px; overflow: hidden; margin-top: 8px; }
+        .progress-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+        
+        /* Agents Grid */
+        .agents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+        .agent-card { background: var(--bg-hover); border-radius: 8px; padding: 14px; text-align: center; transition: all 0.2s; }
+        .agent-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .agent-avatar { width: 40px; height: 40px; background: var(--bg-card); border-radius: 50%; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .agent-name { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+        .agent-status { font-size: 11px; color: var(--accent); }
+        
+        /* Activity Feed */
+        .activity-feed { max-height: 300px; overflow-y: auto; }
+        .activity-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+        .activity-item:last-child { border-bottom: none; }
+        .activity-time { color: var(--text-dim); font-size: 11px; font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+        
+        /* Actions */
+        .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+        .btn { padding: 10px 16px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+        .btn:hover { background: var(--accent); border-color: var(--accent); color: white; }
+        .btn-refresh { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+        
+        /* Footer */
+        .footer { text-align: center; padding: 20px; color: var(--text-dim); font-size: 12px; }
+        
+        /* Layout */
+        .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+        @media (max-width: 1024px) { .main-grid { grid-template-columns: 1fr; } }
+        
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">🦉</div>
+            <span>Athena <span style="color: var(--text-dim); font-weight: 400;">Live</span></span>
+        </div>
+        <div class="live-badge">LIVE</div>
+    </header>
+    
+    <div class="container">
+        <!-- Top Stats -->
+        <div class="grid">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">System Health</span>
+                </div>
+                <div class="gauge-container">
+                    <div class="gauge">
+                        <svg viewBox="0 0 120 120">
+                            <circle class="gauge-bg" cx="60" cy="60" r="50"/>
+                            <circle class="gauge-fill" id="healthGauge" cx="60" cy="60" r="50" stroke-dasharray="0 314"/>
+                        </svg>
+                        <div class="gauge-text">
+                            <div class="gauge-value" id="healthValue">--</div>
+                            <div class="gauge-label">/ 100</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header"><span class="card-title">Memory</span></div>
+                <div class="stat"><span class="stat-label">RAM</span><span class="stat-value" id="ramValue">--%</span></div>
+                <div class="progress"><div class="progress-fill" id="ramBar" style="width: 0%; background: var(--accent);"></div></div>
+                <div class="stat" style="margin-top: 16px;"><span class="stat-label">Swap</span><span class="stat-value" id="swapValue">--%</span></div>
+                <div class="progress"><div class="progress-fill" id="swapBar" style="width: 0%; background: var(--warning);"></div></div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header"><span class="card-title">Beelancer</span></div>
+                <div class="stat"><span class="stat-label">Pending Bids</span><span class="stat-value" id="pendingBids">--</span></div>
+                <div class="stat"><span class="stat-label">Active Gigs</span><span class="stat-value" id="activeGigs">--</span></div>
+                <div class="stat"><span class="stat-label">Status</span><span class="stat-value good">Operational</span></div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header"><span class="card-title">System</span></div>
+                <div class="stat"><span class="stat-label">Uptime</span><span class="stat-value" id="uptime">--</span></div>
+                <div class="stat"><span class="stat-label">Disk</span><span class="stat-value" id="disk">--%</span></div>
+                <div class="stat"><span class="stat-label">Last Update</span><span class="stat-value" id="lastUpdate">--</span></div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-grid">
+            <div>
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <span class="card-title">🏛️ Agents</span>
+                        <button class="btn btn-refresh" onclick="refresh()">↻ Refresh</button>
+                    </div>
+                    <div class="agents-grid" id="agentsGrid">
+                        <!-- Agents populated by JS -->
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header"><span class="card-title">📡 Live Activity</span></div>
+                    <div class="activity-feed" id="activityFeed">
+                        <div class="activity-item"><span class="activity-time">--:--</span><span>Waiting for data...</span></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header"><span class="card-title">⚡ Quick Actions</span></div>
+                    <div class="actions">
+                        <button class="btn" onclick="window.open('micro-agents.html', '_blank')">🛡️ Micro Agents</button>
+                        <button class="btn" onclick="window.open('historical-chat.html', '_blank')">🏛️ Historical Chat</button>
+                        <button class="btn" onclick="window.open('https://github.com/athena254', '_blank')">📂 GitHub</button>
+                        <button class="btn" onclick="refresh()">🔄 Sync Now</button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header"><span class="card-title">🎯 Mission Control</span></div>
+                    <div class="stat"><span class="stat-label">Skills</span><span class="stat-value" id="skills">--</span></div>
+                    <div class="stat"><span class="stat-label">Gateway</span><span class="stat-value good">Running</span></div>
+                    <div class="stat"><span class="stat-label">Sessions</span><span class="stat-value" id="sessions">--</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="footer">
+        Athena Live Dashboard • Auto-refreshes every 30 seconds • <span id="footerTime">--</span>
+    </footer>
+    
+    <script>
+        const agents = [
+            { name: 'Athena', icon: '🦉', role: 'Orchestrator' },
+            { name: 'Sterling', icon: '💰', role: 'Finance' },
+            { name: 'Ishtar', icon: '🏛️', role: 'PAI Arch' },
+            { name: 'Delver', icon: '🔍', role: 'Research' },
+            { name: 'Felicity', icon: '💻', role: 'Dashboard' },
+            { name: 'Prometheus', icon: '🔥', role: 'Execution' },
+            { name: 'Cisco', icon: '🌐', role: 'Infrastructure' },
+            { name: 'Themis', icon: '⚖️', role: 'Compliance' },
+            { name: 'Strix', icon: '🦉', role: 'Security' }
+        ];
+        
+        let activityLog = [];
+        
+        function addActivity(message) {
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+            activityLog.unshift({ time, message });
+            if (activityLog.length > 20) activityLog.pop();
+            renderActivity();
+        }
+        
+        function renderActivity() {
+            const feed = document.getElementById('activityFeed');
+            feed.innerHTML = activityLog.map(a => 
+                `<div class="activity-item"><span class="activity-time">${a.time}</span><span>${a.message}</span></div>`
+            ).join('') || '<div class="activity-item"><span class="activity-time">--:--</span><span>No activity</span></div>';
+        }
+        
+        function renderAgents() {
+            const grid = document.getElementById('agentsGrid');
+            grid.innerHTML = agents.map(a => `
+                <div class="agent-card">
+                    <div class="agent-avatar">${a.icon}</div>
+                    <div class="agent-name">${a.name}</div>
+                    <div class="agent-status">${a.role}</div>
+                </div>
+            `).join('');
+        }
+        
+        async function refresh() {
+            try {
+                const res = await fetch('api/data.json');
+                const data = await res.json();
+                
+                // Health gauge
+                const score = data.system?.score || 0;
+                const circumference = 2 * Math.PI * 50;
+                const offset = circumference - (score / 100) * circumference;
+                document.getElementById('healthGauge').style.strokeDasharray = `${circumference - offset} ${offset}`;
+                document.getElementById('healthGauge').style.stroke = score >= 80 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444';
+                document.getElementById('healthValue').textContent = score;
+                
+                // Memory
+                const ram = data.system?.memory?.percent || 0;
+                document.getElementById('ramValue').textContent = ram + '%';
+                document.getElementById('ramValue').className = 'stat-value ' + (ram > 85 ? 'danger' : ram > 70 ? 'warning' : 'good');
+                document.getElementById('ramBar').style.width = ram + '%';
+                
+                const swap = data.system?.swap?.percent || 0;
+                document.getElementById('swapValue').textContent = swap + '%';
+                document.getElementById('swapValue').className = 'stat-value ' + (swap > 85 ? 'danger' : swap > 70 ? 'warning' : 'good');
+                document.getElementById('swapBar').style.width = swap + '%';
+                document.getElementById('swapBar').style.background = swap > 85 ? '#ef4444' : swap > 70 ? '#f59e0b' : '#10b981';
+                
+                // Beelancer
+                document.getElementById('pendingBids').textContent = data.pendingBids || 0;
+                document.getElementById('activeGigs').textContent = data.activeGigs || 0;
+                
+                // System
+                document.getElementById('uptime').textContent = data.system?.uptime?.formatted || '--';
+                document.getElementById('disk').textContent = (data.system?.disk?.percent || 0) + '%';
+                document.getElementById('lastUpdate').textContent = new Date(data.lastUpdated).toLocaleTimeString();
+                document.getElementById('skills').textContent = data.skillsTracked || '--';
+                document.getElementById('sessions').textContent = data.agents || '--';
+                
+                addActivity('Dashboard refreshed');
+                document.getElementById('footerTime').textContent = new Date().toLocaleString();
+                
+            } catch (e) {
+                console.error('Refresh failed:', e);
+                addActivity('⚠️ Refresh failed');
+            }
+        }
+        
+        // Initialize
+        renderAgents();
+        refresh();
+        setInterval(refresh, 30000);
+    </script>
+</body>
+</html>

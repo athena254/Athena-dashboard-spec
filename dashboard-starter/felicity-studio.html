@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 Felicity Art Studio | Particle Forge</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #0d000d 0%, #1a001a 50%, #0d001a 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: #ff00ff;
+            overflow-x: hidden;
+        }
+        
+        .studio-container {
+            display: grid;
+            grid-template-columns: 280px 1fr 280px;
+            grid-template-rows: auto 1fr;
+            height: 100vh;
+            gap: 0;
+        }
+        
+        /* Header */
+        .studio-header {
+            grid-column: 1 / -1;
+            background: rgba(255, 0, 255, 0.1);
+            border-bottom: 2px solid rgba(255, 0, 255, 0.3);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff00ff, #00ffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .mode-indicator {
+            padding: 8px 20px;
+            background: rgba(255, 0, 255, 0.2);
+            border: 1px solid #ff00ff;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 8px 20px;
+            background: rgba(255, 0, 255, 0.2);
+            border: 1px solid #ff00ff;
+            border-radius: 8px;
+            color: #ff00ff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        .btn:hover {
+            background: rgba(255, 0, 255, 0.4);
+            transform: translateY(-2px);
+        }
+        .btn.active {
+            background: #ff00ff;
+            color: #0d000d;
+        }
+        
+        /* Left Panel - Tools */
+        .tools-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border-right: 1px solid rgba(255, 0, 255, 0.2);
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .panel-section {
+            margin-bottom: 25px;
+        }
+        .panel-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(255, 0, 255, 0.5);
+            margin-bottom: 12px;
+        }
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        .tool-btn {
+            aspect-ratio: 1;
+            background: rgba(255, 0, 255, 0.1);
+            border: 1px solid rgba(255, 0, 255, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: all 0.2s ease;
+        }
+        .tool-btn:hover {
+            background: rgba(255, 0, 255, 0.3);
+            transform: scale(1.05);
+        }
+        .tool-btn.active {
+            background: #ff00ff;
+            border-color: #ff00ff;
+        }
+        
+        /* Color Palette */
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+        }
+        .color-swatch {
+            aspect-ratio: 1;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+        .color-swatch:hover {
+            transform: scale(1.1);
+        }
+        .color-swatch.active {
+            border-color: #fff;
+            box-shadow: 0 0 15px currentColor;
+        }
+        
+        /* Sliders */
+        .slider-group {
+            margin-bottom: 15px;
+        }
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .slider {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            background: rgba(255, 0, 255, 0.2);
+            border-radius: 3px;
+            outline: none;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #ff00ff;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        /* Canvas Area */
+        .canvas-area {
+            position: relative;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        #particleCanvas {
+            cursor: crosshair;
+            box-shadow: 0 0 60px rgba(255, 0, 255, 0.3);
+        }
+        .canvas-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .fps-counter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #00ffff;
+        }
+        
+        /* Right Panel - Gallery & Effects */
+        .effects-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 1px solid rgba(255, 0, 255, 0.2);
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .effect-preset {
+            background: rgba(255, 0, 255, 0.1);
+            border: 1px solid rgba(255, 0, 255, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .effect-preset:hover {
+            background: rgba(255, 0, 255, 0.2);
+            transform: translateX(-3px);
+        }
+        .effect-preset.active {
+            border-color: #ff00ff;
+            background: rgba(255, 0, 255, 0.3);
+        }
+        .effect-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .effect-desc {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Gallery */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .gallery-item {
+            aspect-ratio: 1;
+            background: rgba(255, 0, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            overflow: hidden;
+            position: relative;
+        }
+        .gallery-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(255, 0, 255, 0.3);
+        }
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .gallery-item .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 0, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        .gallery-item:hover .overlay {
+            opacity: 1;
+        }
+        
+        /* Stats */
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 0, 255, 0.1);
+            font-size: 0.85rem;
+        }
+        .stats-value {
+            color: #00ffff;
+            font-weight: 600;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .studio-container {
+                grid-template-columns: 220px 1fr 220px;
+            }
+        }
+        @media (max-width: 900px) {
+            .studio-container {
+                grid-template-columns: 1fr;
+            }
+            .tools-panel, .effects-panel {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="studio-container">
+        <!-- Header -->
+        <header class="studio-header">
+            <div class="logo">🎨 Felicity Art Studio</div>
+            <div class="mode-indicator">✨ Particle Forge Mode</div>
+            <div class="header-actions">
+                <button class="btn" onclick="clearCanvas()">🗑️ Clear</button>
+                <button class="btn" onclick="exportArt()">💾 Export</button>
+                <button class="btn" onclick="window.location='felicity-mission.html'">📊 Dashboard</button>
+            </div>
+        </header>
+        
+        <!-- Tools Panel -->
+        <aside class="tools-panel">
+            <div class="panel-section">
+                <div class="panel-title">🎨 Brushes</div>
+                <div class="tool-grid">
+                    <div class="tool-btn active" onclick="setBrush('particle')" title="Particle">✨</div>
+                    <div class="tool-btn" onclick="setBrush('trail')" title="Trail">〰️</div>
+                    <div class="tool-btn" onclick="setBrush('burst')" title="Burst">💫</div>
+                    <div class="tool-btn" onclick="setBrush('spiral')" title="Spiral">🌀</div>
+                    <div class="tool-btn" onclick="setBrush('stars')" title="Stars">⭐</div>
+                    <div class="tool-btn" onclick="setBrush('fire')" title="Fire">🔥</div>
+                </div>
+            </div>
+            
+            <div class="panel-section">
+                <div class="panel-title">🎭 Color Palette</div>
+                <div class="color-palette" id="colorPalette">
+                    <div class="color-swatch active" style="background: #ff00ff;" onclick="setColor('#ff00ff')"></div>
+                    <div class="color-swatch" style="background: #00ffff;" onclick="setColor('#00ffff')"></div>
+                    <div class="color-swatch" style="background: #ffff00;" onclick="setColor('#ffff00')"></div>
+                    <div class="color-swatch" style="background: #ff0066;" onclick="setColor('#ff0066')"></div>
+                    <div class="color-swatch" style="background: #00ff66;" onclick="setColor('#00ff66')"></div>
+                    <div class="color-swatch" style="background: #6600ff;" onclick="setColor('#6600ff')"></div>
+                    <div class="color-swatch" style="background: #ff6600;" onclick="setColor('#ff6600')"></div>
+                    <div class="color-swatch" style="background: #ffffff;" onclick="setColor('#ffffff')"></div>
+                    <div class="color-swatch" style="background: #00ff00;" onclick="setColor('#00ff00')"></div>
+                    <div class="color-swatch" style="background: #0066ff;" onclick="setColor('#0066ff')"></div>
+                </div>
+            </div>
+            
+            <div class="panel-section">
+                <div class="panel-title">⚙️ Particle Settings</div>
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Particle Size</span>
+                        <span id="sizeValue">5</span>
+                    </div>
+                    <input type="range" class="slider" id="sizeSlider" min="1" max="20" value="5" oninput="updateSize(this.value)">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Spawn Rate</span>
+                        <span id="rateValue">10</span>
+                    </div>
+                    <input type="range" class="slider" id="rateSlider" min="1" max="50" value="10" oninput="updateRate(this.value)">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Particle Life</span>
+                        <span id="lifeValue">100</span>
+                    </div>
+                    <input type="range" class="slider" id="lifeSlider" min="20" max="500" value="100" oninput="updateLife(this.value)">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Gravity</span>
+                        <span id="gravityValue">0.1</span>
+                    </div>
+                    <input type="range" class="slider" id="gravitySlider" min="0" max="100" value="10" oninput="updateGravity(this.value)">
+                </div>
+            </div>
+            
+            <div class="panel-section">
+                <div class="panel-title">📊 Live Stats</div>
+                <div class="stats-row">
+                    <span>Active Particles</span>
+                    <span class="stats-value" id="particleCount">0</span>
+                </div>
+                <div class="stats-row">
+                    <span>Total Spawned</span>
+                    <span class="stats-value" id="totalSpawned">0</span>
+                </div>
+                <div class="stats-row">
+                    <span>Frame Time</span>
+                    <span class="stats-value" id="frameTime">0ms</span>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Canvas -->
+        <main class="canvas-area">
+            <canvas id="particleCanvas"></canvas>
+            <div class="canvas-overlay">
+                🖱️ Click & Drag to Paint | Scroll to Zoom
+            </div>
+            <div class="fps-counter">
+                FPS: <span id="fpsDisplay">60</span>
+            </div>
+        </main>
+        
+        <!-- Effects Panel -->
+        <aside class="effects-panel">
+            <div class="panel-section">
+                <div class="panel-title">✨ Effect Presets</div>
+                <div class="effect-preset active" onclick="loadPreset('nebula')">
+                    <div class="effect-name">🌌 Nebula Dreams</div>
+                    <div class="effect-desc">Soft, flowing cosmic particles</div>
+                </div>
+                <div class="effect-preset" onclick="loadPreset('firework')">
+                    <div class="effect-name">🎆 Fireworks</div>
+                    <div class="effect-desc">Explosive burst patterns</div>
+                </div>
+                <div class="effect-preset" onclick="loadPreset('rain')">
+                    <div class="effect-name">🌧️ Particle Rain</div>
+                    <div class="effect-desc">Gentle falling particles</div>
+                </div>
+                <div class="effect-preset" onclick="loadPreset('vortex')">
+                    <div class="effect-name">🌀 Vortex</div>
+                    <div class="effect-desc">Swirling spiral patterns</div>
+                </div>
+                <div class="effect-preset" onclick="loadPreset('aurora')">
+                    <div class="effect-name">🌈 Aurora</div>
+                    <div class="effect-desc">Northern lights effect</div>
+                </div>
+            </div>
+            
+            <div class="panel-section">
+                <div class="panel-title">🖼️ Gallery</div>
+                <div class="gallery-grid" id="gallery">
+                    <div class="gallery-item" onclick="loadFromGallery('cosmic')">
+                        <div style="width:100%;height:100%;background:linear-gradient(135deg,#ff00ff,#00ffff);"></div>
+                        <div class="overlay">Cosmic</div>
+                    </div>
+                    <div class="gallery-item" onclick="loadFromGallery('forest')">
+                        <div style="width:100%;height:100%;background:linear-gradient(135deg,#00ff66,#ffff00);"></div>
+                        <div class="overlay">Forest</div>
+                    </div>
+                    <div class="gallery-item" onclick="loadFromGallery('ocean')">
+                        <div style="width:100%;height:100%;background:linear-gradient(135deg,#0066ff,#00ffff);"></div>
+                        <div class="overlay">Ocean</div>
+                    </div>
+                    <div class="gallery-item" onclick="loadFromGallery('fire')">
+                        <div style="width:100%;height:100%;background:linear-gradient(135deg,#ff6600,#ff0066);"></div>
+                        <div class="overlay">Fire</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel-section">
+                <div class="panel-title">🔗 Quick Links</div>
+                <button class="btn" style="width: 100%; margin-bottom: 8px;" onclick="window.location='felicity-art.html'">
+                    🎨 Particle Art V1
+                </button>
+                <button class="btn" style="width: 100%; margin-bottom: 8px;" onclick="window.location='quantum-flux.html'">
+                    ⚛️ Prometheus Quantum
+                </button>
+                <button class="btn" style="width: 100%;" onclick="window.location='athena-unified.html'">
+                    🦉 Athena Hub
+                </button>
+            </div>
+        </aside>
+    </div>
+    
+    <script>
+        // Canvas setup
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let totalSpawned = 0;
+        let isDrawing = false;
+        let lastTime = performance.now();
+        let frameCount = 0;
+        let fps = 60;
+        
+        // Settings
+        let settings = {
+            brush: 'particle',
+            color: '#ff00ff',
+            size: 5,
+            rate: 10,
+            life: 100,
+            gravity: 0.1
+        };
+        
+        // Resize canvas
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = Math.min(container.clientWidth - 40, 1200);
+            canvas.height = Math.min(container.clientHeight - 40, 800);
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // Particle class
+        class Particle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = settings.size * (0.5 + Math.random() * 0.5);
+                this.life = settings.life;
+                this.maxLife = settings.life;
+                this.color = settings.color;
+                this.vx = (Math.random() - 0.5) * 4;
+                this.vy = (Math.random() - 0.5) * 4 - 2;
+                this.gravity = settings.gravity;
+                
+                // Brush-specific behaviors
+                if (settings.brush === 'spiral') {
+                    this.angle = Math.random() * Math.PI * 2;
+                    this.radius = 0;
+                    this.spiralSpeed = 0.1;
+                }
+                if (settings.brush === 'burst') {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = 5 + Math.random() * 10;
+                    this.vx = Math.cos(angle) * speed;
+                    this.vy = Math.sin(angle) * speed;
+                }
+                if (settings.brush === 'fire') {
+                    this.vy = -3 - Math.random() * 3;
+                    this.vx = (Math.random() - 0.5) * 2;
+                    this.color = ['#ff6600', '#ff3300', '#ffff00', '#ff0066'][Math.floor(Math.random() * 4)];
+                }
+            }
+            
+            update() {
+                if (settings.brush === 'spiral') {
+                    this.angle += this.spiralSpeed;
+                    this.radius += 1;
+                    this.x += Math.cos(this.angle) * 2;
+                    this.y += Math.sin(this.angle) * 2;
+                } else {
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    this.vy += this.gravity;
+                }
+                this.life--;
+            }
+            
+            draw() {
+                const alpha = this.life / this.maxLife;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color + Math.floor(alpha * 255).toString(16).padStart(2, '0');
+                ctx.fill();
+                
+                // Glow effect
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = this.color;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+        
+        // Spawn particles
+        function spawnParticles(x, y, count = settings.rate) {
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle(x, y));
+                totalSpawned++;
+            }
+        }
+        
+        // Animation loop
+        function animate() {
+            const currentTime = performance.now();
+            frameCount++;
+            
+            if (currentTime - lastTime >= 1000) {
+                fps = frameCount;
+                frameCount = 0;
+                lastTime = currentTime;
+                document.getElementById('fpsDisplay').textContent = fps;
+            }
+            
+            // Semi-transparent background for trails
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Update and draw particles
+            const startFrame = performance.now();
+            particles = particles.filter(p => p.life > 0);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            const frameTime = performance.now() - startFrame;
+            
+            // Update stats
+            document.getElementById('particleCount').textContent = particles.length;
+            document.getElementById('totalSpawned').textContent = totalSpawned;
+            document.getElementById('frameTime').textContent = frameTime.toFixed(1) + 'ms';
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // Mouse events
+        canvas.addEventListener('mousedown', (e) => {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            spawnParticles(e.clientX - rect.left, e.clientY - rect.top);
+        });
+        
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            spawnParticles(e.clientX - rect.left, e.clientY - rect.top);
+        });
+        
+        canvas.addEventListener('mouseup', () => isDrawing = false);
+        canvas.addEventListener('mouseleave', () => isDrawing = false);
+        
+        // Control functions
+        function setBrush(brush) {
+            settings.brush = brush;
+            document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function setColor(color) {
+            settings.color = color;
+            document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function updateSize(value) {
+            settings.size = parseInt(value);
+            document.getElementById('sizeValue').textContent = value;
+        }
+        
+        function updateRate(value) {
+            settings.rate = parseInt(value);
+            document.getElementById('rateValue').textContent = value;
+        }
+        
+        function updateLife(value) {
+            settings.life = parseInt(value);
+            document.getElementById('lifeValue').textContent = value;
+        }
+        
+        function updateGravity(value) {
+            settings.gravity = value / 100;
+            document.getElementById('gravityValue').textContent = (value / 100).toFixed(2);
+        }
+        
+        function clearCanvas() {
+            particles = [];
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        
+        function exportArt() {
+            const link = document.createElement('a');
+            link.download = 'felicity-art-' + Date.now() + '.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+        
+        // Presets
+        function loadPreset(preset) {
+            document.querySelectorAll('.effect-preset').forEach(p => p.classList.remove('active'));
+            event.target.closest('.effect-preset').classList.add('active');
+            
+            switch(preset) {
+                case 'nebula':
+                    settings = {...settings, size: 4, rate: 15, life: 200, gravity: 0.02, brush: 'particle'};
+                    break;
+                case 'firework':
+                    settings = {...settings, size: 3, rate: 30, life: 80, gravity: 0.15, brush: 'burst'};
+                    break;
+                case 'rain':
+                    settings = {...settings, size: 2, rate: 20, life: 150, gravity: 0.3, brush: 'trail'};
+                    break;
+                case 'vortex':
+                    settings = {...settings, size: 3, rate: 20, life: 120, gravity: 0, brush: 'spiral'};
+                    break;
+                case 'aurora':
+                    settings = {...settings, size: 5, rate: 10, life: 300, gravity: -0.05, brush: 'particle'};
+                    break;
+            }
+            updateSliders();
+        }
+        
+        function updateSliders() {
+            document.getElementById('sizeSlider').value = settings.size;
+            document.getElementById('sizeValue').textContent = settings.size;
+            document.getElementById('rateSlider').value = settings.rate;
+            document.getElementById('rateValue').textContent = settings.rate;
+            document.getElementById('lifeSlider').value = settings.life;
+            document.getElementById('lifeValue').textContent = settings.life;
+            document.getElementById('gravitySlider').value = settings.gravity * 100;
+            document.getElementById('gravityValue').textContent = settings.gravity.toFixed(2);
+        }
+        
+        function loadFromGallery(theme) {
+            const themes = {
+                cosmic: ['#ff00ff', '#00ffff', '#6600ff'],
+                forest: ['#00ff66', '#ffff00', '#006600'],
+                ocean: ['#0066ff', '#00ffff', '#000066'],
+                fire: ['#ff6600', '#ff0066', '#ff3300']
+            };
+            const colors = themes[theme];
+            settings.color = colors[Math.floor(Math.random() * colors.length)];
+        }
+        
+        // Start animation
+        animate();
+    </script>
+</body>
+</html>

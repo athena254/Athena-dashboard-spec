@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Athena | Agent Watch List</title>
+  <style>
+    :root {
+      --bg: #0a0e17;
+      --surface: #111827;
+      --elevated: #1a2234;
+      --border: #2d3748;
+      --text: #f1f5f9;
+      --muted: #64748b;
+      --green: #10b981;
+      --yellow: #f59e0b;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --purple: #8b5cf6;
+      --cyan: #06b6d4;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 1rem;
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .title-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--purple), var(--blue));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+
+    .controls {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    button {
+      background: var(--elevated);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+
+    button:hover {
+      background: var(--border);
+      border-color: var(--muted);
+    }
+
+    button.primary {
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+
+    button.primary:hover {
+      background: #2563eb;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .card-body {
+      padding: 1rem;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    /* Watch List */
+    .agent-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      background: var(--elevated);
+      transition: all 0.15s;
+    }
+
+    .agent-item:hover {
+      background: var(--border);
+    }
+
+    .agent-item.watching {
+      border-left: 3px solid var(--purple);
+    }
+
+    .agent-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .agent-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.875rem;
+    }
+
+    .agent-details h4 {
+      font-size: 0.9375rem;
+      font-weight: 600;
+    }
+
+    .agent-details p {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .status-badge {
+      padding: 0.25rem 0.625rem;
+      border-radius: 9999px;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .status-active { background: rgba(16, 185, 129, 0.15); color: var(--green); }
+    .status-idle { background: rgba(100, 116, 139, 0.15); color: var(--muted); }
+    .status-busy { background: rgba(245, 158, 11, 0.15); color: var(--yellow); }
+    .status-error { background: rgba(239, 68, 68, 0.15); color: var(--red); }
+
+    .watch-btn {
+      padding: 0.375rem 0.625rem;
+      font-size: 0.75rem;
+      background: transparent;
+      border: 1px solid var(--border);
+    }
+
+    .watch-btn.watching {
+      background: var(--purple);
+      border-color: var(--purple);
+    }
+
+    /* Activity Log */
+    .log-entry {
+      padding: 0.625rem 0.75rem;
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
+      font-size: 0.8125rem;
+      background: var(--elevated);
+      border-left: 3px solid var(--border);
+    }
+
+    .log-entry.event-agent-active { border-left-color: var(--green); }
+    .log-entry.event-agent-idle { border-left-color: var(--muted); }
+    .log-entry.event-agent-busy { border-left-color: var(--yellow); }
+    .log-entry.event-task-complete { border-left-color: var(--blue); }
+    .log-entry.event-task-start { border-left-color: var(--purple); }
+
+    .log-time {
+      font-size: 0.6875rem;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .log-message {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .log-icon {
+      font-size: 0.875rem;
+    }
+
+    /* Stats */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    .stat-card {
+      background: var(--elevated);
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Quick Actions */
+    .action-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+
+    .action-btn {
+      padding: 0.75rem;
+      font-size: 0.75rem;
+      justify-content: center;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 2rem;
+      color: var(--muted);
+    }
+
+    .empty-state-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Pulse animation */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .pulsing {
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    /* Auto-refresh indicator */
+    .refresh-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .refresh-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="title">
+        <div class="title-icon">👁️</div>
+        <span>Agent Watch List</span>
+      </div>
+      <div class="controls">
+        <div class="refresh-indicator">
+          <div class="refresh-dot"></div>
+          <span id="lastUpdate">Updating...</span>
+        </div>
+        <button onclick="refreshAll()">
+          <span>🔄</span> Refresh
+        </button>
+        <button class="primary" onclick="startAutoRefresh()">
+          <span>▶️</span> Live
+        </button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- Watch List Card -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">👀 Watch List</span>
+          <span id="watchCount" style="font-size: 0.75rem; color: var(--muted)">0 watching</span>
+        </div>
+        <div class="card-body" id="watchList">
+          <div class="empty-state">
+            <div class="empty-state-icon">🎯</div>
+            <p>Click "Watch" on agents to monitor them</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity Log Card -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">📋 Activity Log</span>
+          <button onclick="clearLog()" style="padding: 0.25rem 0.5rem; font-size: 0.6875rem;">Clear</button>
+        </div>
+        <div class="card-body" id="activityLog">
+          <div class="empty-state">
+            <div class="empty-state-icon">📝</div>
+            <p>Activity will appear here</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Card -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">📊 Overview</span>
+        </div>
+        <div class="card-body">
+          <div class="stat-grid">
+            <div class="stat-card">
+              <div class="stat-value" id="totalAgents">0</div>
+              <div class="stat-label">Total Agents</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="activeAgents" style="color: var(--green)">0</div>
+              <div class="stat-label">Active</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="busyAgents" style="color: var(--yellow)">0</div>
+              <div class="stat-label">Busy</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="idleAgents" style="color: var(--muted)">0</div>
+              <div class="stat-label">Idle</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions Card -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">⚡ Quick Actions</span>
+        </div>
+        <div class="card-body">
+          <div class="action-grid">
+            <button class="action-btn" onclick="sendToAgent('sterling', 'status')">
+              💰 Sterling Status
+            </button>
+            <button class="action-btn" onclick="sendToAgent('delver', 'status')">
+              🔍 Delver Status
+            </button>
+            <button class="action-btn" onclick="sendToAgent('athena', 'status')">
+              🦉 Athena Status
+            </button>
+            <button class="action-btn" onclick="sendToAgent('felicity', 'status')">
+              🎨 Felicity Status
+            </button>
+            <button class="action-btn" onclick="sendToAgent('prometheus', 'status')">
+              🔥 Prometheus Status
+            </button>
+            <button class="action-btn" onclick="sendToAgent('squire', 'list tasks')">
+              📋 Squire Tasks
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Agent data from roster
+    const AGENTS = [
+      { id: 'athena', name: 'Athena', role: 'Primary Orchestrator', color: '#8b5cf6' },
+      { id: 'sterling', name: 'Sterling', role: 'Finance Agent', color: '#10b981' },
+      { id: 'ishtar', name: 'Ishtar', role: 'PAI Research', color: '#f59e0b' },
+      { id: 'delver', name: 'Delver', role: 'Deep Research', color: '#3b82f6' },
+      { id: 'squire', name: 'Squire', role: 'Task Management', color: '#06b6d4' },
+      { id: 'felicity', name: 'Felicity', role: 'Code Artisan', color: '#ec4899' },
+      { id: 'prometheus', name: 'Prometheus', role: 'Executor', color: '#ef4444' },
+      { id: 'cisco', name: 'Cisco', role: 'Communication', color: '#14b8a6' },
+      { id: 'themis', name: 'THEMIS', role: 'Oversight', color: '#a855f7' },
+      { id: 'apollo', name: 'Apollo', role: 'Prospecting', color: '#f97316' },
+      { id: 'hermes', name: 'Hermes', role: 'Client Relations', color: '#0ea5e9' },
+      { id: 'kratos', name: 'Kratos', role: 'DeFi Trading', color: '#84cc16' },
+      { id: 'chiron', name: 'Chiron', role: 'QA Testing', color: '#6366f1' }
+    ];
+
+    // State
+    let watchList = new Set();
+    let agentStatus = {};
+    let activityLog = [];
+    let autoRefreshInterval = null;
+
+    // Initialize
+    function init() {
+      loadWatchList();
+      renderWatchList();
+      refreshAll();
+    }
+
+    // Local storage
+    function loadWatchList() {
+      const saved = localStorage.getItem('athena-watch-list');
+      if (saved) {
+        watchList = new Set(JSON.parse(saved));
+      }
+    }
+
+    function saveWatchList() {
+      localStorage.setItem('athena-watch-list', JSON.stringify([...watchList]));
+    }
+
+    // Render watch list
+    function renderWatchList() {
+      const container = document.getElementById('watchList');
+      const countEl = document.getElementById('watchCount');
+      
+      countEl.textContent = `${watchList.size} watching`;
+
+      if (watchList.size === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">🎯</div>
+            <p>Click "Watch" on agents to monitor them</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = [...watchList].map(agentId => {
+        const agent = AGENTS.find(a => a.id === agentId);
+        const status = agentStatus[agentId] || { status: 'unknown' };
+        const statusClass = getStatusClass(status.status);
+        
+        return `
+          <div class="agent-item watching">
+            <div class="agent-info">
+              <div class="agent-avatar" style="background: ${agent.color}20; color: ${agent.color}">
+                ${agent.name[0]}
+              </div>
+              <div class="agent-details">
+                <h4>${agent.name}</h4>
+                <p>${agent.role}</p>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem">
+              <span class="status-badge ${statusClass}">${status.status}</span>
+              <button class="watch-btn watching" onclick="toggleWatch('${agentId}')">👁️</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function getStatusClass(status) {
+      switch (status?.toLowerCase()) {
+        case 'active': return 'status-active';
+        case 'busy': return 'status-busy';
+        case 'idle': return 'status-idle';
+        case 'error': return 'status-error';
+        default: return 'status-idle';
+      }
+    }
+
+    // Toggle watch
+    function toggleWatch(agentId) {
+      if (watchList.has(agentId)) {
+        watchList.delete(agentId);
+        addLog('agent-unwatch', agentId, 'Stopped watching');
+      } else {
+        watchList.add(agentId);
+        addLog('agent-watch', agentId, 'Now watching');
+      }
+      saveWatchList();
+      renderWatchList();
+    }
+
+    // Activity log
+    function addLog(type, agentId, message) {
+      const agent = AGENTS.find(a => a.id === agentId);
+      const entry = {
+        type,
+        agentId,
+        agentName: agent?.name || agentId,
+        message,
+        timestamp: new Date()
+      };
+      activityLog.unshift(entry);
+      if (activityLog.length > 50) activityLog.pop();
+      renderLog();
+    }
+
+    function renderLog() {
+      const container = document.getElementById('activityLog');
+      
+      if (activityLog.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📝</div>
+            <p>Activity will appear here</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = activityLog.map(entry => {
+        const time = entry.timestamp.toLocaleTimeString();
+        const icon = getLogIcon(entry.type);
+        
+        return `
+          <div class="log-entry ${getLogClass(entry.type)}">
+            <div class="log-time">${time}</div>
+            <div class="log-message">
+              <span class="log-icon">${icon}</span>
+              <span><strong>${entry.agentName}:</strong> ${entry.message}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function getLogIcon(type) {
+      switch (type) {
+        case 'agent-watch': return '👁️';
+        case 'agent-unwatch': return '👀';
+        case 'agent-active': return '🟢';
+        case 'agent-idle': return '⚪';
+        case 'agent-busy': return '🟡';
+        case 'task-start': return '🚀';
+        case 'task-complete': return '✅';
+        default: return '📌';
+      }
+    }
+
+    function getLogClass(type) {
+      switch (type) {
+        case 'agent-active': return 'event-agent-active';
+        case 'agent-idle': return 'event-agent-idle';
+        case 'agent-busy': return 'event-agent-busy';
+        case 'task-start': return 'event-task-start';
+        case 'task-complete': return 'event-task-complete';
+        default return '';
+      }
+    }
+
+    function clearLog() {
+      activityLog = [];
+      renderLog();
+    }
+
+    // Refresh all data
+    async function refreshAll() {
+      document.getElementById('lastUpdate').textContent = 'Updating...';
+      
+      // Simulate status fetch (in real use, would call gateway API)
+      await simulateStatusCheck();
+      
+      // Update stats
+      updateStats();
+      
+      // Update watch list with current status
+      renderWatchList();
+      
+      document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+    }
+
+    async function simulateStatusCheck() {
+      // This would normally fetch from the gateway
+      // For now, simulate some activity
+      const statuses = ['active', 'idle', 'busy', 'idle', 'active', 'idle'];
+      
+      AGENTS.forEach((agent, i) => {
+        const oldStatus = agentStatus[agent.id]?.status;
+        const newStatus = statuses[i % statuses.length];
+        
+        agentStatus[agent.id] = { status: newStatus };
+        
+        // Log status changes for watched agents
+        if (watchList.has(agent.id) && oldStatus && oldStatus !== newStatus) {
+          addLog(`agent-${newStatus}`, agent.id, `Status changed from ${oldStatus} to ${newStatus}`);
+        }
+      });
+    }
+
+    function updateStats() {
+      const statuses = Object.values(agentStatus).map(s => s.status);
+      
+      document.getElementById('totalAgents').textContent = AGENTS.length;
+      document.getElementById('activeAgents').textContent = statuses.filter(s => s === 'active').length;
+      document.getElementById('busyAgents').textContent = statuses.filter(s => s === 'busy').length;
+      document.getElementById('idleAgents').textContent = statuses.filter(s => s === 'idle').length;
+    }
+
+    // Auto refresh
+    function startAutoRefresh() {
+      if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = null;
+        document.querySelector('button.primary').innerHTML = '<span>▶️</span> Live';
+      } else {
+        autoRefreshInterval = setInterval(refreshAll, 5000);
+        document.querySelector('button.primary').innerHTML = '<span>⏹️</span> Stop';
+        refreshAll();
+      }
+    }
+
+    // Quick actions
+    function sendToAgent(agentId, message) {
+      addLog('task-start', agentId, `Sent: "${message}"`);
+      
+      // Simulate response after delay
+      setTimeout(() => {
+        addLog('task-complete', agentId, `Processed: "${message}"`);
+      }, 1500);
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'r' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        refreshAll();
+      }
+      if (e.key === 'l' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        clearLog();
+      }
+    });
+
+    // Initialize on load
+    init();
+  </script>
+</body>
+</html>

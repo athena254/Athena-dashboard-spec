@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Felicity Particle Art V2</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a12;
+            overflow: hidden;
+            color: #fff;
+            user-select: none;
+        }
+        
+        #canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            cursor: crosshair;
+            z-index: 1;
+        }
+        
+        /* Toolbar */
+        .toolbar {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            background: rgba(138, 43, 226, 0.2);
+            border: 1px solid rgba(138, 43, 226, 0.5);
+            border-radius: 30px;
+            padding: 10px 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+        .tool-group {
+            display: flex;
+            gap: 5px;
+        }
+        .tool-btn {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            border: 2px solid rgba(138, 43, 226, 0.5);
+            background: rgba(138, 43, 226, 0.2);
+            color: #fff;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .tool-btn:hover, .tool-btn.active {
+            background: rgba(138, 43, 226, 0.5);
+            border-color: #8a2be2;
+            transform: scale(1.1);
+        }
+        
+        /* Side Panel */
+        .side-panel {
+            position: fixed;
+            top: 80px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(10, 10, 18, 0.95);
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            width: 250px;
+        }
+        .panel-section {
+            margin-bottom: 20px;
+        }
+        .panel-title {
+            color: #8a2be2;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Color Palette */
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 5px;
+        }
+        .color-swatch {
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .color-swatch:hover, .color-swatch.active {
+            transform: scale(1.2);
+            border-color: #fff;
+        }
+        
+        /* Color Theory Engine */
+        .theory-btns {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        .theory-btn {
+            padding: 8px;
+            background: rgba(138, 43, 226, 0.2);
+            border: 1px solid rgba(138, 43, 226, 0.5);
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        .theory-btn:hover {
+            background: rgba(138, 43, 226, 0.4);
+        }
+        
+        /* Brush Settings */
+        .slider-group {
+            margin-bottom: 10px;
+        }
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #888;
+            margin-bottom: 5px;
+        }
+        input[type="range"] {
+            width: 100%;
+            accent-color: #8a2be2;
+        }
+        
+        /* Brush Modes */
+        .brush-modes {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        .brush-mode {
+            padding: 10px;
+            background: rgba(138, 43, 226, 0.1);
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            border-radius: 8px;
+            color: #888;
+            cursor: pointer;
+            font-size: 0.8rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .brush-mode:hover, .brush-mode.active {
+            border-color: #8a2be2;
+            color: #fff;
+        }
+        
+        /* Gallery Panel */
+        .gallery {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(10, 10, 18, 0.95);
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            width: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .gallery-title {
+            color: #8a2be2;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .gallery-item {
+            width: 100%;
+            aspect-ratio: 1;
+            background: rgba(138, 43, 226, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        .gallery-item:hover {
+            transform: scale(1.05);
+            border: 1px solid #8a2be2;
+        }
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .gallery-empty {
+            grid-column: span 2;
+            text-align: center;
+            color: #666;
+            font-size: 0.8rem;
+            padding: 20px;
+        }
+        
+        /* History Controls */
+        .history-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .history-btn {
+            flex: 1;
+            padding: 10px;
+            background: rgba(138, 43, 226, 0.2);
+            border: 1px solid rgba(138, 43, 226, 0.5);
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+        .history-btn:hover:not(:disabled) {
+            background: rgba(138, 43, 226, 0.4);
+        }
+        .history-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        /* Stats */
+        .stats {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(10, 10, 18, 0.9);
+            border-radius: 10px;
+            padding: 10px 15px;
+            font-size: 0.75rem;
+            color: #888;
+        }
+        .stats span {
+            color: #8a2be2;
+        }
+        
+        /* Footer */
+        footer {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            text-align: right;
+            font-size: 0.75rem;
+            color: #666;
+        }
+        footer a {
+            color: #8a2be2;
+            text-decoration: none;
+        }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(138, 43, 226, 0.9);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            z-index: 200;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .notification.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <div class="tool-group">
+            <button class="tool-btn active" id="brushTool" title="Brush">🖌️</button>
+            <button class="tool-btn" id="eraserTool" title="Eraser">🧹</button>
+            <button class="tool-btn" id="selectTool" title="Select">✋</button>
+        </div>
+        <div class="tool-group">
+            <button class="tool-btn" onclick="clearCanvas()" title="Clear">🗑️</button>
+            <button class="tool-btn" onclick="undo()" id="undoBtn" title="Undo">↩️</button>
+            <button class="tool-btn" onclick="redo()" id="redoBtn" title="Redo">↪️</button>
+        </div>
+        <div class="tool-group">
+            <button class="tool-btn" onclick="saveArt('png')" title="Save PNG">💾</button>
+            <button class="tool-btn" onclick="saveArt('svg')" title="Save SVG">📄</button>
+            <button class="tool-btn" onclick="shareArt()" title="Share">📤</button>
+        </div>
+    </div>
+    
+    <!-- Side Panel -->
+    <div class="side-panel">
+        <!-- Color Palette -->
+        <div class="panel-section">
+            <div class="panel-title">🎨 Color Palette</div>
+            <div class="color-palette" id="colorPalette"></div>
+            <input type="color" id="customColor" value="#8a2be2" style="width: 100%; margin-top: 10px; height: 35px; border: none; border-radius: 5px; cursor: pointer;">
+        </div>
+        
+        <!-- Color Theory -->
+        <div class="panel-section">
+            <div class="panel-title">🌈 Color Theory Engine</div>
+            <div class="theory-btns">
+                <button class="theory-btn" onclick="generatePalette('complementary')">Complementary</button>
+                <button class="theory-btn" onclick="generatePalette('analogous')">Analogous</button>
+                <button class="theory-btn" onclick="generatePalette('triadic')">Triadic</button>
+                <button class="theory-btn" onclick="generatePalette('split')">Split Comp</button>
+            </div>
+        </div>
+        
+        <!-- Brush Settings -->
+        <div class="panel-section">
+            <div class="panel-title">🖌️ Brush Settings</div>
+            <div class="slider-group">
+                <div class="slider-label">
+                    <span>Size</span>
+                    <span id="sizeVal">20</span>
+                </div>
+                <input type="range" id="brushSize" min="5" max="100" value="20">
+            </div>
+            <div class="slider-group">
+                <div class="slider-label">
+                    <span>Opacity</span>
+                    <span id="opacityVal">100%</span>
+                </div>
+                <input type="range" id="brushOpacity" min="10" max="100" value="100">
+            </div>
+            <div class="slider-group">
+                <div class="slider-label">
+                    <span>Spread</span>
+                    <span id="spreadVal">30</span>
+                </div>
+                <input type="range" id="brushSpread" min="0" max="100" value="30">
+            </div>
+        </div>
+        
+        <!-- Brush Modes -->
+        <div class="panel-section">
+            <div class="panel-title">✨ Brush Modes</div>
+            <div class="brush-modes">
+                <div class="brush-mode active" data-mode="spray">💨 Spray</div>
+                <div class="brush-mode" data-mode="stream">🌊 Stream</div>
+                <div class="brush-mode" data-mode="burst">💥 Burst</div>
+                <div class="brush-mode" data-mode="ribbon">🎀 Ribbon</div>
+            </div>
+        </div>
+        
+        <!-- History -->
+        <div class="panel-section">
+            <div class="panel-title">📜 History</div>
+            <div class="history-controls">
+                <button class="history-btn" onclick="undo()" id="undoBtn2">↩️ Undo</button>
+                <button class="history-btn" onclick="redo()" id="redoBtn2">↪️ Redo</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Gallery -->
+    <div class="gallery">
+        <div class="gallery-title">🖼️ Art Gallery</div>
+        <div class="gallery-grid" id="galleryGrid">
+            <div class="gallery-empty">No saved artwork yet. Create and save your first piece!</div>
+        </div>
+    </div>
+    
+    <!-- Stats -->
+    <div class="stats">
+        Particles: <span id="particleCount">0</span> | 
+        History: <span id="historyCount">0</span> steps |
+        Mode: <span id="currentMode">Spray</span>
+    </div>
+    
+    <div class="notification" id="notification"></div>
+    
+    <footer>
+        🎨 Crafted by Felicity • qwen_nvidia • Code Artisan<br>
+        <a href="athena-command.html">← Back to Command Center</a>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        let particles = [];
+        let currentColor = '#8a2be2';
+        let brushSize = 20;
+        let brushOpacity = 1;
+        let brushSpread = 30;
+        let brushMode = 'spray';
+        let isDrawing = false;
+        let lastX, lastY;
+        
+        // History for undo/redo
+        let history = [];
+        let historyIndex = -1;
+        const maxHistory = 50;
+        
+        // Resize
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            ctx.fillStyle = '#0a0a12';
+            ctx.fillRect(0, 0, width, height);
+        }
+        window.addEventListener('resize', resize);
+        resize();
+        
+        // Initialize history
+        function saveState() {
+            historyIndex++;
+            history = history.slice(0, historyIndex);
+            history.push(canvas.toDataURL());
+            if (history.length > maxHistory) {
+                history.shift();
+                historyIndex--;
+            }
+            updateHistoryButtons();
+        }
+        
+        function undo() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                loadState(history[historyIndex]);
+            }
+            updateHistoryButtons();
+        }
+        
+        function redo() {
+            if (historyIndex < history.length - 1) {
+                historyIndex++;
+                loadState(history[historyIndex]);
+            }
+            updateHistoryButtons();
+        }
+        
+        function loadState(dataUrl) {
+            const img = new Image();
+            img.onload = () => {
+                ctx.clearRect(0, 0, width, height);
+                ctx.drawImage(img, 0, 0);
+            };
+            img.src = dataUrl;
+        }
+        
+        function updateHistoryButtons() {
+            const canUndo = historyIndex > 0;
+            const canRedo = historyIndex < history.length - 1;
+            document.getElementById('undoBtn').disabled = !canUndo;
+            document.getElementById('redoBtn').disabled = !canRedo;
+            document.getElementById('undoBtn2').disabled = !canUndo;
+            document.getElementById('redoBtn2').disabled = !canRedo;
+            document.getElementById('historyCount').textContent = history.length;
+        }
+        
+        saveState();
+        
+        // Color palette
+        const defaultColors = [
+            '#8a2be2', '#ff69b4', '#00ffff', '#ffd700', '#ff4500', '#00ff88',
+            '#4169e1', '#ff8c00', '#9400d3', '#00ced1', '#ff1493', '#7cfc00'
+        ];
+        
+        function initColorPalette() {
+            const palette = document.getElementById('colorPalette');
+            defaultColors.forEach((color, i) => {
+                const swatch = document.createElement('div');
+                swatch.className = 'color-swatch' + (i === 0 ? ' active' : '');
+                swatch.style.background = color;
+                swatch.onclick = () => selectColor(color, swatch);
+                palette.appendChild(swatch);
+            });
+        }
+        initColorPalette();
+        
+        function selectColor(color, swatch) {
+            currentColor = color;
+            document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+            if (swatch) swatch.classList.add('active');
+        }
+        
+        document.getElementById('customColor').addEventListener('input', (e) => {
+            selectColor(e.target.value, null);
+            document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+        });
+        
+        // Color theory engine
+        function generatePalette(type) {
+            const hue = Math.random() * 360;
+            let colors = [];
+            
+            switch(type) {
+                case 'complementary':
+                    colors = [hue, (hue + 180) % 360];
+                    break;
+                case 'analogous':
+                    colors = [hue, (hue + 30) % 360, (hue + 60) % 360];
+                    break;
+                case 'triadic':
+                    colors = [hue, (hue + 120) % 360, (hue + 240) % 360];
+                    break;
+                case 'split':
+                    colors = [hue, (hue + 150) % 360, (hue + 210) % 360];
+                    break;
+            }
+            
+            // Convert HSL to hex
+            const hexColors = colors.map(h => {
+                const s = 70, l = 50;
+                return hslToHex(h, s, l);
+            });
+            
+            // Update palette
+            const palette = document.getElementById('colorPalette');
+            palette.innerHTML = '';
+            hexColors.forEach((color, i) => {
+                const swatch = document.createElement('div');
+                swatch.className = 'color-swatch' + (i === 0 ? ' active' : '');
+                swatch.style.background = color;
+                swatch.onclick = () => selectColor(color, swatch);
+                palette.appendChild(swatch);
+            });
+            
+            currentColor = hexColors[0];
+            showNotification(`Generated ${type} palette!`);
+        }
+        
+        function hslToHex(h, s, l) {
+            l /= 100;
+            const a = s * Math.min(l, 1 - l) / 100;
+            const f = n => {
+                const k = (n + h / 30) % 12;
+                const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+                return Math.round(255 * color).toString(16).padStart(2, '0');
+            };
+            return `#${f(0)}${f(8)}${f(4)}`;
+        }
+        
+        // Brush settings
+        document.getElementById('brushSize').addEventListener('input', (e) => {
+            brushSize = parseInt(e.target.value);
+            document.getElementById('sizeVal').textContent = brushSize;
+        });
+        
+        document.getElementById('brushOpacity').addEventListener('input', (e) => {
+            brushOpacity = parseInt(e.target.value) / 100;
+            document.getElementById('opacityVal').textContent = e.target.value + '%';
+        });
+        
+        document.getElementById('brushSpread').addEventListener('input', (e) => {
+            brushSpread = parseInt(e.target.value);
+            document.getElementById('spreadVal').textContent = brushSpread;
+        });
+        
+        // Brush modes
+        document.querySelectorAll('.brush-mode').forEach(mode => {
+            mode.addEventListener('click', () => {
+                document.querySelectorAll('.brush-mode').forEach(m => m.classList.remove('active'));
+                mode.classList.add('active');
+                brushMode = mode.dataset.mode;
+                document.getElementById('currentMode').textContent = mode.textContent;
+            });
+        });
+        
+        // Drawing
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseleave', stopDrawing);
+        
+        // Touch support
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            startDrawing({ clientX: touch.clientX, clientY: touch.clientY });
+        });
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            draw({ clientX: touch.clientX, clientY: touch.clientY });
+        });
+        canvas.addEventListener('touchend', stopDrawing);
+        
+        function startDrawing(e) {
+            isDrawing = true;
+            lastX = e.clientX;
+            lastY = e.clientY;
+            draw(e);
+        }
+        
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            const x = e.clientX;
+            const y = e.clientY;
+            
+            switch(brushMode) {
+                case 'spray':
+                    sprayParticles(x, y);
+                    break;
+                case 'stream':
+                    streamParticles(x, y);
+                    break;
+                case 'burst':
+                    burstParticles(x, y);
+                    break;
+                case 'ribbon':
+                    ribbonParticles(x, y);
+                    break;
+            }
+            
+            lastX = x;
+            lastY = y;
+        }
+        
+        function stopDrawing() {
+            if (isDrawing) {
+                isDrawing = false;
+                saveState();
+            }
+        }
+        
+        // Brush modes implementation
+        function sprayParticles(x, y) {
+            const count = brushSize / 2;
+            for (let i = 0; i < count; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const radius = Math.random() * brushSpread;
+                const px = x + Math.cos(angle) * radius;
+                const py = y + Math.sin(angle) * radius;
+                drawParticle(px, py, Math.random() * 3 + 1);
+            }
+        }
+        
+        function streamParticles(x, y) {
+            const dx = x - lastX;
+            const dy = y - lastY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const steps = Math.max(1, Math.floor(dist / 5));
+            
+            for (let i = 0; i < steps; i++) {
+                const t = i / steps;
+                const px = lastX + dx * t + (Math.random() - 0.5) * brushSpread;
+                const py = lastY + dy * t + (Math.random() - 0.5) * brushSpread;
+                drawParticle(px, py, brushSize / 4);
+            }
+        }
+        
+        function burstParticles(x, y) {
+            if (Math.random() > 0.7) {
+                for (let i = 0; i < brushSize; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const dist = Math.random() * brushSpread * 2;
+                    const px = x + Math.cos(angle) * dist;
+                    const py = y + Math.sin(angle) * dist;
+                    drawParticle(px, py, Math.random() * 5 + 2);
+                }
+            }
+        }
+        
+        function ribbonParticles(x, y) {
+            const dx = x - lastX;
+            const dy = y - lastY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const angle = Math.atan2(dy, dx);
+            
+            ctx.beginPath();
+            ctx.moveTo(lastX + Math.sin(angle) * brushSize/2, lastY - Math.cos(angle) * brushSize/2);
+            ctx.lineTo(x + Math.sin(angle) * brushSize/2, y - Math.cos(angle) * brushSize/2);
+            ctx.lineTo(x - Math.sin(angle) * brushSize/2, y + Math.cos(angle) * brushSize/2);
+            ctx.lineTo(lastX - Math.sin(angle) * brushSize/2, lastY + Math.cos(angle) * brushSize/2);
+            ctx.closePath();
+            
+            ctx.fillStyle = currentColor + Math.floor(brushOpacity * 255).toString(16).padStart(2, '0');
+            ctx.fill();
+        }
+        
+        function drawParticle(x, y, size) {
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, Math.PI * 2);
+            ctx.fillStyle = currentColor + Math.floor(brushOpacity * 255).toString(16).padStart(2, '0');
+            ctx.fill();
+            
+            // Glow effect
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = currentColor;
+        }
+        
+        // Clear canvas
+        function clearCanvas() {
+            ctx.fillStyle = '#0a0a12';
+            ctx.fillRect(0, 0, width, height);
+            saveState();
+            showNotification('Canvas cleared!');
+        }
+        
+        // Save artwork
+        function saveArt(format) {
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            let filename, dataUrl;
+            
+            if (format === 'png') {
+                filename = `felicity-art-${timestamp}.png`;
+                dataUrl = canvas.toDataURL('image/png');
+            } else {
+                // Simple SVG export
+                filename = `felicity-art-${timestamp}.svg`;
+                const svgData = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+                    <foreignObject width="100%" height="100%">
+                        <div xmlns="http://www.w3.org/1999/xhtml">
+                            <img src="${canvas.toDataURL('image/png')}" width="${width}" height="${height}"/>
+                        </div>
+                    </foreignObject>
+                </svg>`;
+                dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgData);
+            }
+            
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = dataUrl;
+            link.click();
+            
+            // Save to gallery
+            saveToGallery(dataUrl);
+            showNotification(`Saved as ${format.toUpperCase()}!`);
+        }
+        
+        // Gallery
+        function saveToGallery(dataUrl) {
+            let gallery = JSON.parse(localStorage.getItem('felicityGallery') || '[]');
+            gallery.unshift({
+                id: Date.now(),
+                data: dataUrl,
+                date: new Date().toISOString()
+            });
+            gallery = gallery.slice(0, 10); // Keep last 10
+            localStorage.setItem('felicityGallery', JSON.stringify(gallery));
+            updateGallery();
+        }
+        
+        function updateGallery() {
+            const gallery = JSON.parse(localStorage.getItem('felicityGallery') || '[]');
+            const grid = document.getElementById('galleryGrid');
+            
+            if (gallery.length === 0) {
+                grid.innerHTML = '<div class="gallery-empty">No saved artwork yet. Create and save your first piece!</div>';
+                return;
+            }
+            
+            grid.innerHTML = gallery.map(item => `
+                <div class="gallery-item" onclick="loadArtwork('${item.data}')">
+                    <img src="${item.data}" alt="Artwork">
+                </div>
+            `).join('');
+        }
+        
+        function loadArtwork(dataUrl) {
+            const img = new Image();
+            img.onload = () => {
+                ctx.clearRect(0, 0, width, height);
+                ctx.drawImage(img, 0, 0);
+                saveState();
+                showNotification('Artwork loaded!');
+            };
+            img.src = dataUrl;
+        }
+        
+        updateGallery();
+        
+        // Share
+        function shareArt() {
+            canvas.toBlob(blob => {
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Felicity Particle Art',
+                        files: [new File([blob], 'felicity-art.png', { type: 'image/png' })]
+                    }).catch(() => {});
+                } else {
+                    showNotification('Share not supported. Use Save instead.');
+                }
+            });
+        }
+        
+        // Notification
+        function showNotification(message) {
+            const notif = document.getElementById('notification');
+            notif.textContent = message;
+            notif.classList.add('show');
+            setTimeout(() => notif.classList.remove('show'), 2000);
+        }
+        
+        // Update particle count
+        setInterval(() => {
+            const imageData = ctx.getImageData(0, 0, width, height);
+            let count = 0;
+            for (let i = 0; i < imageData.data.length; i += 4) {
+                if (imageData.data[i + 3] > 0) count++;
+            }
+            document.getElementById('particleCount').textContent = Math.floor(count / 100);
+        }, 1000);
+    </script>
+</body>
+</html>

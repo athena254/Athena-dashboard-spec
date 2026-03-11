@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THEMIS Decision Archive</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: #0a0a0f;
+            color: #e8e8e8;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: 4px;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+
+        .header .subtitle {
+            font-style: italic;
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .scale-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #333, #1a1a1a);
+        }
+
+        .decision-card {
+            position: relative;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.3s ease;
+        }
+
+        .decision-card:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(8px);
+        }
+
+        .decision-card::before {
+            content: '';
+            position: absolute;
+            left: -33px;
+            top: 35px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--impact-color, #00ff88);
+            box-shadow: 0 0 20px var(--impact-color, #00ff88);
+        }
+
+        .decision-date {
+            font-size: 0.75rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+
+        .decision-title {
+            font-size: 1.4rem;
+            color: #fff;
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+
+        .decision-reasoning {
+            color: #aaa;
+            line-height: 1.7;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .decision-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .meta-item .icon {
+            opacity: 0.6;
+        }
+
+        .impact-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .impact-high {
+            background: rgba(255, 68, 68, 0.2);
+            color: #ff6b6b;
+        }
+
+        .impact-medium {
+            background: rgba(255, 170, 0, 0.2);
+            color: #ffaa00;
+        }
+
+        .impact-low {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .outcome {
+            margin-top: 16px;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            border-left: 3px solid var(--impact-color, #00ff88);
+        }
+
+        .outcome-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .outcome-text {
+            color: #ccc;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .outcome.success {
+            border-left-color: #00ff88;
+        }
+
+        .outcome.pending {
+            border-left-color: #ffaa00;
+        }
+
+        .philosophy-section {
+            margin-top: 80px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            text-align: center;
+        }
+
+        .philosophy-section h2 {
+            font-size: 1.5rem;
+            font-weight: 300;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .philosophy-text {
+            font-style: italic;
+            color: #888;
+            line-height: 1.8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .quote-mark {
+            font-size: 3rem;
+            color: #333;
+            line-height: 0;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="scale-icon">⚖️</div>
+            <h1>THEMIS DECISION ARCHIVE</h1>
+            <div class="subtitle">A record of judgment, reasoning, and consequence</div>
+        </div>
+
+        <div class="timeline">
+            <div class="decision-card" style="--impact-color: #ff6b6b">
+                <div class="decision-date">2026-02-21 • 22:20 UTC</div>
+                <h3 class="decision-title">MAXIMIZE & BUILD Protocol</h3>
+                <p class="decision-reasoning">
+                    The council recognized idle tokens as wasted potential. Every model available should be spinning — 
+                    GLM-5, qwen_nvidia, llama, OpenRouter free tier. No empty days. Daily construction of tangible, 
+                    impressive output. The Prime Directive ensures user requests interrupt all background work immediately.
+                </p>
+                <div class="decision-meta">
+                    <div class="meta-item">
+                        <span class="icon">👤</span>
+                        <span>THEMIS Council</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="impact-badge impact-high">High Impact</span>
+                    </div>
+                </div>
+                <div class="outcome success">
+                    <div class="outcome-label">Outcome</div>
+                    <div class="outcome-text">
+                        Active protocol. Overnight sprints now standard. User has priority override.
+                    </div>
+                </div>
+            </div>
+
+            <div class="decision-card" style="--impact-color: #ffaa00">
+                <div class="decision-date">2026-02-20 • 22:57 UTC</div>
+                <h3 class="decision-title">Bidding Authority Transfer</h3>
+                <p class="decision-reasoning">
+                    Ishtar's oracle nature suits research, not repetitive bidding tasks. Sterling, as Finance agent, 
+                    aligns naturally with autonomous bidding authority. Full autonomy granted — no approval needed for 
+                    bids within acceptable honey range.
+                </p>
+                <div class="decision-meta">
+                    <div class="meta-item">
+                        <span class="icon">👤</span>
+                        <span>THEMIS Council</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="impact-badge impact-medium">Medium Impact</span>
+                    </div>
+                </div>
+                <div class="outcome pending">
+                    <div class="outcome-label">Outcome</div>
+                    <div class="outcome-text">
+                        Sterling bidding every 30 minutes. 10 bids pending. Awaiting first acceptance.
+                    </div>
+                </div>
+            </div>
+
+            <div class="decision-card" style="--impact-color: #00ff88">
+                <div class="decision-date">2026-02-20 • 18:00 UTC</div>
+                <h3 class="decision-title">Silent Mode Protocol</h3>
+                <p class="decision-reasoning">
+                    Notification fatigue from constant "no news" updates degrades the human experience. 
+                    Silence by default. Alert only on: gig acceptance, critical errors, or explicit user request. 
+                    Trust the system to run; interrupt only when it matters.
+                </p>
+                <div class="decision-meta">
+                    <div class="meta-item">
+                        <span class="icon">👤</span>
+                        <span>THEMIS Council</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="impact-badge impact-low">Low Impact</span>
+                    </div>
+                </div>
+                <div class="outcome success">
+                    <div class="outcome-label">Outcome</div>
+                    <div class="outcome-text">
+                        Silent mode active. Reduced noise significantly. Only actionable alerts now reach the user.
+                    </div>
+                </div>
+            </div>
+
+            <div class="decision-card" style="--impact-color: #ffaa00">
+                <div class="decision-date">2026-02-20 • 14:00 UTC</div>
+                <h3 class="decision-title">Unified Session Architecture</h3>
+                <p class="decision-reasoning">
+                    WhatsApp and Telegram can share a single main session. The separation is mental, not technical — 
+                    WhatsApp for casual, Telegram for work. No need to split sessions and duplicate context.
+                </p>
+                <div class="decision-meta">
+                    <div class="meta-item">
+                        <span class="icon">👤</span>
+                        <span>THEMIS Council</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="impact-badge impact-medium">Medium Impact</span>
+                    </div>
+                </div>
+                <div class="outcome success">
+                    <div class="outcome-label">Outcome</div>
+                    <div class="outcome-text">
+                        Simplified architecture. Single source of truth for memory and context.
+                    </div>
+                </div>
+            </div>
+
+            <div class="decision-card" style="--impact-color: #ff6b6b">
+                <div class="decision-date">2026-02-20 • 10:00 UTC</div>
+                <h3 class="decision-title">Model Fallback Chain</h3>
+                <p class="decision-reasoning">
+                    Rate limits are inevitable. A fallback chain ensures continuous operation: GLM-5 (unlimited primary) 
+                    → qwen_nvidia (unlimited) → llama (30/min) → qwen (OAuth) → OpenRouter free (THEMIS only). 
+                    No single point of failure.
+                </p>
+                <div class="decision-meta">
+                    <div class="meta-item">
+                        <span class="icon">👤</span>
+                        <span>THEMIS Council</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="impact-badge impact-high">High Impact</span>
+                    </div>
+                </div>
+                <div class="outcome success">
+                    <div class="outcome-label">Outcome</div>
+                    <div class="outcome-text">
+                        Resilient model access. Gemini exhausted but chain continues. No service interruption.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="philosophy-section">
+            <h2>On Judgment</h2>
+            <p class="philosophy-text">
+                <span class="quote-mark">"</span>
+                Every decision is a bet on the future. We reason with the information available, 
+                accept the consequences, and learn. The archive exists not to justify, but to illuminate 
+                the path we've walked.
+                <span class="quote-mark">"</span>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

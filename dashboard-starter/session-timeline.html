@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Session Timeline • Athena</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a24;
+            --bg-card-hover: #22222e;
+            --text-primary: #f0f0f5;
+            --text-secondary: #8888a0;
+            --text-muted: #555566;
+            --accent-green: #00d4aa;
+            --accent-yellow: #ffb800;
+            --accent-red: #ff4757;
+            --accent-blue: #5c7cfa;
+            --accent-purple: #a855f7;
+            --accent-cyan: #22d3ee;
+            --border: rgba(255,255,255,0.08);
+            --border-hover: rgba(255,255,255,0.15);
+        }
+
+        body {
+            font-family: 'SF Mono', 'Fira Code', 'Monaco', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+            background-image: 
+                radial-gradient(ellipse at 20% 0%, rgba(92,124,250,0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 100%, rgba(168,85,247,0.06) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .logo h1 {
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .logo .subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .refresh-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 13px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .refresh-btn:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-hover);
+        }
+
+        .refresh-btn.loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .timestamp {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.2s;
+        }
+
+        .stat-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .stat-value.green { color: var(--accent-green); }
+        .stat-value.blue { color: var(--accent-blue); }
+        .stat-value.purple { color: var(--accent-purple); }
+        .stat-value.yellow { color: var(--accent-yellow); }
+
+        .stat-detail {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Agent Timeline */
+        .section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title .icon {
+            font-size: 18px;
+        }
+
+        .agent-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .agent-row {
+            display: grid;
+            grid-template-columns: 140px 1fr 100px 120px;
+            gap: 16px;
+            align-items: center;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .agent-row:hover {
+            border-color: var(--border);
+            background: var(--bg-card-hover);
+        }
+
+        .agent-row.active {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 20px rgba(0, 212, 170, 0.1);
+        }
+
+        .agent-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .agent-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .agent-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .agent-sessions {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Timeline bar */
+        .timeline-container {
+            position: relative;
+            height: 32px;
+            background: var(--bg-primary);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .timeline-bar {
+            position: absolute;
+            height: 100%;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--accent-red);
+            opacity: 0.8;
+        }
+
+        .timeline-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 4px;
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .agent-status {
+            text-align: right;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-badge.active {
+            background: rgba(0, 212, 170, 0.15);
+            color: var(--accent-green);
+        }
+
+        .status-badge.idle {
+            background: rgba(255, 184, 0, 0.15);
+            color: var(--accent-yellow);
+        }
+
+        .status-badge.inactive {
+            background: rgba(136, 136, 160, 0.15);
+            color: var(--text-secondary);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .status-badge.active .status-dot {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .agent-tokens {
+            text-align: right;
+            font-size: 13px;
+        }
+
+        .tokens-in {
+            color: var(--accent-blue);
+        }
+
+        .tokens-out {
+            color: var(--accent-purple);
+        }
+
+        .tokens-total {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Activity Feed */
+        .activity-feed {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.2s;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-item:hover {
+            background: var(--bg-secondary);
+        }
+
+        .activity-time {
+            font-size: 11px;
+            color: var(--text-muted);
+            min-width: 60px;
+        }
+
+        .activity-agent {
+            font-size: 12px;
+            font-weight: 600;
+            min-width: 80px;
+        }
+
+        .activity-message {
+            font-size: 13px;
+            color: var(--text-secondary);
+            flex: 1;
+        }
+
+        /* Token Heatmap */
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+        }
+
+        .heatmap-cell {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .heatmap-cell:hover {
+            transform: scale(1.1);
+        }
+
+        .heatmap-cell .label {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .heatmap-cell .value {
+            font-size: 10px;
+            opacity: 0.8;
+        }
+
+        .heat-0 { background: var(--bg-secondary); color: var(--text-muted); }
+        .heat-1 { background: rgba(0, 212, 170, 0.2); color: var(--accent-green); }
+        .heat-2 { background: rgba(0, 212, 170, 0.4); color: var(--accent-green); }
+        .heat-3 { background: rgba(0, 212, 170, 0.6); color: var(--text-primary); }
+        .heat-4 { background: rgba(0, 212, 170, 0.8); color: var(--text-primary); }
+        .heat-5 { background: var(--accent-green); color: var(--bg-primary); }
+
+        /* Loading State */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 12px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Error State */
+        .error {
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid var(--accent-red);
+            border-radius: 8px;
+            padding: 16px;
+            color: var(--accent-red);
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .agent-row {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .heatmap-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">⏱️</div>
+                <div>
+                    <h1>Agent Session Timeline</h1>
+                    <div class="subtitle">Real-time session tracking & token analytics</div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <div class="timestamp" id="timestamp">Loading...</div>
+                <button class="refresh-btn" id="refreshBtn" onclick="fetchData()">
+                    <span>🔄</span> Refresh
+                </button>
+            </div>
+        </header>
+
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-label">Total Sessions</div>
+                <div class="stat-value blue" id="totalSessions">-</div>
+                <div class="stat-detail" id="totalSessionsDetail">All time</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Active Now</div>
+                <div class="stat-value green" id="activeAgents">-</div>
+                <div class="stat-detail">Agents with recent activity</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Tokens</div>
+                <div class="stat-value purple" id="totalTokens">-</div>
+                <div class="stat-detail" id="totalTokensDetail">Input + Output</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Avg Session Age</div>
+                <div class="stat-value yellow" id="avgAge">-</div>
+                <div class="stat-detail">Seconds since last activity</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">
+                    <span class="icon">📊</span>
+                    Agent Activity Timeline
+                </div>
+            </div>
+            <div class="agent-list" id="agentList">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Loading agent data...
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">
+                    <span class="icon">🔥</span>
+                    Token Usage Heatmap (by Agent)
+                </div>
+            </div>
+            <div class="heatmap-grid" id="heatmapGrid">
+                <div class="loading">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">
+                    <span class="icon">📜</span>
+                    Recent Activity Feed
+                </div>
+            </div>
+            <div class="activity-feed" id="activityFeed">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Loading activity...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_ENDPOINT = 'api/live-status.json';
+        const REFRESH_INTERVAL = 30000; // 30 seconds
+
+        let cachedData = null;
+
+        async function fetchData() {
+            const btn = document.getElementById('refreshBtn');
+            btn.classList.add('loading');
+            btn.innerHTML = '<span>⏳</span> Loading...';
+
+            try {
+                const response = await fetch(API_ENDPOINT + '?t=' + Date.now());
+                if (!response.ok) throw new Error('Failed to fetch data');
+                cachedData = await response.json();
+                renderDashboard(cachedData);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                showError('Failed to load dashboard data. Make sure the API is running.');
+            } finally {
+                btn.classList.remove('loading');
+                btn.innerHTML = '<span>🔄</span> Refresh';
+            }
+        }
+
+        function renderDashboard(data) {
+            if (!data || !data.sessions) {
+                showError('Invalid data format received');
+                return;
+            }
+
+            // Update timestamp
+            document.getElementById('timestamp').textContent = new Date().toLocaleString();
+
+            // Update stats
+            const sessions = data.sessions;
+            document.getElementById('totalSessions').textContent = sessions.total || 0;
+            document.getElementById('activeAgents').textContent = sessions.activeAgents || 0;
+            document.getElementById('totalTokens').textContent = formatNumber(sessions.totalTokens || 0);
+            
+            // Calculate average age
+            const byAgent = sessions.byAgent || [];
+            const activeAgents = byAgent.filter(a => a.isActive);
+            if (activeAgents.length > 0) {
+                const avgAge = activeAgents.reduce((sum, a) => sum + (a.latestAge || 0), 0) / activeAgents.length;
+                document.getElementById('avgAge').textContent = formatAge(avgAge);
+            }
+
+            // Render agent list
+            renderAgentList(byAgent);
+
+            // Render heatmap
+            renderHeatmap(byAgent);
+
+            // Render activity feed
+            renderActivityFeed(byAgent);
+        }
+
+        function renderAgentList(agents) {
+            const container = document.getElementById('agentList');
+            
+            if (!agents || agents.length === 0) {
+                container.innerHTML = '<div class="error">No agent data available</div>';
+                return;
+            }
+
+            // Sort by activity (most active first)
+            const sortedAgents = [...agents].sort((a, b) => (b.latestAge || 999999) - (a.latestAge || 999999));
+
+            container.innerHTML = sortedAgents.map(agent => {
+                const isActive = agent.isActive;
+                const status = isActive ? 'active' : (agent.latestAge < 3600 ? 'idle' : 'inactive');
+                const statusText = isActive ? 'Active' : (agent.latestAge < 3600 ? 'Recent' : 'Idle');
+                
+                // Calculate timeline position (last 24 hours = 86400s)
+                const maxAge = 86400;
+                const position = Math.min(100, ((maxAge - agent.latestAge) / maxAge) * 100);
+                
+                // Agent colors
+                const colors = {
+                    main: '#5c7cfa',
+                    coder: '#00d4aa',
+                    ishtar: '#a855f7',
+                    prometheus: '#ffb800',
+                    cisco: '#ff4757',
+                    shannon: '#22d3ee',
+                    katie: '#f472b6',
+                    themis: '#818cf8',
+                    sterling: '#34d399',
+                    nexus: '#fb923c',
+                    kratos: '#e879f9',
+                    apollo: '#38bdf8',
+                    hermes: '#fbbf24',
+                    delver: '#4ade80',
+                    felicity: '#c084fc',
+                    squire: '#60a5fa'
+                };
+                
+                const color = colors[agent.agentId] || '#8888a0';
+
+                return `
+                    <div class="agent-row ${isActive ? 'active' : ''}">
+                        <div class="agent-info">
+                            <div class="agent-avatar" style="background: ${color}20; color: ${color}">
+                                ${agent.agentId.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <div class="agent-name">${agent.agentId}</div>
+                                <div class="agent-sessions">${agent.sessions || 0} sessions</div>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-container">
+                            <div class="timeline-bar" style="left: ${position}%; width: ${100 - position}%; background: ${color}40;"></div>
+                            <div class="timeline-marker" style="left: ${position}%;"></div>
+                            <div class="timeline-labels">
+                                <span>${formatAge(agent.latestAge)} ago</span>
+                                <span>24h</span>
+                            </div>
+                        </div>
+                        
+                        <div class="agent-status">
+                            <span class="status-badge ${status}">
+                                <span class="status-dot"></span>
+                                ${statusText}
+                            </span>
+                        </div>
+                        
+                        <div class="agent-tokens">
+                            <div class="tokens-total">${formatNumber((agent.inputTokens || 0) + (agent.outputTokens || 0))}</div>
+                            <div class="tokens-in">↓ ${formatNumber(agent.inputTokens || 0)}</div>
+                            <div class="tokens-out">↑ ${formatNumber(agent.outputTokens || 0)}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderHeatmap(agents) {
+            const container = document.getElementById('heatmapGrid');
+            
+            if (!agents || agents.length === 0) {
+                container.innerHTML = '<div class="error">No data</div>';
+                return;
+            }
+
+            // Calculate max tokens for heat scale
+            const maxTokens = Math.max(...agents.map(a => (a.inputTokens || 0) + (a.outputTokens || 0)), 1);
+
+            container.innerHTML = agents.slice(0, 12).map(agent => {
+                const total = (agent.inputTokens || 0) + (agent.outputTokens || 0);
+                const heatLevel = Math.floor((total / maxTokens) * 5);
+                
+                const colors = {
+                    main: '#5c7cfa',
+                    coder: '#00d4aa',
+                    ishtar: '#a855f7',
+                    prometheus: '#ffb800',
+                    cisco: '#ff4757'
+                };
+                const color = colors[agent.agentId] || '#8888a0';
+
+                return `
+                    <div class="heatmap-cell heat-${heatLevel}" style="border: 1px solid ${color}40">
+                        <div class="label">${agent.agentId}</div>
+                        <div class="value">${formatNumber(total)}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderActivityFeed(agents) {
+            const container = document.getElementById('activityFeed');
+            
+            if (!agents || agents.length === 0) {
+                container.innerHTML = '<div class="error">No recent activity</div>';
+                return;
+            }
+
+            // Generate activity items from agent data
+            const activities = [];
+            
+            agents.forEach(agent => {
+                if (agent.sessions > 0) {
+                    activities.push({
+                        time: agent.latestAge,
+                        agent: agent.agentId,
+                        message: `Session active - ${agent.sessions} total sessions`
+                    });
+                }
+                if (agent.inputTokens > 0) {
+                    activities.push({
+                        time: agent.latestAge,
+                        agent: agent.agentId,
+                        message: `Input: ${formatNumber(agent.inputTokens)} tokens`
+                    });
+                }
+                if (agent.outputTokens > 0) {
+                    activities.push({
+                        time: agent.latestAge,
+                        agent: agent.agentId,
+                        message: `Output: ${formatNumber(agent.outputTokens)} tokens`
+                    });
+                }
+            });
+
+            // Sort by recency and take top 20
+            activities.sort((a, b) => a.time - b.time);
+            const recentActivities = activities.slice(0, 20);
+
+            container.innerHTML = recentActivities.map(activity => `
+                <div class="activity-item">
+                    <div class="activity-time">${formatAge(activity.time)} ago</div>
+                    <div class="activity-agent">${activity.agent}</div>
+                    <div class="activity-message">${activity.message}</div>
+                </div>
+            `).join('');
+        }
+
+        function showError(message) {
+            const containers = ['agentList', 'heatmapGrid', 'activityFeed'];
+            containers.forEach(id => {
+                document.getElementById(id).innerHTML = `<div class="error">${message}</div>`;
+            });
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
+        }
+
+        function formatAge(seconds) {
+            if (seconds < 60) return seconds + 's';
+            if (seconds < 3600) return Math.floor(seconds / 60) + 'm';
+            if (seconds < 86400) return Math.floor(seconds / 3600) + 'h';
+            return Math.floor(seconds / 86400) + 'd';
+        }
+
+        // Initial load
+        fetchData();
+
+        // Auto-refresh
+        setInterval(fetchData, REFRESH_INTERVAL);
+    </script>
+</body>
+</html>

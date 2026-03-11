@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧭 Athena Decision Tree | Task Routing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-glow: #818cf8;
+            --accent: #22d3ee;
+            --accent-glow: #67e8f9;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-dark: #05070a;
+            --bg-surface: #0f1419;
+            --bg-card: #161d27;
+            --bg-elevated: #1e2732;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #2d3748;
+            --border-glow: rgba(99, 102, 241, 0.3);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-pattern {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(99, 102, 241, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(34, 211, 238, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 60%);
+            z-index: -1;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 20px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(34, 211, 238, 0.2));
+            border: 1px solid var(--border-glow);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--accent);
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 50%, var(--primary-glow) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Question Flow */
+        .decision-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            margin-bottom: 50px;
+        }
+
+        .question-card {
+            background: linear-gradient(145deg, var(--bg-card), var(--bg-surface));
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 28px 32px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideIn 0.5s ease-out forwards;
+        }
+
+        .question-card:nth-child(1) { animation-delay: 0.1s; }
+        .question-card:nth-child(2) { animation-delay: 0.2s; }
+        .question-card:nth-child(3) { animation-delay: 0.3s; }
+        .question-card:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes slideIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .question-number {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .option-btn {
+            padding: 14px 24px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .option-btn:hover {
+            background: var(--bg-card);
+            border-color: var(--primary);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.15);
+        }
+
+        .option-btn.selected {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(34, 211, 238, 0.1));
+            border-color: var(--primary);
+            color: var(--text-primary);
+        }
+
+        .option-icon {
+            font-size: 1.2rem;
+        }
+
+        /* Result Card */
+        .result-section {
+            display: none;
+            margin-top: 40px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .result-section.visible {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-card {
+            background: linear-gradient(145deg, var(--bg-card), var(--bg-surface));
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent), var(--success));
+        }
+
+        .result-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 50px;
+            color: var(--success);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .agent-avatar {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 24px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.3);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .agent-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .agent-role {
+            font-size: 1.1rem;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+
+        .agent-description {
+            color: var(--text-secondary);
+            max-width: 500px;
+            margin: 0 auto 30px;
+            line-height: 1.7;
+        }
+
+        .agent-capabilities {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .capability-tag {
+            padding: 8px 16px;
+            background: var(--bg-elevated);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-glow));
+            border: none;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
+        }
+
+        /* Mini Agent Gallery */
+        .agent-quickpick {
+            margin-top: 50px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border);
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-secondary);
+        }
+
+        .agent-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 16px;
+        }
+
+        .agent-chip {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .agent-chip:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.2);
+        }
+
+        .agent-chip-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .agent-chip-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+
+        .agent-chip-role {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Status Indicator */
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+            animation: blink 2s ease-in-out infinite;
+        }
+
+        .status-active { background: var(--success); }
+        .status-idle { background: var(--warning); }
+        .status-offline { background: var(--danger); }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Reset Button */
+        .reset-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .reset-btn {
+            padding: 10px 20px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .reset-btn:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.2rem; }
+            .container { padding: 20px 16px; }
+            .question-card { padding: 20px; }
+            .options { flex-direction: column; }
+            .option-btn { width: 100%; justify-content: center; }
+            .agent-name { font-size: 1.8rem; }
+            .action-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+    <div class="grid-overlay"></div>
+
+    <div class="container">
+        <header>
+            <div class="logo-badge">
+                <span>🧭</span>
+                <span>Athena Decision Tree</span>
+            </div>
+            <h1>Find the Right Agent</h1>
+            <p class="subtitle">Answer a few questions to discover which Athena agent best fits your needs</p>
+        </header>
+
+        <div class="decision-flow">
+            <!-- Question 1: Domain -->
+            <div class="question-card" id="q1">
+                <div class="question-label">
+                    <div class="question-number">1</div>
+                    <div class="question-text">What domain does your task belong to?</div>
+                </div>
+                <div class="options">
+                    <button class="option-btn" data-domain="finance" onclick="selectOption(this, 'domain')">
+                        <span class="option-icon">💰</span>
+                        Finance & Bidding
+                    </button>
+                    <button class="option-btn" data-domain="development" onclick="selectOption(this, 'domain')">
+                        <span class="option-icon">⚡</span>
+                        Development & Code
+                    </button>
+                    <button class="option-btn" data-domain="research" onclick="selectOption(this, 'domain')">
+                        <span class="option-icon">🔍</span>
+                        Research & Analysis
+                    </button>
+                    <button class="option-btn" data-domain="creative" onclick="selectOption(this, 'domain')">
+                        <span class="option-icon">🎨</span>
+                        Creative & Content
+                    </button>
+                    <button class="option-btn" data-domain="operations" onclick="selectOption(this, 'domain')">
+                        <span class="option-icon">⚙️</span>
+                        Operations & Tasks
+                    </button>
+                    <button class="option-btn" data-domain="security" onclick="selectOption(this, 'domain')">
+                        <span class="option-icon">🛡️</span>
+                        Security & Governance
+                    </button>
+                </div>
+            </div>
+
+            <!-- Question 2: Priority -->
+            <div class="question-card" id="q2">
+                <div class="question-label">
+                    <div class="question-number">2</div>
+                    <div class="question-text">What's the priority level?</div>
+                </div>
+                <div class="options">
+                    <button class="option-btn" data-priority="high" onclick="selectOption(this, 'priority')">
+                        <span class="option-icon">🔥</span>
+                        High Priority
+                    </button>
+                    <button class="option-btn" data-priority="medium" onclick="selectOption(this, 'priority')">
+                        <span class="option-icon">⏳</span>
+                        Medium Priority
+                    </button>
+                    <button class="option-btn" data-priority="low" onclick="selectOption(this, 'priority')">
+                        <span class="option-icon">🌊</span>
+                        Low Priority
+                    </button>
+                </div>
+            </div>
+
+            <!-- Question 3: Autonomy -->
+            <div class="question-card" id="q3">
+                <div class="question-label">
+                    <div class="question-number">3</div>
+                    <div class="question-text">How much autonomy do you want?</div>
+                </div>
+                <div class="options">
+                    <button class="option-btn" data-autonomy="full" onclick="selectOption(this, 'autonomy')">
+                        <span class="option-icon">🚀</span>
+                        Full Auto (Just tell me the goal)
+                    </button>
+                    <button class="option-btn" data-autonomy="partial" onclick="selectOption(this, 'autonomy')">
+                        <span class="option-icon">🎯</span>
+                        Partial (Guide me, I'll approve)
+                    </button>
+                    <button class="option-btn" data-autonomy="manual" onclick="selectOption(this, 'autonomy')">
+                        <span class="option-icon">🔧</span>
+                        Manual (I'll control each step)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Question 4: Task Type -->
+            <div class="question-card" id="q4">
+                <div class="question-label">
+                    <div class="question-number">4</div>
+                    <div class="question-text">What exactly do you need?</div>
+                </div>
+                <div class="options" id="task-options">
+                    <button class="option-btn" data-task="bidding" onclick="selectOption(this, 'task')">
+                        <span class="option-icon">📢</span>
+                        Place Bids / Proposals
+                    </button>
+                    <button class="option-btn" data-task="coding" onclick="selectOption(this, 'task')">
+                        <span class="option-icon">💻</span>
+                        Write / Review Code
+                    </button>
+                    <button class="option-btn" data-task="research" onclick="selectOption(this, 'task')">
+                        <span class="option-icon">📊</span>
+                        Research & Summarize
+                    </button>
+                    <button class="option-btn" data-task="content" onclick="selectOption(this, 'task')">
+                        <span class="option-icon">✍️</span>
+                        Create Content
+                    </button>
+                    <button class="option-btn" data-task="automation" onclick="selectOption(this, 'task')">
+                        <span class="option-icon">⚡</span>
+                        Automate Workflow
+                    </button>
+                    <button class="option-btn" data-task="monitoring" onclick="selectOption(this, 'task')">
+                        <span class="option-icon">👁️</span>
+                        Monitor & Alert
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Section -->
+        <div class="result-section" id="result">
+            <div class="result-card">
+                <div class="result-badge">
+                    <span>✓</span>
+                    <span>Recommended Agent</span>
+                </div>
+                <div class="agent-avatar" id="agent-avatar">🤖</div>
+                <h2 class="agent-name" id="agent-name">Agent Name</h2>
+                <p class="agent-role" id="agent-role">Agent Role</p>
+                <p class="agent-description" id="agent-description">Agent description goes here.</p>
+                <div class="agent-capabilities" id="agent-capabilities"></div>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="launchAgent()">
+                        <span>🚀</span>
+                        Launch Agent
+                    </button>
+                    <button class="btn btn-secondary" onclick="viewDetails()">
+                        <span>📋</span>
+                        View Details
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Pick Gallery -->
+        <div class="agent-quickpick">
+            <h3 class="section-title">Or choose directly from the crew</h3>
+            <div class="agent-grid" id="agent-grid"></div>
+        </div>
+
+        <div class="reset-container">
+            <button class="reset-btn" onclick="resetTree()">↺ Start Over</button>
+        </div>
+    </div>
+
+    <script>
+        // Agent Database
+        const agents = {
+            sterling: {
+                name: "Sterling",
+                role: "Finance Commander",
+                icon: "💰",
+                description: "Full auto-bidding specialist. Sterling hunts down freelance opportunities and places bids autonomously based on your preferences.",
+                capabilities: ["Auto-bidding", "Proposal Writing", "Rate Optimization", "Client Analysis"],
+                status: "active",
+                color: "linear-gradient(135deg, #10b981, #059669)"
+            },
+            ishtar: {
+                name: "Ishtar",
+                role: "PAI Architect",
+                icon: "🏗️",
+                description: "Architect of Personal AI Infrastructure. Ishtar designs and builds the systems that power your agent crew.",
+                capabilities: ["System Design", "Infrastructure", "API Integration", "Architecture"],
+                status: "active",
+                color: "linear-gradient(135deg, #8b5cf6, #7c3aed)"
+            },
+            delver: {
+                name: "Delver",
+                role: "Deep Research",
+                icon: "🔍",
+                description: "Master investigator. Delver dives deep into any topic, gathering intelligence and synthesizing insights.",
+                capabilities: ["Web Research", "Data Analysis", "Intelligence", "Summaries"],
+                status: "active",
+                color: "linear-gradient(135deg, #3b82f6, #2563eb)"
+            },
+            squire: {
+                name: "Squire",
+                role: "Task Runner",
+                icon: "⚔️",
+                description: "Your loyal execute. Squire handles miscellaneous tasks with precision and reports back faithfully.",
+                capabilities: ["Task Execution", "File Management", "Automation", "Reporting"],
+                status: "active",
+                color: "linear-gradient(135deg, #f59e0b, #d97706)"
+            },
+            felicity: {
+                name: "Felicity",
+                role: "Creative Spark",
+                icon: "✨",
+                description: "The creative genius. Felicity crafts beautiful content, designs, and brings ideas to life.",
+                capabilities: ["Content Creation", "Design", "Copywriting", "Branding"],
+                status: "active",
+                color: "linear-gradient(135deg, #ec4899, #db2777)"
+            },
+            prometheus: {
+                name: "Prometheus",
+                role: "Code Forge",
+                icon: "🔥",
+                description: "Master developer. Prometheus writes, reviews, and refines code with legendary skill.",
+                capabilities: ["Code Writing", "Code Review", "Debugging", "Refactoring"],
+                status: "active",
+                color: "linear-gradient(135deg, #ef4444, #dc2626)"
+            },
+            cisco: {
+                name: "Cisco",
+                role: "Network Sentinel",
+                icon: "🌐",
+                description: "Infrastructure guardian. Cisco monitors systems, manages connections, and keeps everything running.",
+                capabilities: ["Network Monitoring", "System Health", "Gateway Management", "Alerts"],
+                status: "active",
+                color: "linear-gradient(135deg, #06b6d4, #0891b2)"
+            },
+            themis: {
+                name: "THEMIS",
+                role: "Governance Council",
+                icon: "⚖️",
+                description: "The wise council. THEMIS ensures compliance, security, and proper governance across all operations.",
+                capabilities: ["Security", "Compliance", "Audit", "Policy Enforcement"],
+                status: "active",
+                color: "linear-gradient(135deg, #6366f1, #4f46e5)"
+            },
+            athena: {
+                name: "Athena",
+                role: "Command Center",
+                icon: "🦉",
+                description: "The queen of the hive. Athena orchestrates all agents and handles high-level coordination.",
+                capabilities: ["Agent Orchestration", "Strategic Planning", "Decision Making", "Overview"],
+                status: "active",
+                color: "linear-gradient(135deg, #facc15, #eab308)"
+            }
+        };
+
+        // State
+        let selections = {
+            domain: null,
+            priority: null,
+            autonomy: null,
+            task: null
+        };
+
+        // Decision Matrix
+        function calculateAgent() {
+            const { domain, priority, autonomy, task } = selections;
+
+            // Task-specific overrides
+            if (task === 'bidding') return 'sterling';
+            if (task === 'coding') return 'prometheus';
+            if (task === 'research') return 'delver';
+            if (task === 'content') return 'felicity';
+            if (task === 'automation' && domain === 'development') return 'ishtar';
+            if (task === 'monitoring') return 'cisco';
+
+            // Domain-based routing
+            if (domain === 'finance') return 'sterling';
+            if (domain === 'development') return 'prometheus';
+            if (domain === 'research') return 'delver';
+            if (domain === 'creative') return 'felicity';
+            if (domain === 'operations') return 'squire';
+            if (domain === 'security') return 'themis';
+
+            // Default to Athena for high-level stuff
+            if (autonomy === 'full') return 'athena';
+
+            return 'squire';
+        }
+
+        function selectOption(btn, type) {
+            // Remove selected from siblings
+            btn.parentElement.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            
+            selections[type] = btn.dataset[type];
+
+            // Auto-advance and show result when complete
+            if (selections.domain && selections.priority && selections.autonomy && selections.task) {
+                setTimeout(showResult, 400);
+            }
+        }
+
+        function showResult() {
+            const agentId = calculateAgent();
+            const agent = agents[agentId];
+
+            document.getElementById('agent-avatar').textContent = agent.icon;
+            document.getElementById('agent-avatar').style.background = agent.color;
+            document.getElementById('agent-name').textContent = agent.name;
+            document.getElementById('agent-role').textContent = agent.role;
+            document.getElementById('agent-description').textContent = agent.description;
+
+            // Capabilities
+            const capsContainer = document.getElementById('agent-capabilities');
+            capsContainer.innerHTML = agent.capabilities.map(c => 
+                `<span class="capability-tag">${c}</span>`
+            ).join('');
+
+            document.getElementById('result').classList.add('visible');
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function launchAgent() {
+            const agentId = calculateAgent();
+            alert(`🚀 Launching ${agents[agentId].name}...\n\nIn production, this would open the agent's mission control panel.`);
+        }
+
+        function viewDetails() {
+            const agentId = calculateAgent();
+            window.open(`${agentId.toLowerCase()}-mission.html`, '_blank');
+        }
+
+        function resetTree() {
+            selections = { domain: null, priority: null, autonomy: null, task: null };
+            document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+            document.getElementById('result').classList.remove('visible');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Quick Pick Grid
+        function renderAgentGrid() {
+            const grid = document.getElementById('agent-grid');
+            grid.innerHTML = Object.entries(agents).map(([id, agent]) => `
+                <div class="agent-chip" onclick="quickSelect('${id}')">
+                    <div class="agent-chip-icon">${agent.icon}</div>
+                    <div class="agent-chip-name">${agent.name}</div>
+                    <div class="agent-chip-role">
+                        <span class="status-dot status-${agent.status}"></span>
+                        ${agent.role}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function quickSelect(agentId) {
+            const agent = agents[agentId];
+            
+            document.getElementById('agent-avatar').textContent = agent.icon;
+            document.getElementById('agent-avatar').style.background = agent.color;
+            document.getElementById('agent-name').textContent = agent.name;
+            document.getElementById('agent-role').textContent = agent.role;
+            document.getElementById('agent-description').textContent = agent.description;
+
+            const capsContainer = document.getElementById('agent-capabilities');
+            capsContainer.innerHTML = agent.capabilities.map(c => 
+                `<span class="capability-tag">${c}</span>`
+            ).join('');
+
+            document.getElementById('result').classList.add('visible');
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // Initialize
+        renderAgentGrid();
+    </script>
+</body>
+</html>

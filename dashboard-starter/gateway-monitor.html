@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🖥️ Live Gateway Monitor | Athena</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖥️</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    :root {
+      --bg: #0a0e17;
+      --surface: #0d1117;
+      --elevated: #161b22;
+      --border: #30363d;
+      --text: #c9d1d9;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --green: #3fb950;
+      --yellow: #d29922;
+      --red: #f85149;
+      --purple: #a371f7;
+      --cyan: #39c5cf;
+      --orange: #f0883e;
+      --pink: #f778ba;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(ellipse at top, rgba(88, 166, 255, 0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom right, rgba(163, 113, 247, 0.03) 0%, transparent 50%);
+    }
+
+    .container { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .logo { display: flex; align-items: center; gap: 0.75rem; }
+    .logo-icon {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, var(--cyan), var(--accent));
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+    }
+    .logo-text { font-size: 1.5rem; font-weight: 700; }
+    .logo-text span { color: var(--cyan); }
+
+    .header-actions { display: flex; gap: 0.5rem; align-items: center; }
+    
+    .refresh-btn {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .refresh-btn:hover { background: var(--border); }
+    .refresh-btn.loading { opacity: 0.6; pointer-events: none; }
+
+    .auto-refresh {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.875rem;
+    }
+    .auto-refresh input { accent-color: var(--cyan); }
+
+    .status-badge {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: rgba(63, 185, 80, 0.1);
+      border: 1px solid var(--green);
+      border-radius: 8px;
+      color: var(--green);
+      font-size: 0.875rem;
+    }
+    .status-badge.offline { background: rgba(248, 81, 73, 0.1); border-color: var(--red); color: var(--red); }
+    .status-dot { width: 8px; height: 8px; background: currentColor; border-radius: 50%; animation: pulse 2s infinite; }
+
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    @media (max-width: 1200px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--card-color, var(--accent));
+    }
+    .stat-card .label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; }
+    .stat-card .value { font-size: 2rem; font-weight: 700; color: var(--text); }
+    .stat-card .sub { font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem; }
+
+    .section { margin-bottom: 1.5rem; }
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .section-title { font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+    .section-title span { color: var(--cyan); }
+
+    .agents-table {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: var(--elevated); font-size: 0.75rem; text-transform: uppercase; color: var(--muted); letter-spacing: 0.5px; }
+    td { font-size: 0.875rem; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(88, 166, 255, 0.03); }
+
+    .agent-cell { display: flex; align-items: center; gap: 0.75rem; }
+    .agent-avatar { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+    .agent-name { font-weight: 600; }
+    .agent-model { font-size: 0.75rem; color: var(--muted); }
+
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 0.375rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem; font-weight: 600;
+      text-transform: uppercase;
+    }
+    .status-pill.active { background: rgba(63, 185, 80, 0.1); color: var(--green); }
+    .status-pill.idle { background: rgba(210, 153, 34, 0.1); color: var(--yellow); }
+    .status-dot-sm { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .status-pill.active .status-dot-sm { animation: pulse 2s infinite; }
+
+    .token-bar { height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; min-width: 80px; }
+    .token-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s; }
+    .token-input { background: linear-gradient(90deg, var(--accent), var(--cyan)); }
+    .token-output { background: linear-gradient(90deg, var(--purple), var(--pink)); }
+
+    .time-ago { font-size: 0.75rem; color: var(--muted); }
+
+    .channels-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+    .channel-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+    .channel-icon { font-size: 1.25rem; }
+    .channel-info { flex: 1; }
+    .channel-name { font-weight: 600; font-size: 0.875rem; }
+    .channel-status { font-size: 0.75rem; color: var(--muted); }
+
+    .events-list { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; max-height: 300px; overflow-y: auto; }
+    .event-item {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .event-item:last-child { border-bottom: none; }
+    .event-icon { font-size: 1rem; }
+    .event-content { flex: 1; }
+    .event-title { font-weight: 500; font-size: 0.875rem; }
+    .event-detail { font-size: 0.75rem; color: var(--muted); }
+
+    .heartbeat-pulse {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.75rem; color: var(--muted);
+    }
+    .heartbeat-pulse.active { color: var(--green); }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: var(--muted);
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .last-updated {
+      font-size: 0.75rem; color: var(--muted);
+      text-align: center; margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <div class="logo-icon">🖥️</div>
+        <div class="logo-text">Live <span>Gateway</span> Monitor</div>
+      </div>
+      <div class="header-actions">
+        <div class="status-badge" id="status-badge">
+          <span class="status-dot"></span>
+          <span id="status-text">Connecting...</span>
+        </div>
+        <label class="auto-refresh">
+          <input type="checkbox" id="auto-refresh" checked>
+          Auto-refresh (5s)
+        </label>
+        <button class="refresh-btn" id="refresh-btn">
+          <span>🔄</span> Refresh
+        </button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div class="stat-card" style="--card-color: var(--cyan)">
+        <div class="label">Total Sessions</div>
+        <div class="value" id="total-sessions">--</div>
+        <div class="sub">all time</div>
+      </div>
+      <div class="stat-card" style="--card-color: var(--green)">
+        <div class="label">Active Agents</div>
+        <div class="value" id="active-agents">--</div>
+        <div class="sub">in last 5 min</div>
+      </div>
+      <div class="stat-card" style="--card-color: var(--purple)">
+        <div class="label">Total Tokens</div>
+        <div class="value" id="total-tokens">--</div>
+        <div class="sub">input + output</div>
+      </div>
+      <div class="stat-card" style="--card-color: var(--orange)">
+        <div class="label">Queued Events</div>
+        <div class="value" id="queued-events">--</div>
+        <div class="sub">pending processing</div>
+      </div>
+    </div>
+
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title"><span>🤖</span> Agent Sessions</h2>
+        <div class="heartbeat-pulse" id="heartbeat-status">
+          <span class="status-dot-sm"></span>
+          <span>Heartbeat: --</span>
+        </div>
+      </div>
+      <div class="agents-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Agent</th>
+              <th>Status</th>
+              <th>Sessions</th>
+              <th>Input Tokens</th>
+              <th>Output Tokens</th>
+              <th>Last Activity</th>
+            </tr>
+          </thead>
+          <tbody id="agents-tbody">
+            <tr><td colspan="6" class="empty-state">Loading agent data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title"><span>📡</span> Channel Status</h2>
+      </div>
+      <div class="channels-grid" id="channels-grid">
+        <div class="empty-state">Loading channels...</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title"><span>📋</span> Queued System Events</h2>
+      </div>
+      <div class="events-list" id="events-list">
+        <div class="empty-state">No queued events</div>
+      </div>
+    </section>
+
+    <div class="last-updated">
+      Last updated: <span id="last-updated">--</span>
+    </div>
+  </div>
+
+  <script>
+    const AGENT_COLORS = {
+      athena: { bg: 'linear-gradient(135deg, #10b981, #34d399)', emoji: '🏛️' },
+      sterling: { bg: 'linear-gradient(135deg, #f59e0b, #fbbf24)', emoji: '💰' },
+      ishtar: { bg: 'linear-gradient(135deg, #8b5cf6, #a78bfa)', emoji: '🔮' },
+      delver: { bg: 'linear-gradient(135deg, #3b82f6, #60a5fa)', emoji: '📚' },
+      squire: { bg: 'linear-gradient(135deg, #6366f1, #818cf8)', emoji: '🛡️' },
+      felicity: { bg: 'linear-gradient(135deg, #ec4899, #f472b6)', emoji: '💻' },
+      prometheus: { bg: 'linear-gradient(135deg, #f97316, #fb923c)', emoji: '⚡' },
+      cisco: { bg: 'linear-gradient(135deg, #14b8a6, #2dd4bf)', emoji: '🔔' },
+      themis: { bg: 'linear-gradient(135deg, #06b6d4, #22d3ee)', emoji: '⚖️' },
+      apollo: { bg: 'linear-gradient(135deg, #0ea5e9, #38bdf8)', emoji: '📞' },
+      hermes: { bg: 'linear-gradient(135deg, #a855f7, #c084fc)', emoji: '📣' },
+      kratos: { bg: 'linear-gradient(135deg, #eab308, #facc15)', emoji: '🪙' },
+      chiron: { bg: 'linear-gradient(135deg, #ef4444, #f87171)', emoji: '🧪' },
+      nexus: { bg: 'linear-gradient(135deg, #6366f1, #818cf8)', emoji: '🧠' },
+      default: { bg: 'linear-gradient(135deg, #6b7280, #9ca3af)', emoji: '🤖' }
+    };
+
+    let autoRefreshInterval = null;
+    const REFRESH_MS = 5000;
+
+    function formatNumber(num) {
+      if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+      if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+      return num.toString();
+    }
+
+    function formatTimeAgo(timestamp) {
+      if (!timestamp) return '--';
+      const seconds = Math.floor((Date.now() - timestamp) / 1000);
+      if (seconds < 60) return `${seconds}s ago`;
+      if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+      if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+      return `${Math.floor(seconds / 86400)}d ago`;
+    }
+
+    function getAgentColor(agentId) {
+      return AGENT_COLORS[agentId?.toLowerCase()] || AGENT_COLORS.default;
+    }
+
+    async function fetchGatewayStatus() {
+      try {
+        const response = await fetch('/api/live-status');
+        if (!response.ok) throw new Error('Failed to fetch');
+        return await response.json();
+      } catch (e) {
+        console.error('Gateway status error:', e);
+        return { error: e.message, status: 'error' };
+      }
+    }
+
+    function renderAgents(agents) {
+      const tbody = document.getElementById('agents-tbody');
+      
+      if (!agents || agents.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No active sessions</td></tr>';
+        return;
+      }
+
+      const maxTokens = Math.max(...agents.map(a => (a.inputTokens || 0) + (a.outputTokens || 0)), 1);
+
+      tbody.innerHTML = agents.map(agent => {
+        const color = getAgentColor(agent.agentId);
+        const totalTokens = (agent.inputTokens || 0) + (agent.outputTokens || 0);
+        const inputPct = agent.inputTokens ? Math.round((agent.inputTokens / maxTokens) * 100) : 0;
+        const outputPct = agent.outputTokens ? Math.round((agent.outputTokens / maxTokens) * 100) : 0;
+
+        return `
+          <tr>
+            <td>
+              <div class="agent-cell">
+                <div class="agent-avatar" style="background: ${color.bg}">${color.emoji}</div>
+                <div>
+                  <div class="agent-name">${agent.agentId || 'Unknown'}</div>
+                  <div class="agent-model">${agent.model || 'N/A'}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="status-pill ${agent.isActive ? 'active' : 'idle'}">
+                <span class="status-dot-sm"></span>
+                ${agent.isActive ? 'Active' : 'Idle'}
+              </span>
+            </td>
+            <td>${agent.sessions || 0}</td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span>${formatNumber(agent.inputTokens || 0)}</span>
+                <div class="token-bar"><div class="token-bar-fill token-input" style="width: ${inputPct}%"></div></div>
+              </div>
+            </td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span>${formatNumber(agent.outputTokens || 0)}</span>
+                <div class="token-bar"><div class="token-bar-fill token-output" style="width: ${outputPct}%"></div></div>
+              </div>
+            </td>
+            <td><span class="time-ago">${formatTimeAgo(agent.latestAge ? Date.now() - (agent.latestAge * 1000) : null)}</span></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderChannels(channelsRaw) {
+      const grid = document.getElementById('channels-grid');
+      
+      // Handle both array and string formats
+      let channels = [];
+      if (typeof channelsRaw === 'string') {
+        // Parse "Telegram: configured" lines
+        const lines = channelsRaw.split('\n').filter(l => l.trim());
+        channels = lines.map(line => {
+          const match = line.match(/^([^:]+):\s*(.+)$/);
+          if (match) {
+            return { channel: match[1].trim(), status: match[2].trim() };
+          }
+          return { channel: line, status: '' };
+        });
+      } else if (Array.isArray(channelsRaw)) {
+        channels = channelsRaw;
+      }
+      
+      if (!channels || channels.length === 0) {
+        grid.innerHTML = '<div class="empty-state">No channels configured</div>';
+        return;
+      }
+
+      const channelIcons = {
+        telegram: '✈️',
+        discord: '💬',
+        slack: '👥',
+        whatsapp: '💬',
+        terminal: '💻',
+        default: '📡'
+      };
+
+      grid.innerHTML = channels.map(ch => {
+        const icon = channelIcons[ch.channel?.toLowerCase()] || channelIcons.default;
+        return `
+          <div class="channel-card">
+            <div class="channel-icon">${icon}</div>
+            <div class="channel-info">
+              <div class="channel-name">${ch.channel || 'Unknown'}</div>
+              <div class="channel-status">${ch.status || 'Active'}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderEvents(eventsRaw) {
+      const list = document.getElementById('events-list');
+      
+      // Handle both array and string formats
+      let events = [];
+      if (typeof eventsRaw === 'string') {
+        // Each line is an event
+        events = eventsRaw.split('\n').filter(l => l.trim()).map((line, i) => ({
+          type: line.startsWith('Run:') ? 'command' : 'task',
+          description: line.trim(),
+          index: i
+        }));
+      } else if (Array.isArray(eventsRaw)) {
+        events = eventsRaw;
+      }
+      
+      if (!events || events.length === 0) {
+        list.innerHTML = '<div class="empty-state">No queued events</div>';
+        return;
+      }
+
+      const eventIcons = {
+        heartbeat: '💓',
+        task: '📋',
+        message: '💬',
+        command: '⚡',
+        default: '📌'
+      };
+
+      list.innerHTML = events.slice(0, 20).map(evt => {
+        const icon = eventIcons[evt.type?.toLowerCase()] || eventIcons.default;
+        return `
+          <div class="event-item">
+            <div class="event-icon">${icon}</div>
+            <div class="event-content">
+              <div class="event-title">${evt.type || 'Event'}</div>
+              <div class="event-detail">${evt.description || 'Processing...'}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function updateDashboard() {
+      const btn = document.getElementById('refresh-btn');
+      btn.classList.add('loading');
+      
+      const data = await fetchGatewayStatus();
+      
+      document.getElementById('last-updated').new Date().toLocaleTimeString();
+      
+      const statusBadge = document.getElementById('status-badge');
+      const statusText = document.getElementById('status-text');
+      
+      if (data.error || data.status === 'error') {
+        statusBadge.classList.add('offline');
+        statusText.textContent = 'Offline';
+      } else {
+        statusBadge.classList.remove('offline');
+        statusText.textContent = 'Connected';
+        
+        // Update stats
+        document.getElementById('total-sessions').textContent = formatNumber(data.sessions?.total || 0);
+        document.getElementById('active-agents').textContent = data.sessions?.activeAgents || 0;
+        document.getElementById('total-tokens').textContent = formatNumber(data.sessions?.totalTokens || 0);
+        document.getElementById('queued-events').textContent = data.queuedEvents?.length || 0;
+        
+        // Update heartbeat
+        const hb = data.heartbeat;
+        const hbEl = document.getElementById('heartbeat-status');
+        if (hb?.lastHeartbeat) {
+          hbEl.classList.add('active');
+          hbEl.innerHTML = `<span class="status-dot-sm"></span> Last: ${formatTimeAgo(Date.now() - hb.lastHeartbeat)}`;
+        }
+        
+        // Render data
+        renderAgents(data.sessions?.byAgent || []);
+        renderChannels(data.channels || []);
+        renderEvents(data.queuedEvents || []);
+      }
+      
+      document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();
+      btn.classList.remove('loading');
+    }
+
+    // Event listeners
+    document.getElementById('refresh-btn').addEventListener('click', updateDashboard);
+    
+    document.getElementById('auto-refresh').addEventListener('change', (e) => {
+      if (e.target.checked) {
+        autoRefreshInterval = setInterval(updateDashboard, REFRESH_MS);
+      } else {
+        clearInterval(autoRefreshInterval);
+      }
+    });
+
+    // Initial load
+    updateDashboard();
+    autoRefreshInterval = setInterval(updateDashboard, REFRESH_MS);
+  </script>
+</body>
+</html>

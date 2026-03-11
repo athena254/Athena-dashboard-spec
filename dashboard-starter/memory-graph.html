@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Athena Memory Graph</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a25;
+            --accent-cyan: #00d4ff;
+            --accent-purple: #a855f7;
+            --accent-pink: #ec4899;
+            --accent-green: #10b981;
+            --accent-orange: #f59e0b;
+            --accent-red: #ef4444;
+            --text-primary: #f0f0f5;
+            --text-secondary: #8888a0;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            min-height: 100vh;
+        }
+        .bg-pattern {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(0, 212, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(168, 85, 247, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(236, 72, 153, 0.05) 0%, transparent 60%);
+            pointer-events: none; z-index: 0;
+        }
+        .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+        .star { position: absolute; width: 2px; height: 2px; background: white; border-radius: 50%; opacity: 0; animation: twinkle 3s infinite; }
+        @keyframes twinkle { 0%, 100% { opacity: 0; } 50% { opacity: 0.8; } }
+        .header {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 16px 24px;
+            background: linear-gradient(180deg, rgba(10, 10, 15, 0.95) 0%, transparent 100%);
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+        }
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo-icon {
+            width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+        @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); } 50% { box-shadow: 0 0 30px rgba(0, 212, 255, 0.6); } }
+        .logo-text h1 { font-size: 20px; font-weight: 700; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .logo-text span { font-size: 12px; color: var(--text-secondary); }
+        .controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+        .search-container { position: relative; }
+        .search-input {
+            background: var(--bg-secondary); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px;
+            padding: 10px 16px 10px 40px; color: var(--text-primary); font-size: 14px; width: 220px;
+            transition: all 0.3s ease;
+        }
+        .search-input:focus { outline: none; border-color: var(--accent-cyan); width: 280px; }
+        .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); }
+        .category-filters { display: flex; gap: 8px; flex-wrap: wrap; }
+        .filter-btn {
+            padding: 8px 14px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.15);
+            background: var(--bg-secondary); color: var(--text-secondary); font-size: 12px; font-weight: 500;
+            cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;
+        }
+        .filter-btn:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+        .filter-btn.active { border-color: transparent; color: white; }
+        .filter-btn[data-category="daily"].active { background: var(--accent-cyan); }
+        .filter-btn[data-category="research"].active { background: var(--accent-purple); }
+        .filter-btn[data-category="report"].active { background: var(--accent-pink); }
+        .filter-btn[data-category="architecture"].active { background: var(--accent-green); }
+        .filter-btn[data-category="security"].active { background: var(--accent-red); }
+        .filter-btn[data-category="note"].active { background: var(--accent-orange); }
+        .filter-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .filter-btn[data-category="daily"] .filter-dot { background: var(--accent-cyan); }
+        .filter-btn[data-category="research"] .filter-dot { background: var(--accent-purple); }
+        .filter-btn[data-category="report"] .filter-dot { background: var(--accent-pink); }
+        .filter-btn[data-category="architecture"] .filter-dot { background: var(--accent-green); }
+        .filter-btn[data-category="security"] .filter-dot { background: var(--accent-red); }
+        .filter-btn[data-category="note"] .filter-dot { background: var(--accent-orange); }
+        .stats-bar {
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; padding: 12px 24px;
+            background: linear-gradient(0deg, rgba(10, 10, 15, 0.95) 0%, transparent 100%);
+            display: flex; justify-content: center; gap: 32px; flex-wrap: wrap;
+        }
+        .stat-item { text-align: center; }
+        .stat-value { font-size: 24px; font-weight: 700; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; }
+        #graph-container { width: 100vw; height: 100vh; position: relative; z-index: 1; }
+        .node { cursor: pointer; }
+        .node circle { stroke-width: 2; transition: all 0.3s ease; }
+        .node.daily circle { fill: rgba(0, 212, 255, 0.3); stroke: var(--accent-cyan); }
+        .node.research circle { fill: rgba(168, 85, 247, 0.3); stroke: var(--accent-purple); }
+        .node.report circle { fill: rgba(236, 72, 153, 0.3); stroke: var(--accent-pink); }
+        .node.architecture circle { fill: rgba(16, 185, 129, 0.3); stroke: var(--accent-green); }
+        .node.security circle { fill: rgba(239, 68, 68, 0.3); stroke: var(--accent-red); }
+        .node.note circle { fill: rgba(245, 158, 11, 0.3); stroke: var(--accent-orange); }
+        .node:hover circle { stroke-width: 4; filter: drop-shadow(0 0 8px currentColor); }
+        .node.selected circle { stroke-width: 4; filter: drop-shadow(0 0 12px currentColor); }
+        .node-label { font-size: 9px; fill: var(--text-primary); pointer-events: none; text-anchor: middle; opacity: 0; transition: opacity 0.2s; font-weight: 500; }
+        .node:hover .node-label, .node.selected .node-label { opacity: 1; }
+        .link { stroke: rgba(255, 255, 255, 0.06); stroke-width: 1; }
+        .link.highlighted { stroke: var(--accent-cyan); stroke-width: 2; opacity: 0.6; }
+        .tooltip {
+            position: fixed; background: var(--bg-secondary); border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px; padding: 16px; max-width: 320px; z-index: 1000; pointer-events: none;
+            opacity: 0; transform: translateY(10px); transition: all 0.2s ease;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+        .tooltip.visible { opacity: 1; transform: translateY(0); }
+        .tooltip-title { font-size: 14px; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .tooltip-category { font-size: 10px; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .tooltip-path { font-size: 11px; color: var(--text-secondary); margin-bottom: 12px; font-family: monospace; }
+        .tooltip-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
+        .tooltip-stat { background: var(--bg-tertiary); padding: 8px; border-radius: 6px; }
+        .tooltip-stat-value { font-size: 16px; font-weight: 600; }
+        .tooltip-stat-label { font-size: 10px; color: var(--text-secondary); }
+        .tooltip-mentions { display: flex; flex-wrap: wrap; gap: 4px; }
+        .mention-tag { font-size: 10px; padding: 2px 6px; background: rgba(0, 212, 255, 0.2); border-radius: 4px; color: var(--accent-cyan); }
+        .details-panel {
+            position: fixed; top: 80px; right: 24px; width: 360px; max-height: calc(100vh - 160px);
+            background: var(--bg-secondary); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px; z-index: 100; overflow: hidden;
+            transform: translateX(400px); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: -10px 0 40px rgba(0, 0, 0, 0.3);
+        }
+        .details-panel.visible { transform: translateX(0); }
+        .panel-header { padding: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; align-items: flex-start; }
+        .panel-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+        .panel-path { font-size: 11px; color: var(--text-secondary); font-family: monospace; }
+        .panel-close { background: none; border: none; color: var(--text-secondary); font-size: 24px; cursor: pointer; line-height: 1; }
+        .panel-close:hover { color: var(--text-primary); }
+        .panel-content { padding: 20px; overflow-y: auto; max-height: calc(100vh - 280px); }
+        .panel-section { margin-bottom: 20px; }
+        .panel-section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 10px; }
+        .agent-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .agent-chip { background: var(--bg-tertiary); padding: 8px; border-radius: 8px; text-align: center; transition: all 0.2s; }
+        .agent-chip:hover { background: rgba(0, 212, 255, 0.2); transform: scale(1.05); }
+        .agent-name { font-size: 11px; font-weight: 500; }
+        .agent-count { font-size: 14px; font-weight: 700; color: var(--accent-cyan); }
+        .connections-list { display: flex; flex-direction: column; gap: 6px; }
+        .connection-item {
+            background: var(--bg-tertiary); padding: 10px 12px; border-radius: 8px;
+            display: flex; align-items: center; gap: 10px; cursor: pointer; transition: all 0.2s;
+        }
+        .connection-item:hover { background: rgba(255, 255, 255, 0.1); transform: translateX(4px); }
+        .connection-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .connection-name { flex: 1; font-size: 13px; }
+        .connection-strength { font-size: 11px; color: var(--text-secondary); }
+        @media (max-width: 768px) {
+            .header { padding: 12px 16px; }
+            .search-input { width: 140px; }
+            .search-input:focus { width: 180px; }
+            .category-filters { display: none; }
+            .details-panel { width: calc(100% - 32px); right: 16px; top: 70px; max-height: calc(100vh - 140px); }
+            .stats-bar { gap: 16px; padding: 10px 16px; }
+            .stat-value { font-size: 18px; }
+        }
+        .loading {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-primary);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000;
+            transition: opacity 0.5s ease;
+        }
+        .loading.hidden { opacity: 0; pointer-events: none; }
+        .loader { width: 60px; height: 60px; border: 3px solid rgba(255, 255, 255, 0.1); border-top-color: var(--accent-cyan); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { margin-top: 20px; color: var(--text-secondary); font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="loading" id="loading"><div class="loader"></div><div class="loading-text">Building memory graph...</div></div>
+    <div class="bg-pattern"></div>
+    <div class="stars" id="stars"></div>
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">🧠</div>
+            <div class="logo-text"><h1>Athena Memory Graph</h1><span>Interactive Knowledge Visualization</span></div>
+        </div>
+        <div class="controls">
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" id="search" placeholder="Search memories...">
+            </div>
+            <div class="category-filters">
+                <button class="filter-btn active" data-category="all">All</button>
+                <button class="filter-btn" data-category="daily"><span class="filter-dot"></span>Daily</button>
+                <button class="filter-btn" data-category="research"><span class="filter-dot"></span>Research</button>
+                <button class="filter-btn" data-category="report"><span class="filter-dot"></span>Reports</button>
+                <button class="filter-btn" data-category="architecture"><span class="filter-dot"></span>Arch</button>
+                <button class="filter-btn" data-category="security"><span class="filter-dot"></span>Security</button>
+                <button class="filter-btn" data-category="note"><span class="filter-dot"></span>Notes</button>
+            </div>
+        </div>
+    </header>
+    <div id="graph-container"></div>
+    <div class="tooltip" id="tooltip">
+        <div class="tooltip-title"><span id="tooltip-title-text"></span><span class="tooltip-category" id="tooltip-category"></span></div>
+        <div class="tooltip-path" id="tooltip-path"></div>
+        <div class="tooltip-stats">
+            <div class="tooltip-stat"><div class="tooltip-stat-value" id="tooltip-size">0</div><div class="tooltip-stat-label">Bytes</div></div>
+            <div class="tooltip-stat"><div class="tooltip-stat-value" id="tooltip-connections">0</div><div class="tooltip-stat-label">Links</div></div>
+        </div>
+        <div class="tooltip-mentions" id="tooltip-mentions"></div>
+    </div>
+    <div class="details-panel" id="details-panel">
+        <div class="panel-header">
+            <div><div class="panel-title" id="panel-title"></div><div class="panel-path" id="panel-path"></div></div>
+            <button class="panel-close" id="panel-close">×</button>
+        </div>
+        <div class="panel-content">
+            <div class="panel-section"><div class="panel-section-title">Agent Mentions</div><div class="agent-grid" id="panel-agents"></div></div>
+            <div class="panel-section"><div class="panel-section-title">Strongest Connections</div><div class="connections-list" id="panel-connections"></div></div>
+        </div>
+    </div>
+    <div class="stats-bar">
+        <div class="stat-item"><div class="stat-value" id="stat-files">0</div><div class="stat-label">Memory Files</div></div>
+        <div class="stat-item"><div class="stat-value" id="stat-connections">0</div><div class="stat-label">Connections</div></div>
+        <div class="stat-item"><div class="stat-value">11</div><div class="stat-label">Agents</div></div>
+        <div class="stat-item"><div class="stat-value">6</div><div class="stat-label">Categories</div></div>
+    </div>
+
+    <script>

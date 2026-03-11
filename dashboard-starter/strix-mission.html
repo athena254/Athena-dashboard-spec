@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strix Micro-Agent | AI Hacker Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0c0f1a;
+            --bg-secondary: #131a2b;
+            --bg-tertiary: #1a2235;
+            --bg-card: #151d2e;
+            --accent: #ff6b35;
+            --accent-hover: #ff8255;
+            --accent-dim: rgba(255, 107, 53, 0.15);
+            --text-primary: #e8ecf4;
+            --text-secondary: #8b95a5;
+            --text-muted: #5a6475;
+            --border: #2a3548;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --critical: #dc2626;
+            --high: #f97316;
+            --medium: #eab308;
+            --low: #22c55e;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; line-height: 1.6; }
+        .container { max-width: 1600px; margin: 0 auto; padding: 24px; }
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+        .back-btn { display: inline-flex; align-items: center; gap: 8px; color: var(--text-secondary); text-decoration: none; font-size: 14px; padding: 10px 16px; border-radius: 8px; background: var(--bg-secondary); border: 1px solid var(--border); transition: all 0.2s ease; cursor: pointer; font-family: inherit; }
+        .back-btn:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-dim); }
+        .header-title { display: flex; align-items: center; gap: 12px; }
+        .header-title h1 { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .header-title .strix-icon { font-size: 28px; }
+        .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent); }
+        .status-badge.ready { background: rgba(16, 185, 129, 0.15); color: var(--success); border-color: var(--success); }
+        .status-badge.running { background: rgba(59, 130, 246, 0.15); color: var(--info); border-color: var(--info); animation: pulse 2s infinite; }
+        .status-badge .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .main-grid { display: grid; grid-template-columns: 1fr 400px; gap: 24px; }
+        @media (max-width: 1200px) { .main-grid { grid-template-columns: 1fr; } }
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+        .card-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--bg-secondary); border-bottom: 1px solid var(--border); }
+        .card-title { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); display: flex; align-items: center; gap: 8px; }
+        .card-body { padding: 20px; }
+        .controls-grid { display: grid; gap: 16px; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        .form-group label { font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-control { background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; color: var(--text-primary); font-size: 14px; font-family: 'JetBrains Mono', monospace; transition: all 0.2s ease; }
+        .form-control:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+        .form-control::placeholder { color: var(--text-muted); }
+        select.form-control { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%238b95a5' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 40px; }
+        .toggle-group { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg-tertiary); border-radius: 8px; border: 1px solid var(--border); }
+        .toggle-label { font-size: 14px; color: var(--text-primary); }
+        .toggle { position: relative; width: 48px; height: 26px; background: var(--bg-primary); border-radius: 13px; cursor: pointer; transition: all 0.3s ease; border: 1px solid var(--border); }
+        .toggle.active { background: var(--accent); border-color: var(--accent); }
+        .toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; background: var(--text-primary); border-radius: 50%; transition: all 0.3s ease; }
+        .toggle.active::after { left: 25px; }
+        .btn-run { width: 100%; padding: 14px 24px; background: linear-gradient(135deg, var(--accent), #ff8255); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-run:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255, 107, 53, 0.3); }
+        .btn-run:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .activity-feed { max-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+        .activity-feed::-webkit-scrollbar { width: 6px; }
+        .activity-feed::-webkit-scrollbar-track { background: var(--bg-tertiary); border-radius: 3px; }
+        .activity-feed::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        .activity-item { display: flex; gap: 12px; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; border-left: 3px solid var(--accent); animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+        .activity-item.info { border-left-color: var(--info); }
+        .activity-item.success { border-left-color: var(--success); }
+        .activity-item.warning { border-left-color: var(--warning); }
+        .activity-item.error { border-left-color: var(--danger); }
+        .activity-time { font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+        .activity-text { font-size: 13px; color: var(--text-primary); }
+        .findings-list { display: flex; flex-direction: column; gap: 12px; }
+        .finding-item { background: var(--bg-tertiary); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; transition: all 0.2s ease; }
+        .finding-item:hover { border-color: var(--accent); }
+        .finding-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; cursor: pointer; }
+        .finding-info { display: flex; align-items: center; gap: 12px; }
+        .severity-badge { padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .severity-badge.critical { background: rgba(220, 38, 38, 0.2); color: var(--critical); border: 1px solid var(--critical); }
+        .severity-badge.high { background: rgba(249, 115, 22, 0.2); color: var(--high); border: 1px solid var(--high); }
+        .severity-badge.medium { background: rgba(234, 179, 8, 0.2); color: var(--medium); border: 1px solid var(--medium); }
+        .severity-badge.low { background: rgba(34, 197, 94, 0.2); color: var(--low); border: 1px solid var(--low); }
+        .finding-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+        .finding-meta { display: flex; align-items: center; gap: 16px; font-size: 12px; color: var(--text-muted); }
+        .finding-toggle { color: var(--text-muted); transition: transform 0.2s ease; }
+        .finding-item.expanded .finding-toggle { transform: rotate(180deg); }
+        .finding-details { display: none; padding: 0 16px 16px; border-top: 1px solid var(--border); }
+        .finding-item.expanded .finding-details { display: block; }
+        .finding-section { margin-top: 16px; }
+        .finding-section-title { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .code-block { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 6px; padding: 12px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-secondary); overflow-x: auto; white-space: pre-wrap; word-break: break-all; }
+        .poc-code { color: #a5d6ff; }
+        .btn-pr { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; background: var(--success); color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; margin-top: 12px; }
+        .btn-pr:hover { background: #059669; transform: translateY(-1px); }
+        .history-list { display: flex; flex-direction: column; gap: 8px; }
+        .history-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: var(--bg-tertiary); border-radius: 8px; border: 1px solid var(--border); transition: all 0.2s ease; }
+        .history-item:hover { border-color: var(--accent); }
+        .history-info { display: flex; align-items: center; gap: 16px; }
+        .history-time { font-size: 12px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+        .history-target { font-size: 14px; font-weight: 500; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; }
+        .history-stats { display: flex; gap: 8px; }
+        .stat-badge { padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .stat-badge.critical { background: rgba(220, 38, 38, 0.2); color: var(--critical); }
+        .stat-badge.high { background: rgba(249, 115, 22, 0.2); color: var(--high); }
+        .stat-badge.medium { background: rgba(234, 179, 8, 0.2); color: var(--medium); }
+        .stat-badge.low { background: rgba(34, 197, 94, 0.2); color: var(--low); }
+        .left-column, .right-column { display: flex; flex-direction: column; gap: 24px; }
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+        .empty-state .icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+        .scan-progress { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+        .progress-bar { height: 6px; background: var(--bg-primary); border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--warning)); border-radius: 3px; transition: width 0.3s ease; width: 0%; }
+        .progress-text { font-size: 12px; color: var(--text-muted); display: flex; justify-content: space-between; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <button class="back-btn" onclick="window.location.href='micro-agents.html'">← Back to Micro-Agents Hub</button>
+            <div class="header-title">
+                <h1><span class="strix-icon">🦉</span>Strix<span style="color: var(--text-muted); font-weight: 400;">|</span><span style="color: var(--text-secondary); font-weight: 400; font-size: 18px;">AI Hacker</span></h1>
+                <span class="status-badge ready" id="statusBadge"><span class="dot"></span><span id="statusText">Ready</span></span>
+            </div>
+            <div></div>
+        </header>
+        <div class="main-grid">
+            <div class="left-column">
+                <div class="card">
+                    <div class="card-header"><span class="card-title">⚡ Run Controls</span></div>
+                    <div class="card-body">
+                        <div class="controls-grid">
+                            <div class="form-group"><label>Target</label><input type="text" class="form-control" id="targetInput" placeholder="https://api.example.com"></div>
+                            <div class="form-group"><label>Scan Mode</label><select class="form-control" id="scanMode"><option value="quick">Quick Scan (~2 min)</option><option value="standard" selected>Standard Scan (~10 min)</option><option value="deep">Deep Scan (~30 min)</option></select></div>
+                            <div class="form-group"><label>Model</label><select class="form-control" id="modelSelect"><option value="gpt-4o">GPT-4o</option><option value="claude-3.5" selected>Claude 3.5 Sonnet</option><option value="gemini-pro">Gemini Pro</option></select></div>
+                            <div class="toggle-group"><span class="toggle-label">Non-interactive Mode</span><div class="toggle" id="nonInteractiveToggle" onclick="this.classList.toggle('active')"></div></div>
+                            <button class="btn-run" id="runBtn" onclick="startScan()"><span class="icon">🚀</span>Start Scan</button>
+                        </div>
+                        <div class="scan-progress" id="scanProgress" style="display:none;">
+                            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+                            <div class="progress-text"><span id="progressText">Initializing...</span><span id="progressPercent">0%</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><span class="card-title">🎯 Findings</span><span style="color:var(--text-muted);font-size:13px;" id="findingsCount">0 vulnerabilities</span></div>
+                    <div class="card-body">
+                        <div class="findings-list" id="findingsList"><div class="empty-state"><div class="icon">🔍</div><p>Run a scan to discover vulnerabilities</p></div></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><span class="card-title">📋 Run History</span></div>
+                    <div class="card-body"><div class="history-list" id="historyList"></div></div>
+                </div>
+            </div>
+            <div class="right-column">
+                <div class="card">
+                    <div class="card-header"><span class="card-title">📡 Live Activity</span><span style="color:var(--text-muted);font-size:12px;" id="activityCount">0 events</span></div>
+                    <div class="card-body"><div class="activity-feed" id="activityFeed"><div class="activity-item info"><span class="activity-time">--:--:--</span><span class="activity-text">Waiting for scan to start...</span></div></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+const sampleFindings=[{id:1,severity:'critical',title:'SQL Injection in /api/users',location:'GET /api/users?id=1',cve:'CVE-2024-XXXX',description:'User-supplied input is directly concatenated into SQL query.',poc:"GET /api/users?id=1' OR '1'='1",remediation:'Use parameterized queries.'},{id:2,severity:'high',title:'Broken Authentication',location:'POST /api/auth/login',cve:'CVE-2024-YYYY',description:'No rate limiting on login.',poc:"for i in {1..1000}; do curl -X POST ...; done",remediation:'Implement rate limiting.'},{id:3,severity:'medium',title:'Sensitive Data Exposure',location:'GET /api/config',cve:'CVE-2024-ZZZZ',description:'API returns AWS keys.',poc:"curl -H 'Authorization:...' https://api.../config",remediation:'Remove secrets from responses.'}];
+const sampleHistory=[{time:'2026-03-01 14:30',target:'https://api.production.com',findings:{critical:2,high:3,medium:5,low:8},status:'complete'},{time:'2026-03-01 10:15',target:'https://api.staging.io',findings:{critical:0,high:1,medium:2,low:4},status:'complete'},{time:'2026-02-28 16:45',target:'https://dev.local:3000',findings:{critical:0,high:0,medium:1,low:2},status:'complete'}];
+const sampleActivity=[{time:'14:35:22',text:'🔍 Initializing Strix scanner...',type:'info'},{time:'14:35:23',text:'🎯 Target: https://api.production.com',type:'info'},{time:'14:35:30',text:'🔎 Running port scan...',type:'info'},{time:'14:35:45',text:'📡 Found 12 open ports',type:'success'},{time:'14:36:12',text:'⚠️ Potential SQL injection detected',type:'warning'},{time:'14:36:28',text:'🚨 CRITICAL: Broken auth found',type:'error'},{time:'14:37:05',text:'✅ PoC generated for SQL Injection',type:'success'}];
+let isScanning=false;
+document.addEventListener('DOMContentLoaded',()=>{renderHistory();renderFindings();});
+function renderHistory(){document.getElementById('historyList').innerHTML=sampleHistory.map(i=>`<div class="history-item"><div class="history-info"><span class="history-time">${i.time}</span><span class="history-target">${i.target}</span></div><div class="history-stats">${i.findings.critical>0?`<span class="stat-badge critical">${i.findings.critical}</span>`:''}${i.findings.high>0?`<span class="stat-badge high">${i.findings.high}</span>`:''}${i.findings.medium>0?`<span class="stat-badge medium">${i.findings.medium}</span>`:''}</div></div>`).join('');}
+function renderFindings(){const f=document.getElementById('findingsList'),c=document.getElementById('findingsCount');c.textContent=`${sampleFindings.length} vulnerabilities`;f.innerHTML=sampleFindings.map(f=>`<div class="finding-item" id="finding-${f.id}"><div class="finding-header" onclick="document.getElementById('finding-${f.id}').classList.toggle('expanded')"><div class="finding-info"><span class="severity-badge ${f.severity}">${f.severity}</span><span class="finding-title">${f.title}</span></div><div class="finding-meta"><span>${f.cve||'N/A'}</span><span class="finding-toggle">▼</span></div></div><div class="finding-details"><div class="finding-section"><div class="finding-section-title">Location</div><div class="code-block">${f.location}</div></div><div class="finding-section"><div class="finding-section-title">Description</div><p style="color:var(--text-secondary);font-size:13px;">${f.description}</p></div><div class="finding-section"><div class="finding-section-title">Proof of Concept</div><div class="code-block poc-code">${f.poc}</div></div><div class="finding-section"><div class="finding-section-title">Remediation</div><p style="color:var(--text-secondary);font-size:13px;">${f.remediation}</p></div><button class="btn-pr" onclick="alert('Generating PR for ${f.title}...')">🔧 Generate Fix PR</button></div></div>`).join('');}
+function startScan(){const t=document.getElementById('targetInput').value;if(!t){alert('Please enter a target');return;}isScanning=true;const b=document.getElementById('runBtn'),s=document.getElementById('statusBadge'),st=document.getElementById('statusText'),p=document.getElementById('scanProgress');b.disabled=true;b.innerHTML='<span class="icon">⏳</span> Scanning...';s.className='status-badge running';st.textContent='Scanning';p.style.display='block';let progress=0;const i=setInterval(()=>{progress+=Math.random()*15;if(progress>100)progress=100;document.getElementById('progressFill').style.width=progress+'%';document.getElementById('progressPercent').textContent=Math.round(progress)+'%';document.getElementById('progressText').textContent=['Initializing...','Port scanning...','Analyzing...','Testing payloads...','Generating PoCs...','Finalizing...'][Math.floor(progress/20)]||'Complete';if(progress>=100){clearInterval(i);setTimeout(()=>{isScanning=false;b.disabled=false;b.innerHTML='<span class="icon">🚀</span> Start Scan';s.className='status-badge ready';st.textContent='Ready';},1000);}},500);const a=document.getElementById('activityFeed');a.innerHTML='';let idx=0;const ai=setInterval(()=>{if(idx>=sampleActivity.length){clearInterval(ai);return;}const s=sampleActivity[idx];const d=document.createElement('div');d.className=`activity-item ${s.type}`;d.innerHTML=`<span class="activity-time">${s.time}</span><span class="activity-text">${s.text}</span>`;a.appendChild(a.firstChild?a.insertBefore(d,a.firstChild):a.appendChild(d));a.scrollTop=0;document.getElementById('activityCount').textContent=`${a.children.length} events`;idx++;},800);}
+    </script>
+</body>
+</html>

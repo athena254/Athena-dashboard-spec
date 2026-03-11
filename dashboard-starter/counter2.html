@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .counter-container {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .count-display {
+            font-size: 6rem;
+            font-weight: bold;
+            color: #667eea;
+            margin: 1rem 0;
+            min-width: 200px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        button {
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 600;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .decrement {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .decrement:hover {
+            background: #ff5252;
+        }
+
+        .increment {
+            background: #51cf66;
+            color: white;
+        }
+
+        .increment:hover {
+            background: #40c057;
+        }
+
+        .reset {
+            background: #868e96;
+            color: white;
+        }
+
+        .reset:hover {
+            background: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="counter-container">
+        <h1>Counter</h1>
+        <div class="count-display" id="count">0</div>
+        <div class="buttons">
+            <button class="decrement" onclick="decrement()">−</button>
+            <button class="reset" onclick="reset()">Reset</button>
+            <button class="increment" onclick="increment()">+</button>
+        </div>
+    </div>
+
+    <script>
+        let count = 0;
+        const display = document.getElementById('count');
+
+        function updateDisplay() {
+            display.textContent = count;
+        }
+
+        function increment() {
+            count++;
+            updateDisplay();
+        }
+
+        function decrement() {
+            count--;
+            updateDisplay();
+        }
+
+        function reset() {
+            count = 0;
+            updateDisplay();
+        }
+    </script>
+</body>
+</html>

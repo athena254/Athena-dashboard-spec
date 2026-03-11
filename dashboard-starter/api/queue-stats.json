@@ -1,0 +1,106 @@
+{
+  "generated": "2026-03-11T17:47:19.356569Z",
+  "summary": {
+    "totalTasks": 1,
+    "pending": 0,
+    "inProgress": 1,
+    "completed": 0,
+    "failed": 0,
+    "avgCompletionTimeMs": 0
+  },
+  "byPriority": {
+    "CRITICAL": 0,
+    "HIGH": 0,
+    "MEDIUM": 1,
+    "LOW": 0
+  },
+  "byType": {
+    "RESEARCH": 1
+  },
+  "agentLoad": {
+    "athena": {
+      "status": "IDLE",
+      "load": 0.0,
+      "currentTask": null
+    },
+    "sterling": {
+      "status": "IDLE",
+      "load": 0.0,
+      "currentTask": null
+    },
+    "ishtar": {
+      "status": "BUSY",
+      "load": 0.8,
+      "currentTask": "orchestration_implementation"
+    },
+    "delver": {
+      "status": "BUSY",
+      "load": 0.2,
+      "currentTask": "task_20260226_192523_23b21961"
+    },
+    "squire": {
+      "status": "IDLE",
+      "load": 0.0,
+      "currentTask": null
+    },
+    "felicity": {
+      "status": "IDLE",
+      "load": 0.0,
+      "currentTask": null
+    },
+    "prometheus": {
+      "status": "IDLE",
+      "load": 0.0,
+      "currentTask": null
+    },
+    "cisco": {
+      "status": "IDLE",
+      "load": 0.0,
+      "currentTask": null
+    },
+    "themis": {
+      "status": "IDLE",
+      "load": 0.0,
+      "currentTask": null
+    },
+    "apollo": {
+      "status": "IDLE",
+      "load": 0.0,
+      "currentTask": null
+    },
+    "hermes": {
+      "status": "IDLE",
+      "load": 0.0,
+      "currentTask": null
+    },
+    "kratos": {
+      "status": "IDLE",
+      "load": 0.0,
+      "currentTask": null
+    },
+    "chiron": {
+      "status": "IDLE",
+      "load": 0.0,
+      "currentTask": null
+    },
+    "mnemosyne": {
+      "status": "IDLE",
+      "load": 0.0,
+      "currentTask": null
+    },
+    "talia": {
+      "status": "IDLE",
+      "load": 0.0,
+      "currentTask": null
+    }
+  },
+  "recentActivity": [
+    {
+      "taskId": "task_20260226_192523_23b21961",
+      "type": "RESEARCH",
+      "event": "LEASE_EXPIRED",
+      "at": "2026-02-27T04:16:07.473604Z",
+      "by": null
+    }
+  ]
+}

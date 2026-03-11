@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delver | Research & Analysis Agent</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg-primary:#0a0e14;--bg-secondary:#111820;--bg-tertiary:#1a2332;--bg-card:#151d2a;--bg-hover:#1f2a3d;--accent-primary:#3b82f6;--accent-secondary:#60a5fa;--accent-glow:rgba(59,130,246,0.3);--text-primary:#e8edf5;--text-secondary:#8b9ab4;--text-muted:#5a6a85;--border-color:#2a3548;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--research-blue:#2563eb;--sidebar-width:220px;--header-height:64px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Space Grotesk',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;overflow-x:hidden}
+.header{position:fixed;top:0;left:0;right:0;height:var(--header-height);background:var(--bg-secondary);border-bottom:1px solid var(--border-color);display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:100;backdrop-filter:blur(10px)}
+.header-left{display:flex;align-items:center;gap:16px}
+.back-btn{display:flex;align-items:center;gap:8px;color:var(--text-secondary);text-decoration:none;font-size:14px;padding:8px 12px;border-radius:8px;transition:all .2s;cursor:pointer;background:transparent;border:1px solid var(--border-color)}
+.back-btn:hover{background:var(--bg-hover);color:var(--text-primary);border-color:var(--accent-primary)}
+.agent-profile{display:flex;align-items:center;gap:12px}
+.agent-avatar{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--research-blue),var(--accent-primary));display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 20px var(--accent-glow)}
+.agent-info h1{font-size:18px;font-weight:600;letter-spacing:-.5px}
+.agent-info span{font-size:12px;color:var(--text-secondary)}
+.status-indicator{display:flex;align-items:center;gap:8px;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;border:1px solid var(--border-color)}
+.status-indicator.active{background:rgba(16,185,129,.15);color:var(--success);border-color:var(--success)}
+.status-indicator.researching{background:rgba(37,99,235,.15);color:var(--accent-secondary);border-color:var(--accent-primary)}
+.status-indicator.idle{background:rgba(90,106,133,.15);color:var(--text-muted);border-color:var(--text-muted)}
+.status-dot{width:8px;height:8px;border-radius:50%;background:currentColor;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.header-actions{display:flex;gap:12px}
+.icon-btn{width:40px;height:40px;border-radius:10px;background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.icon-btn:hover{background:var(--bg-hover);color:var(--text-primary);border-color:var(--accent-primary)}
+.sidebar{position:fixed;top:var(--header-height);left:0;width:var(--sidebar-width);height:calc(100vh - var(--header-height));background:var(--bg-secondary);border-right:1px solid var(--border-color);padding:20px 12px;overflow-y:auto}
+.nav-section{margin-bottom:24px}
+.nav-section-title{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;padding:0 12px;margin-bottom:8px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;color:var(--text-secondary);cursor:pointer;transition:all .2s;margin-bottom:4px;font-size:14px;font-weight:500;border:1px solid transparent}
+.nav-item:hover{background:var(--bg-hover);color:var(--text-primary)}
+.nav-item.active{background:rgba(59,130,246,.15);color:var(--accent-secondary);border-color:var(--accent-primary)}
+.nav-item-icon{font-size:18px;width:24px;text-align:center}
+.main-content{margin-left:var(--sidebar-width);margin-top:var(--header-height);padding:24px;min-height:calc(100vh - var(--header-height))}
+.view{display:none;animation:fadeIn .3s ease}
+.view.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.view-header{margin-bottom:24px}
+.view-header h2{font-size:24px;font-weight:600;margin-bottom:8px}
+.view-header p{color:var(--text-secondary);font-size:14px}
+.card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:16px;padding:24px;margin-bottom:20px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.card-title{font-size:16px;font-weight:600}
+.form-group{margin-bottom:20px}
+.form-label{display:block;font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:8px}
+.form-input{width:100%;padding:12px 16px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:10px;color:var(--text-primary);font-size:14px;font-family:inherit;transition:all .2s}
+.form-input:focus{outline:none;border-color:var(--accent-primary);box-shadow:0 0 0 3px var(--accent-glow)}
+.form-input::placeholder{color:var(--text-muted)}
+select.form-input{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b9ab4' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;padding-right:40px}
+.checkbox-group{display:flex;flex-wrap:wrap;gap:12px}
+.checkbox-item{display:flex;align-items:center;gap:8px;cursor:pointer}
+.checkbox-item input{display:none}
+.checkbox-custom{width:20px;height:20px;border:2px solid var(--border-color);border-radius:5px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.checkbox-item input:checked+.checkbox-custom{background:var(--accent-primary);border-color:var(--accent-primary)}
+.checkbox-custom::after{content:'✓';color:#fff;font-size:12px;font-weight:bold;opacity:0;transition:opacity .2s}
+.checkbox-item input:checked+.checkbox-custom::after{opacity:1}
+.checkbox-label{font-size:14px;color:var(--text-secondary)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;border:none;font-family:inherit}
+.btn-primary{background:var(--accent-primary);color:#fff}
+.btn-primary:hover{background:var(--accent-secondary);transform:translateY(-1px);box-shadow:0 4px 15px var(--accent-glow)}
+.btn-secondary{background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color)}
+.btn-secondary:hover{border-color:var(--accent-primary);background:var(--bg-hover)}
+.btn-sm{padding:8px 16px;font-size:13px}
+.search-bar{display:flex;gap:12px;margin-bottom:20px}
+.search-bar .form-input{flex:1}
+.results-list{display:flex;flex-direction:column;gap:12px}
+.result-item{background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:12px;padding:16px;cursor:pointer;transition:all .2s}
+.result-item:hover{border-color:var(--accent-primary);transform:translateX(4px)}
+.result-item h4{font-size:15px;font-weight:600;margin-bottom:8px;color:var(--accent-secondary)}
+.result-item p{font-size:13px;color:var(--text-secondary);line-height:1.6;margin-bottom:12px}
+.result-meta{display:flex;align-items:center;gap:16px;font-size:12px;color:var(--text-muted)}
+.result-meta span{display:flex;align-items:center;gap:4px}
+.analysis-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.analysis-card{background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:12px;padding:20px;transition:all .2s}
+.analysis-card:hover{border-color:var(--accent-primary);transform:translateY(-2px)}
+.analysis-card h4{font-size:14px;font-weight:600;color:var(--accent-secondary);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border-color)}
+.analysis-card ul{list-style:none}
+.analysis-card li{font-size:13px;color:var(--text-secondary);padding:6px 0;padding-left:16px;position:relative}
+.analysis-card li::before{content:'•';position:absolute;left:0;color:var(--accent-primary)}
+.tech-profile{background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:12px;padding:20px;margin-bottom:16px}
+.tech-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.tech-name{font-size:18px;font-weight:600}
+.tech-stage{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:500}
+.tech-stage.early{background:rgba(245,158,11,.15);color:var(--warning)}
+.tech-stage.growth{background:rgba(59,130,246,.15);color:var(--accent-secondary)}
+.tech-stage.mature{background:rgba(16,185,129,.15);color:var(--success)}
+.tech-details{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.tech-detail{text-align:center;padding:12px;background:var(--bg-card);border-radius:8px}
+.tech-detail-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.tech-detail-value{font-size:14px;font-weight:600;color:var(--text-primary)}
+.synthesis-output{background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:12px;padding:24px;line-height:1.8}
+.synthesis-output h3{font-size:18px;margin-bottom:16px;color:var(--accent-secondary)}
+.synthesis-output p{color:var(--text-secondary);font-size:14px;margin-bottom:16px}
+.citations{margin-top:20px;padding-top:16px;border-top:1px solid var(--border-color)}
+.citations h4{font-size:13px;color:var(--text-muted);margin-bottom:12px}
+.citation-item{font-size:12px;color:var(--text-muted);padding:4px 0}
+.trend-container{background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:12px;padding:24px;margin-bottom:20px}
+.trend-chart{height:200px;display:flex;align-items:flex-end;gap:8px;padding:20px 0}
+.trend-bar{flex:1;background:linear-gradient(to top,var(--accent-primary),var(--accent-secondary));border-radius:4px 4px 0 0;min-height:10px;transition:all .3s;cursor:pointer;position:relative}
+.trend-bar:hover{filter:brightness(1.2)}
+.trend-bar::after{content:attr(data-value);position:absolute;bottom:100%;left:50%;transform:translateX(-50%);font-size:11px;color:var(--text-muted);opacity:0;transition:opacity .2s}
+.trend-bar:hover::after{opacity:1}
+.insights-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.insight-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:10px;padding:16px}
+.insight-card h5{font-size:12px;color:var(--text-muted);margin-bottom:8px}
+.insight-card p{font-size:14px;font-weight:500}
+.source-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.source-card{background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:12px;padding:16px;transition:all .2s}
+.source-card:hover{border-color:var(--accent-primary)}
+.source-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.source-icon{font-size:24px;margin-bottom:8px}
+.source-name{font-size:15px;font-weight:600;margin-bottom:4px}
+.source-url{font-size:12px;color:var(--text-muted);word-break:break-all}
+.source-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.source-tag{padding:4px 10px;background:rgba(59,130,246,.15);color:var(--accent-secondary);border-radius:20px;font-size:11px}
+.source-actions{display:flex;gap:8px;margin-top:12px}
+.tags-filter{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.tag-filter{padding:6px 14px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:20px;font-size:13px;color:var(--text-secondary);cursor:pointer;transition:all .2s}
+.tag-filter:hover,.tag-filter.active{background:rgba(59,130,246,.15);color:var(--accent-secondary);border-color:var(--accent-primary)}
+.queue-list{display:flex;flex-direction:column;gap:12px}
+.queue-item{background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:16px;transition:all .2s}
+.queue-item:hover{border-color:var(--accent-primary)}
+.queue-priority{width:8px;height:8px;border-radius:50%}
+.queue-priority.high{background:var(--danger);box-shadow:0 0 10px rgba(239,68,68,.5)}
+.queue-priority.medium{background:var(--warning);box-shadow:0 0 10px rgba(245,158,11,.5)}
+.queue-priority.low{background:var(--success);box-shadow:0 0 10px rgba(16,185,129,.5)}
+.queue-info{flex:1}
+.queue-title{font-size:14px;font-weight:600;margin-bottom:4px}
+.queue-desc{font-size:12px;color:var(--text-muted)}
+.queue-status{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:500}
+.queue-status.pending{background:rgba(90,106,133,.15);color:var(--text-muted)}
+.queue-status.in-progress{background:rgba(37,99,235,.15);color:var(--accent-secondary)}
+.queue-status.completed{background:rgba(16,185,129,.15);color:var(--success)}
+.queue-actions{display:flex;gap:8px}
+.export-selections{margin-bottom:20px}
+.export-checkbox{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:10px;margin-bottom:8px;cursor:pointer;transition:all .2s}
+.export-checkbox:hover{border-color:var(--accent-primary)}
+.export-checkbox input{width:18px;height:18px;accent-color:var(--accent-primary)}
+.export-checkbox label{flex:1;font-size:14px;cursor:pointer}
+.export-format{display:flex;gap:12px;margin-bottom:20px}
+.format-option{flex:1;padding:20px;background:var(--bg-tertiary);border:2px solid var(--border-color);border-radius:12px;text-align:center;cursor:pointer;transition:all .2s}
+.format-option:hover{border-color:var(--accent-primary)}
+.format-option.selected{border-color:var(--accent-primary);background:rgba(59,130,246,.1)}
+.format-option input{display:none}
+.format-icon{font-size:28px;margin-bottom:8px}
+.format-name{font-size:14px;font-weight:600}
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;visibility:hidden;transition:all .3s}
+.modal-overlay.active{opacity:1;visibility:visible}
+.modal{background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:16px;padding:24px;width:100%;max-width:480px;transform:scale(.9);transition:transform .3s}
+.modal-overlay.active .modal{transform:scale(1)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-title{font-size:18px;font-weight:600}
+.modal-close{width:32px;height:32px;border-radius:8px;background:var(--bg-tertiary);border:none;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.modal-close:hover{background:var(--danger);color:#fff}
+.toast{position:fixed;bottom:24px;right:24px;padding:16px 24px;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;display:flex;align-items:center;gap:12px;z-index:1001;transform:translateY(100px);opacity:0;transition:all .3s}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-color:var(--success)}
+.toast-icon{font-size:20px}
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-track{background:var(--bg-secondary)}
+::-webkit-scrollbar-thumb{background:var(--border-color);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--text-muted)}
+.input-row{display:flex;gap:12px}
+.input-row .form-input{flex:1}
+</style>
+</head>
+<body>
+<header class="header">
+<div class="header-left">
+<a href="index.html" class="back-btn">← Back to Master</a>
+<div class="agent-profile"><div class="agent-avatar">📚</div><div class="agent-info"><h1>Delver</h1><span>Research & Analysis Agent</span></div></div>
+<div class="status-indicator active" id="statusIndicator" onclick="toggleStatus()"><span class="status-dot"></span><span id="statusText">Active</span></div>
+</div>
+<div class="header-actions"><button class="icon-btn" title="Notifications">🔔</button><button class="icon-btn" title="Settings">⚙️</button></div>
+</header>
+<nav class="sidebar">
+<div class="nav-section">
+<div class="nav-section-title">Research Tools</div>
+<div class="nav-item active" data-view="research" onclick="switchView('research')"><span class="nav-item-icon">🔍</span><span>Web Research</span></div>
+<div class="nav-item" data-view="competitive" onclick="switchView('competitive')"><span class="nav-item-icon">⚔️</span><span>Competitive Analysis</span></div>
+<div class="nav-item" data-view="scout" onclick="switchView('scout')"><span class="nav-item-icon">🚀</span><span>Tech Scouting</span></div>
+<div class="nav-item" data-view="synthesize" onclick="switchView('synthesize')"><span class="nav-item-icon">🔬</span><span>Data Synthesis</span></div>
+<div class="nav-item" data-view="trends" onclick="switchView('trends')"><span class="nav-item-icon">📈</span><span>Trend Analysis</span></div>
+</div>
+<div class="nav-section">
+<div class="nav-section-title">Management</div>
+<div class="nav-item" data-view="sources" onclick="switchView('sources')"><span class="nav-item-icon">📁</span><span>Source Manager</span></div>
+<div class="nav-item" data-view="queue" onclick="switchView('queue')"><span class="nav-item-icon">📋</span><span>Research Queue</span></div>
+<div class="nav-item" data-view="export" onclick="switchView('export')"><span class="nav-item-icon">📤</span><span>Export & Reports</span></div>
+</div>
+</nav>
+<main class="main-content">
+<div class="view active" id="view-research">
+<div class="view-header"><h2>🔍 Web Research</h2><p>Search across academic papers, news, documentation, and social media</p></div>
+<div class="card">
+<div class="search-bar"><input type="text" class="form-input" id="searchQuery" placeholder="Enter your research query..."><button class="btn btn-primary" onclick="performSearch()">Search</button></div>
+<div class="form-group"><label class="form-label">Source Filters</label><div class="checkbox-group">
+<label class="checkbox-item"><input type="checkbox" id="filterAcademic" checked><span class="checkbox-custom"></span><span class="checkbox-label">Academic</span></label>
+<label class="checkbox-item"><input type="checkbox" id="filterNews" checked><span class="checkbox-custom"></span><span class="checkbox-label">News</span></label>
+<label class="checkbox-item"><input type="checkbox" id="filterDocs" checked><span class="checkbox-custom"></span><span class="checkbox-label">Docs</span></label>
+<label class="checkbox-item"><input type="checkbox" id="filterSocial" checked><span class="checkbox-custom"></span><span class="checkbox-label">Social</span></label>
+</div></div>
+</div>
+<div class="card" id="searchResults" style="display:none"><div class="card-header"><h3 class="card-title">Results</h3><span id="resultCount" style="color:var(--text-muted);font-size:13px"></span></div><div class="results-list" id="resultsList"></div></div>
+</div>
+<div class="view" id="view-competitive">
+<div class="view-header"><h2>⚔️ Competitive Analysis</h2><p>Analyze competitors across multiple dimensions</p></div>
+<div class="card">
+<div class="input-row">
+<div class="form-group" style="flex:1;margin-bottom:0"><label class="form-label">Company/Competitor</label><input type="text" class="form-input" id="competitorInput" placeholder="Enter company name..."></div>
+<div class="form-group" style="flex:1;margin-bottom:0"><label class="form-label">Analysis Type</label><select class="form-input" id="analysisType"><option value="swot">SWOT Analysis</option><option value="features">Feature Comparison</option><option value="pricing">Pricing Analysis</option><option value="market">Market Position</option></select></div>
+</div>
+<button class="btn btn-primary" style="margin-top:20px" onclick="performAnalysis()">Analyze</button>
+</div>
+<div id="analysisOutput"></div>
+</div>
+<div class="view" id="view-scout">
+<div class="view-header"><h2>🚀 Tech Scouting</h2><p>Discover emerging technologies and startups</p></div>
+<div class="card">
+<div class="search-bar">
+<input type="text" class="form-input" id="techInput" placeholder="Technology or category...">
+<select class="form-input" id="techStage" style="width:140px"><option value="">Any Stage</option><option value="early">Early Stage</option><option value="growth">Growth</option><option value="mature">Mature</option></select>
+<select class="form-input" id="techIndustry" style="width:140px"><option value="">Any Industry</option><option value="ai">AI/ML</option><option value="fintech">FinTech</option><option value="health">HealthTech</option><option value="crypto">Crypto/Web3</option></select>
+<button class="btn btn-primary" onclick="performScout()">Scout</button>
+</div>
+</div>
+<div id="techOutput"></div>
+</div>
+<div class="view" id="view-synthesize">
+<div class="view-header"><h2>🔬 Data Synthesis</h2><p>Combine multiple sources into unified insights</p></div>
+<div class="card">
+<div class="form-group"><label class="form-label">Source URLs (one per line)</label><textarea class="form-input" id="synthSources" rows="4" placeholder="https://source1.com
+https://source2.com
+https://source3.com"></textarea></div>
+<div class="form-group"><label class="form-label">Synthesis Type</label><select class="form-input" id="synthType"><option value="summary">Summary</option><option value="comparison">Comparison</option><option value="report">Full Report</option></select></div>
+<button class="btn btn-primary" onclick="performSynthesis()">Synthesize</button>
+</div>
+<div id="synthOutput"></div>
+</div>
+<div class="view" id="view-trends">
+<div class="view-header"><h2>📈 Trend Analysis</h2><p>Track and visualize trends over time</p></div>
+<div class="card">
+<div class="search-bar">
+<input type="text" class="form-input" id="trendTopic" placeholder="Enter topic to analyze...">
+<select class="form-input" id="trendRange" style="width:140px"><option value="30">Last 30 days</option><option value="90">Last 90 days</option><option value="365">Last year</option></select>
+<button class="btn btn-primary" onclick="performTrendAnalysis()">Analyze</button>
+</div>
+</div>
+<div id="trendOutput"></div>
+</div>
+<div class="view" id="view-sources">
+<div class="view-header"><h2>📁 Source Manager</h2><p>Manage your research sources and bookmarks</p></div>
+<div class="card">
+<div class="tags-filter"><span class="tag-filter active" onclick="filterSources('all')">All</span><span class="tag-filter" onclick="filterSources('academic')">Academic</span><span class="tag-filter" onclick="filterSources('news')">News</span><span class="tag-filter" onclick="filterSources('docs')">Documentation</span><span class="tag-filter" onclick="filterSources('tools')">Tools</span></div>
+<div class="source-grid" id="sourceGrid"></div>
+</div>
+</div>
+<div class="view" id="view-queue">
+<div class="view-header"><h2>📋 Research Queue</h2><p>Manage your pending research tasks</p></div>
+<div class="card"><button class="btn btn-primary" onclick="openAddTaskModal()">+ Add Task</button></div>
+<div class="queue-list" id="queueList"></div>
+</div>
+<div class="view" id="view-export">
+<div class="view-header"><h2>📤 Export & Reports</h2><p>Export your findings in various formats</p></div>
+<div class="card">
+<div class="export-selections">
+<div class="export-checkbox"><input type="checkbox" id="export1" checked><label>Web Research Results</label></div>
+<div class="export-checkbox"><input type="checkbox" id="export2" checked><label>Competitive Analysis</label></div>
+<div class="export-checkbox"><input type="checkbox" id="export3"><label>Tech Scouting Data</label></div>
+<div class="export-checkbox"><input type="checkbox" id="export4"><label>Trend Analysis</label></div>
+</div>
+<div class="export-format">
+<label class="format-option selected"><input type="radio" name="format" value="pdf" checked><div class="format-icon">📄</div><div class="format-name">PDF</div></label>
+<label class="format-option"><input type="radio" name="format" value="md"><div class="format-icon">📝</div><div class="format-name">Markdown</div></label>
+<label class="format-option"><input type="radio" name="format" value="json"><div class="format-icon">{ }</div><div class="format-name">JSON</div></label>
+</div>
+<button class="btn btn-primary" onclick="performExport()">Export</button>
+</div>
+</div>
+</main>
+<div class="modal-overlay" id="taskModal">
+<div class="modal">
+<div class="modal-header"><h3 class="modal-title">Add Research Task</h3><button class="modal-close" onclick="closeAddTaskModal()">×</button></div>
+<div class="form-group"><label class="form-label">Task Title</label><input type="text" class="form-input" id="taskTitle" placeholder="Enter task title..."></div>
+<div class="form-group"><label class="form-label">Description</label><textarea class="form-input" id="taskDesc" rows="3" placeholder="Task description..."></textarea></div>
+<div class="form-group"><label class="form-label">Priority</label><select class="form-input" id="taskPriority"><option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option></select></div>
+<button class="btn btn-primary" style="width:100%" onclick="addTask()">Add Task</button>
+</div>
+</div>
+<div class="toast" id="toast"><span class="toast-icon">✓</span><span id="toastMsg">Success!</span></div>
+<script>
+let currentStatus='active';
+let sources=[{name:'arXiv',icon:'📚',url:'https://arxiv.org',tags:['academic','ai'],cat:'academic'},{name:'Hacker News',icon:'📰',url:'https://news.ycombinator.com',tags:['news','tech'],cat:'news'},{name:'MDN Web Docs',icon:'📖',url:'https://developer.mozilla.org',tags:['docs','web'],cat:'docs'},{name:'GitHub',icon:'🐙',url:'https://github.com',tags:['tools','code'],cat:'tools'},{name:'Stack Overflow',icon:'💬',url:'https://stackoverflow.com',tags:['docs','community'],cat:'docs'},{name:'Reddit',icon:'🤖',url:'https://reddit.com',tags:['news','community'],cat:'news'}];
+let tasks=[{id:1,title:'Research AI Trends 2025',desc:'Analyze latest developments in AI',priority:'high',status:'in-progress'},{id:2,title:'Competitor Analysis: OpenAI',desc:'Deep dive into competitors',priority:'medium',status:'pending'},{id:3,title:'Tech Stack Evaluation',desc:'Evaluate new frameworks',priority:'low',status:'completed'}];
+function toggleStatus(){const statuses=['active','researching','idle'];const labels={active:'Active',researching:'Researching',idle:'Idle'};const idx=(statuses.indexOf(currentStatus)+1)%3;currentStatus=statuses[idx];const el=document.getElementById('statusIndicator');el.className='status-indicator '+currentStatus;document.getElementById('statusText').textContent=labels[currentStatus]}
+function switchView(view){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('view-'+view).classList.add('active');document.querySelector('[data-view="'+view+'"]').classList.add('active');if(view==='sources')renderSources('all');if(view==='queue')renderTasks()}
+function performSearch(){const query=document.getElementById('searchQuery').value;if(!query)return showToast('Please enter a search query');document.getElementById('searchResults').style.display='block';const results=[
+{title:'Understanding '+query+': A Comprehensive Guide',snippet:'This comprehensive guide explores the fundamentals and advanced concepts of '+query+' with practical examples and real-world applications.',source:'Academic',date:'2025-01-15'},
+{title:query+' in 2025: Market Trends and Future Outlook',snippet:'An in-depth analysis of '+query+' market trends, growth drivers, and what to expect in the coming years.',source:'News',date:'2025-02-01'},
+{title:'Official Documentation: '+query,snippet:'The official documentation provides detailed API references, tutorials, and best practices for implementing '+query,source:'Docs',date:'2025-01-20'},
+{title:'Community Discussion: Best practices for '+query,snippet:'Developers discuss their experiences, challenges, and recommended approaches when working with '+query,source:'Social',date:'2025-02-10'},
+{title:'Research Paper: '+query+' - Technical Deep Dive',snippet:'Academic research paper presenting novel approaches and experimental results related to '+query,source:'Academic',date:'2024-12-05'}
+];document.getElementById('resultCount').textContent=results.length+' results found';document.getElementById('resultsList').innerHTML=results.map(r=>`<div class="result-item"><h4>${r.title}</h4><p>${r.snippet}</p><div class="result-meta"><span>📄 ${r.source}</span><span>📅 ${r.date}</span></div><button class="btn btn-sm btn-secondary save-btn" onclick="saveResult('${r.title}')">Save to Collection</button></div>`).join('');showToast('Search completed!')}
+function saveResult(title){showToast('Saved: '+title)}
+function performAnalysis(){const company=document.getElementById('competitorInput').value;const type=document.getElementById('analysisType').value;if(!company)return showToast('Please enter a company name');const swotData={strengths:['Strong brand recognition','Large user base','Advanced technology stack','Experienced team'],weaknesses:['High operational costs','Limited market presence in emerging markets','Dependency on key personnel'],opportunities:['Growing demand for AI solutions','Expansion into new verticals','Strategic partnerships'],threats:['Increasing competition','Regulatory challenges','Economic uncertainty']};const featureData={features:['AI-powered automation','Real-time analytics','Cloud infrastructure','Mobile apps','API integrations'],competitors:['Competitor A','Competitor B','Competitor C']};const pricingData={pricing:['$29/mo Starter','$99/mo Pro','$299/mo Enterprise'],comparison:'Competitive pricing with flexible tiers'};const marketData={position:'Strong contender in market',share:'~15% market share',growth:'25% YoY growth'};let html='<div class="analysis-grid">';if(type==='swot'){html+=`<div class="analysis-card"><h4>Strengths</h4><ul>${swotData.strengths.map(s=>`<li>${s}</li>`).join('')}</ul></div><div class="analysis-card"><h4>Weaknesses</h4><ul>${swotData.weaknesses.map(w=>`<li>${w}</li>`).join('')}</ul></div><div class="analysis-card"><h4>Opportunities</h4><ul>${swotData.opportunities.map(o=>`<li>${o}</li>`).join('')}</ul></div><div class="analysis-card"><h4>Threats</h4><ul>${swotData.threats.map(t=>`<li>${t}</li>`).join('')}</ul></div>`}else if(type==='features'){html+=`<div class="analysis-card"><h4>Features</h4><ul>${featureData.features.map(f=>`<li>${f}</li>`).join('')}</ul></div><div class="analysis-card"><h4>Competitors</h4><ul>${featureData.competitors.map(c=>`<li>${c}</li>`).join('')}</ul></div>`}else if(type==='pricing'){html+=`<div class="analysis-card"><h4>Pricing Tiers</h4><ul>${pricingData.pricing.map(p=>`<li>${p}</li>`).join('')}</ul></div><div class="analysis-card"><h4>Analysis</h4><ul><li>${pricingData.comparison}</li></ul></div>`}else{html+=`<div class="analysis-card"><h4>Market Position</h4><ul><li>${marketData.position}</li><li>${marketData.share}</li><li>${marketData.growth}</li></ul></div>`}html+='</div>';document.getElementById('analysisOutput').innerHTML=html;showToast('Analysis complete for '+company)}
+function performScout(){const tech=document.getElementById('techInput').value;const stage=document.getElementById('techStage').value;const industry=document.getElementById('techIndustry').value;if(!tech)return showToast('Please enter a technology or category');const techs=[{name:'OpenAI',stage:'mature',industry:'ai',funding:'$14B',desc:'Leading AI research company'},{name:'Anthropic',stage:'growth',industry:'ai',funding:'$7.3B',desc:'AI safety startup'},{name:'Hugging Face',stage:'growth',industry:'ai',funding:'$1B',desc:'ML platform'}, {name:'Perplexity AI',stage:'early',industry:'ai',funding:'$165M',desc:'AI-powered search'},{name:'Stripe',stage:'mature',industry:'fintech',funding:'$2.2B',desc:'Payments infrastructure'},{name:'Plaid',stage:'growth',industry:'fintech',funding:'$700M',desc:'Financial data API'}];const filtered=techs.filter(t=>(!stage||t.stage===stage)&&(!industry||t.industry===industry));document.getElementById('techOutput').innerHTML=filtered.map(t=>`<div class="tech-profile"><div class="tech-header"><span class="tech-name">${t.name}</span><span class="tech-stage ${t.stage}">${t.stage}</span></div><p style="color:var(--text-secondary);margin-bottom:16px">${t.desc}</p><div class="tech-details"><div class="tech-detail"><div class="tech-detail-label">Industry</div><div class="tech-detail-value">${t.industry.toUpperCase()}</div></div><div class="tech-detail"><div class="tech-detail-label">Funding</div><div class="tech-detail-value">${t.funding}</div></div><div class="tech-detail"><div class="tech-detail-label">Stage</div><div class="tech-detail-value">${t.stage}</div></div></div></div>`).join('');showToast('Found '+filtered.length+' technologies')}
+function performSynthesis(){const sources=document.getElementById('synthSources').value.trim();const type=document.getElementById('synthType').value;if(!sources)return showToast('Please enter at least one source URL');const sourceList=sources.split('\\n').filter(s=>s.trim());document.getElementById('synthOutput').innerHTML=`<div class="synthesis-output"><h3>${type==='summary'?'Summary':type==='comparison'?'Comparison Report':'Full Research Report'}</h3><p>This synthesis combines insights from ${sourceList.length} sources to provide a comprehensive overview of the topic. The analysis reveals key patterns and themes across the provided sources, highlighting consensus viewpoints as well as areas of debate.</p>${type==='comparison'?'<p><strong>Key Comparison Points:</strong></p><ul><li>Technology stack differences across sources</li><li>Varying implementation approaches</li><li>Performance benchmarks</li></ul>':''}${type==='report'?'<p><strong>Methodology:</strong> This report employs a systematic approach to synthesize findings, using thematic analysis to identify common patterns and divergence points across sources.</p>':''}<div class="citations"><h4>Citations</h4>${sourceList.map((s,i)=>`<div class="citation-item">[${i+1}] ${s}</div>`).join('')}</div></div>`;showToast('Synthesis complete!')}
+function performTrendAnalysis(){const topic=document.getElementById('trendTopic').value;const range=document.getElementById('trendRange').value;if(!topic)return showToast('Please enter a topic');const data=Array.from({length:12},()=>Math.floor(Math.random()*80)+20);document.getElementById('trendOutput').innerHTML=`<div class="trend-container"><h3 style="margin-bottom:16px">${topic} - Interest Over Time</h3><div class="trend-chart">${data.map(v=>`<div class="trend-bar" style="height:${v}%" data-value="${v}%"></div>`).join('')}</div></div><div class="insights-list"><div class="insight-card"><h5>Peak Interest</h5><p>Month ${data.indexOf(Math.max(...data))+1}</p></div><div class="insight-card"><h5>Average</h5><p>${Math.round(data.reduce((a,b)=>a+b,0)/data.length)}%</p></div><div class="insight-card"><h5>Trend Direction</h5><p>${data[data.length-1]>data[0]?'📈 Upward':'📉 Downward'}</p></div><div class="insight-card"><h5>Volatility</h5><p>${Math.round((Math.max(...data)-Math.min(...data))/Math.max(...data)*100)}%</p></div></div>`;showToast('Trend analysis complete!')}
+function renderSources(filter){document.querySelectorAll('.tag-filter').forEach(t=>t.classList.remove('active'));event.target.classList.add('active');const filtered=filter==='all'?sources:sources.filter(s=>s.cat===filter);document.getElementById('sourceGrid').innerHTML=filtered.map(s=>`<div class="source-card"><div class="source-header"><div><div class="source-icon">${s.icon}</div><div class="source-name">${s.name}</div><div class="source-url">${s.url}</div></div></div><div class="source-tags">${s.tags.map(t=>`<span class="source-tag">${t}</span>`).join('')}</div><div class="source-actions"><button class="btn btn-sm btn-secondary" onclick="window.open('${s.url}','_blank')">Visit</button><button class="btn btn-sm btn-secondary" onclick="removeSource('${s.name}')">Remove</button></div></div>`).join('')}
+function filterSources(cat){renderSources(cat)}
+function removeSource(name){sources=sources.filter(s=>s.name!==name);showToast('Source removed');renderSources('all')}
+function renderTasks(){document.getElementById('queueList').innerHTML=tasks.map(t=>`<div class="queue-item"><div class="queue-priority ${t.priority}"></div><div class="queue-info"><div class="queue-title">${t.title}</div><div class="queue-desc">${t.desc}</div></div><span class="queue-status ${t.status}">${t.status.replace('-',' ')}</span><div class="queue-actions"><button class="btn btn-sm btn-secondary" onclick="deleteTask(${t.id})">Delete</button></div></div>`).join('')}
+function openAddTaskModal(){document.getElementById('taskModal').classList.add('active')}
+function closeAddTaskModal(){document.getElementById('taskModal').classList.remove('active')}
+function addTask(){const title=document.getElementById('taskTitle').value;const desc=document.getElementById('taskDesc').value;const priority=document.getElementById('taskPriority').value;if(!title)return showToast('Please enter a task title');tasks.push({id:Date.now(),title,desc,priority,status:'pending'});closeAddTaskModal();renderTasks();showToast('Task added!')}
+function deleteTask(id){tasks=tasks.filter(t=>t.id!==id);renderTasks();showToast('Task deleted')}
+function performExport(){const format=document.querySelector('input[name="format"]:checked').value;showToast('Exporting as '+format.toUpperCase()+'...');setTimeout(()=>showToast('Export complete!'),1500)}
+function showToast(msg){const t=document.getElementById('toast');document.getElementById('toastMsg').textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
+document.querySelectorAll('.format-option').forEach(o=>o.addEventListener('click',function(){document.querySelectorAll('.format-option').forEach(x=>x.classList.remove('selected'));this.classList.add('selected')}));
+</script>
+</body>
+</html>

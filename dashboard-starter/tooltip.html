@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tooltip - Athena Live</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  background: #1a1a2e;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 30px;
+  padding: 40px;
+}
+
+h1 {
+  color: #e5e5e5;
+  margin-bottom: 10px;
+}
+
+p {
+  color: #a0a0a0;
+  margin-bottom: 30px;
+}
+
+/* Tooltip Container */
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+}
+
+/* Tooltip Trigger Button */
+.tooltip-trigger {
+  background: #16213e;
+  border: 2px solid #0f3460;
+  color: #e5e5e5;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.tooltip-trigger:hover {
+  border-color: #00ff88;
+  color: #00ff88;
+}
+
+/* Tooltip */
+.tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: #16213e;
+  border: 1px solid #0f3460;
+  border-radius: 8px;
+  padding: 12px 16px;
+  min-width: 200px;
+  max-width: 300px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  z-index: 1000;
+}
+
+.tooltip.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.tooltip-arrow {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #16213e;
+}
+
+.tooltip-title {
+  font-weight: 600;
+  color: #e5e5e5;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.tooltip-content {
+  font-size: 13px;
+  color: #a0a0a0;
+  line-height: 1.5;
+}
+
+/* Tooltip Variants */
+.tooltip.success {
+  border-color: #4ade80;
+}
+
+.tooltip.success .tooltip-title {
+  color: #4ade80;
+}
+
+.tooltip.error {
+  border-color: #f87171;
+}
+
+.tooltip.error .tooltip-title {
+  color: #f87171;
+}
+
+.tooltip.warning {
+  border-color: #fbbf24;
+}
+
+.tooltip.warning .tooltip-title {
+  color: #fbbf24;
+}
+
+.tooltip.info {
+  border-color: #60a5fa;
+}
+
+.tooltip.info .tooltip-title {
+  color: #60a5fa;
+}
+
+/* Position Variants */
+.tooltip-top {
+  bottom: 100%;
+  top: auto;
+  transform: translateX(-50%) translateY(10px);
+}
+
+.tooltip-bottom {
+  top: 100%;
+  bottom: auto;
+  transform: translateX(-50%) translateY(-10px);
+}
+
+.tooltip-bottom .tooltip-arrow {
+  top: auto;
+  bottom: 100%;
+  border-top: none;
+  border-bottom: 8px solid #16213e;
+}
+
+.tooltip-left {
+  right: 100%;
+  left: auto;
+  top: 50%;
+  transform: translate(10px, -50%);
+}
+
+.tooltip-left .tooltip-arrow {
+  left: auto;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 8px solid #16213e;
+  border-right: none;
+}
+
+.tooltip-right {
+  left: 100%;
+  right: auto;
+  top: 50%;
+  transform: translate(-10px, -50%);
+}
+
+.tooltip-right .tooltip-arrow {
+  right: auto;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 8px solid #16213e;
+  border-left: none;
+}
+
+/* Demo Section */
+.demo-section {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.demo-label {
+  color: #666;
+  font-size: 12px;
+  text-align: center;
+  margin-top: 8px;
+}
+
+/* Icon tooltips */
+.icon-btn {
+  background: #16213e;
+  border: 2px solid #0f3460;
+  color: #e5e5e5;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.icon-btn:hover {
+  border-color: #00ff88;
+  color: #00ff88;
+}
+</style>
+</head>
+<body>
+  <h1>🎯 Tooltip Component</h1>
+  <p>Hover over or click the elements below to see tooltips</p>
+
+  <!-- Basic Tooltip -->
+  <div class="tooltip-container">
+    <button class="tooltip-trigger" data-tooltip="basic">Hover Me</button>
+    <div class="tooltip" id="tooltip-basic">
+      <div class="tooltip-title">Basic Tooltip</div>
+      <div class="tooltip-content">This is a simple tooltip that appears on hover.</div>
+      <div class="tooltip-arrow"></div>
+    </div>
+  </div>
+
+  <!-- Icon Button with Tooltip -->
+  <div class="tooltip-container">
+    <button class="icon-btn" data-tooltip="icon">ℹ️</button>
+    <div class="tooltip tooltip-bottom" id="tooltip-icon">
+      <div class="tooltip-title">Information</div>
+      <div class="tooltip-content">Click this button to get more details about the feature.</div>
+      <div class="tooltip-arrow"></div>
+    </div>
+  </div>
+
+  <!-- Demo Section with Variants -->
+  <div class="demo-section">
+    <div class="tooltip-container">
+      <button class="tooltip-trigger" data-tooltip="success">Success</button>
+      <div class="tooltip success" id="tooltip-success">
+        <div class="tooltip-title">✓ Success</div>
+        <div class="tooltip-content">Operation completed successfully!</div>
+        <div class="tooltip-arrow"></div>
+      </div>
+      <div class="demo-label">Success</div>
+    </div>
+
+    <div class="tooltip-container">
+      <button class="tooltip-trigger" data-tooltip="error">Error</button>
+      <div class="tooltip error" id="tooltip-error">
+        <div class="tooltip-title">✕ Error</div>
+        <div class="tooltip-content">Something went wrong. Please try again.</div>
+        <div class="tooltip-arrow"></div>
+      </div>
+      <div class="demo-label">Error</div>
+    </div>
+
+    <div class="tooltip-container">
+      <button class="tooltip-trigger" data-tooltip="warning">Warning</button>
+      <div class="tooltip warning" id="tooltip-warning">
+        <div class="tooltip-title">⚠ Warning</div>
+        <div class="tooltip-content">Please review before continuing.</div>
+        <div class="tooltip-arrow"></div>
+      </div>
+      <div class="demo-label">Warning</div>
+    </div>
+
+    <div class="tooltip-container">
+      <button class="tooltip-trigger" data-tooltip="info">Info</button>
+      <div class="tooltip info" id="tooltip-info">
+        <div class="tooltip-title">ℹ Info</div>
+        <div class="tooltip-content">Here is some useful information.</div>
+        <div class="tooltip-arrow"></div>
+      </div>
+      <div class="demo-label">Info</div>
+    </div>
+  </div>
+
+<script>
+// Tooltip functionality
+document.addEventListener('DOMContentLoaded', () => {
+  const triggers = document.querySelectorAll('[data-tooltip]');
+  
+  triggers.forEach(trigger => {
+    const tooltipId = `tooltip-${trigger.dataset.tooltip}`;
+    const tooltip = document.getElementById(tooltipId);
+    
+    if (!tooltip) return;
+    
+    // Mouse enter/leave for desktop
+    trigger.addEventListener('mouseenter', () => {
+      tooltip.classList.add('show');
+    });
+    
+    trigger.addEventListener('mouseleave', () => {
+      tooltip.classList.remove('show');
+    });
+    
+    // Click for mobile/touch
+    trigger.addEventListener('click', (e) => {
+      e.preventDefault();
+      // Hide all other tooltips first
+      document.querySelectorAll('.tooltip.show').forEach(t => {
+        if (t !== tooltip) t.classList.remove('show');
+      });
+      tooltip.classList.toggle('show');
+    });
+  });
+  
+  // Close tooltips when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.tooltip-container')) {
+      document.querySelectorAll('.tooltip.show').forEach(t => {
+        t.classList.remove('show');
+      });
+    }
+  });
+});
+</script>
+</body>
+</html>

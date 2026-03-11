@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Gateway Monitor</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #111827;
+            --bg-card: #1a2234;
+            --border: #2d3748;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent: #22d3ee;
+            --accent-glow: rgba(34, 211, 238, 0.3);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --purple: #a855f7;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+            background-image: 
+                radial-gradient(ellipse at 20% 0%, rgba(34, 211, 238, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 100%, rgba(168, 85, 247, 0.08) 0%, transparent 50%);
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .header h1::before {
+            content: '📡';
+        }
+        
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid var(--success);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--success);
+            animation: pulse 2s infinite;
+        }
+        
+        .status-badge.error {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: var(--danger);
+            color: var(--danger);
+            animation: none;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: currentColor;
+            border-radius: 50%;
+            animation: blink 1.5s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent);
+        }
+        
+        .stat-card.warning::before {
+            background: var(--warning);
+        }
+        
+        .stat-card.success::before {
+            background: var(--success);
+        }
+        
+        .stat-card.purple::before {
+            background: var(--purple);
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .stat-sub {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        
+        .agents-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .agent-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        
+        .agent-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s;
+        }
+        
+        .agent-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+        
+        .agent-card.active {
+            border-color: var(--success);
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.15);
+        }
+        
+        .agent-avatar {
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-primary);
+            border-radius: 8px;
+        }
+        
+        .agent-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .agent-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .agent-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 8px;
+        }
+        
+        .agent-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            flex-shrink: 0;
+        }
+        
+        .agent-status.active {
+            background: var(--success);
+            box-shadow: 0 0 8px var(--success);
+            animation: blink 1.5s infinite;
+        }
+        
+        .channels-section {
+            margin-top: 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .channel-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .channel-tag {
+            padding: 6px 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .footer {
+            margin-top: 24px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+        
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+        
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Live Gateway Monitor</h1>
+        <div class="status-badge" id="statusBadge">
+            <span class="status-dot"></span>
+            <span id="statusText">Connecting...</span>
+        </div>
+    </div>
+    
+    <div id="loading" class="loading">Loading gateway data...</div>
+    
+    <div id="content" class="hidden">
+        <div class="grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Sessions</div>
+                <div class="stat-value" id="totalSessions">-</div>
+                <div class="stat-sub">lifetime sessions</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-label">Active Agents</div>
+                <div class="stat-value" id="activeAgents">-</div>
+                <div class="stat-sub">active in last 5 min</div>
+            </div>
+            <div class="stat-card purple">
+                <div class="stat-label">Total Tokens</div>
+                <div class="stat-value" id="totalTokens">-</div>
+                <div class="stat-sub">input + output</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-label">Heartbeat Agents</div>
+                <div class="stat-value" id="heartbeatCount">-</div>
+                <div class="stat-sub">configured</div>
+            </div>
+        </div>
+        
+        <div class="agents-section">
+            <div class="section-header">
+                <div class="section-title">🤖 Agent Activity</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);" id="lastUpdate"></div>
+            </div>
+            <div class="agent-grid" id="agentGrid"></div>
+        </div>
+        
+        <div class="channels-section">
+            <div class="section-header">
+                <div class="section-title">📱 Connected Channels</div>
+            </div>
+            <div class="channel-list" id="channelList"></div>
+        </div>
+        
+        <div class="footer">
+            Auto-refreshing every 10 seconds • Data from OpenClaw Gateway
+        </div>
+    </div>
+    
+    <script>
+        // Try PHP first, fall back to Node.js
+        const API_URLS = ['api/live-status.json', 'api/live-status.js'];
+        const REFRESH_INTERVAL = 10000;
+        
+        const AGENT_AVATARS = {
+            main: '🦉',
+            athena: '🦉',
+            sterling: '💰',
+            finance: '💰',
+            ishtar: '🌙',
+            themis: '⚖️',
+            felicity: '🎨',
+            coder: '🎨',
+            prometheus: '⚡',
+            nexus: '🧠',
+            delver: '🕵️',
+            researcher: '🕵️',
+            squire: '🤴',
+            cisco: '🔒',
+            shannon: '🔒',
+            katie: '🤖',
+            butler: '🎩',
+            kratos: '🪙',
+            apollo: '📞',
+            hermes: '📣',
+            'qwen-nvidia': '🐳'
+        };
+        
+        function formatNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
+        }
+        
+        function formatAge(seconds) {
+            if (seconds < 60) return seconds + 's';
+            if (seconds < 3600) return Math.floor(seconds / 60) + 'm';
+            if (seconds < 86400) return Math.floor(seconds / 3600) + 'h';
+            return Math.floor(seconds / 86400) + 'd';
+        }
+        
+        async function fetchData() {
+            try {
+                const response = await fetch(API_URLS[0] + '?t=' + Date.now());
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                return await response.json();
+            } catch (e) {
+                console.error('Fetch error:', e);
+                return { error: e.message };
+            }
+        }
+        
+        function renderData(data) {
+            const loading = document.getElementById('loading');
+            const content = document.getElementById('content');
+            const statusBadge = document.getElementById('statusBadge');
+            const statusText = document.getElementById('statusText');
+            
+            if (data.error) {
+                loading.classList.add('hidden');
+                statusBadge.classList.add('error');
+                statusText.textContent = 'Error: ' + data.error;
+                return;
+            }
+            
+            loading.classList.add('hidden');
+            content.classList.remove('hidden');
+            
+            // Status badge
+            statusBadge.classList.remove('error');
+            statusText.textContent = 'Live';
+            
+            // Stats
+            document.getElementById('totalSessions').textContent = data.sessions?.total || 0;
+            document.getElementById('activeAgents').textContent = data.sessions?.activeAgents || 0;
+            document.getElementById('totalTokens').textContent = formatNumber(data.sessions?.totalTokens || 0);
+            document.getElementById('heartbeatCount').textContent = data.heartbeat?.agents?.length || 0;
+            
+            // Last update
+            const timestamp = new Date(data.timestamp);
+            document.getElementById('lastUpdate').textContent = 'Updated: ' + timestamp.toLocaleTimeString();
+            
+            // Agent grid
+            const agentGrid = document.getElementById('agentGrid');
+            const agents = data.sessions?.byAgent || [];
+            agentGrid.innerHTML = agents.map(agent => {
+                const avatar = AGENT_AVATARS[agent.agentId] || '🤖';
+                return `
+                    <div class="agent-card ${agent.isActive ? 'active' : ''}">
+                        <div class="agent-avatar">${avatar}</div>
+                        <div class="agent-info">
+                            <div class="agent-name">${agent.agentId}</div>
+                            <div class="agent-meta">
+                                <span>${agent.sessions} sess</span>
+                                <span>${formatAge(agent.latestAge)} ago</span>
+                            </div>
+                        </div>
+                        <div class="agent-status ${agent.isActive ? 'active' : ''}"></div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Channels
+            const channelList = document.getElementById('channelList');
+            const channels = data.channels || [];
+            channelList.innerHTML = channels.map(c => 
+                `<div class="channel-tag">${c}</div>`
+            ).join('');
+        }
+        
+        async function init() {
+            const data = await fetchData();
+            renderData(data);
+            
+            // Auto-refresh
+            setInterval(async () => {
+                const data = await fetchData();
+                renderData(data);
+            }, REFRESH_INTERVAL);
+        }
+        
+        init();
+    </script>
+</body>
+</html>

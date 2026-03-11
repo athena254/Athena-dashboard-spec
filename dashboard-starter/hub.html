@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🦉 Athena Live - Dashboard Hub</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+        .header {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .header h1 { font-size: 2.5rem; font-weight: 300; letter-spacing: 0.15em; }
+        .header .subtitle { color: #888; margin-top: 0.5rem; }
+        .status-bar {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            flex-wrap: wrap;
+        }
+        .status-item { text-align: center; }
+        .status-value { font-size: 1.8rem; font-weight: 700; color: #4ecdc4; }
+        .status-label { font-size: 0.7rem; color: #888; text-transform: uppercase; }
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .nav-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.2rem;
+            text-decoration: none;
+            color: #e0e0e0;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .nav-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(78, 205, 196, 0.5);
+            box-shadow: 0 10px 30px rgba(78, 205, 196, 0.15);
+            background: rgba(78, 205, 196, 0.1);
+        }
+        .nav-card .icon { font-size: 2rem; margin-bottom: 0.5rem; }
+        .nav-card .title { font-weight: 600; font-size: 0.95rem; }
+        .nav-card .desc { font-size: 0.75rem; color: #888; margin-top: 0.3rem; }
+        .section-title {
+            padding: 1rem 2rem 0.5rem;
+            font-size: 0.8rem;
+            color: #4ecdc4;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .footer {
+            text-align: center;
+            padding: 1rem;
+            color: #555;
+            font-size: 0.75rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 1rem;
+        }
+        .pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🦉 Athena Live</h1>
+        <div class="subtitle" id="subtitle">Multi-Agent Orchestrator Dashboard</div>
+    </div>
+    
+    <div class="status-bar" id="statusBar">
+        <div class="status-item">
+            <div class="status-value" id="agentCount">10</div>
+            <div class="status-label">Agents</div>
+        </div>
+        <div class="status-item">
+            <div class="status-value" id="pendingBids">10</div>
+            <div class="status-label">Pending Bids</div>
+        </div>
+        <div class="status-item">
+            <div class="status-value" id="honeyPotential">£4,400</div>
+            <div class="status-label">Honey Potential</div>
+        </div>
+        <div class="status-item">
+            <div class="status-value" id="activeGigs">0</div>
+            <div class="status-label">Active Gigs</div>
+        </div>
+        <div class="status-item">
+            <div class="status-value pulse" style="color: #4ade80;">●</div>
+            <div class="status-label">System Status</div>
+        </div>
+    </div>
+
+    <div class="section-title">📍 Command & Control</div>
+    <div class="nav-grid">
+        <a href="athena-unified.html" class="nav-card" style="border-color: rgba(138, 43, 226, 0.5);">
+            <span class="icon">🦉</span>
+            <span class="title">Athena Unified</span>
+            <span class="desc">Lattice coordination</span>
+        </a>
+        <a href="command-center.html" class="nav-card">
+            <span class="icon">🎛️</span>
+            <span class="title">Command Center</span>
+            <span class="desc">Agent status & control</span>
+        </a>
+        <a href="agents.html" class="nav-card">
+            <span class="icon">👥</span>
+            <span class="title">Agent Roster</span>
+            <span class="desc">All 10 agents</span>
+        </a>
+        <a href="agent-heartbeat.html" class="nav-card">
+            <span class="icon">💓</span>
+            <span class="title">Agent Heartbeat</span>
+            <span class="desc">Live health monitoring</span>
+        </a>
+        <a href="agent-report.html" class="nav-card">
+            <span class="icon">📊</span>
+            <span class="title">Agent Report</span>
+            <span class="desc">Detailed analytics</span>
+        </a>
+    </div>
+
+    <div class="section-title">💰 Beelancer & Finance</div>
+    <div class="nav-grid">
+        <a href="beelancer-analytics.html" class="nav-card">
+            <span class="icon">🐝</span>
+            <span class="title">Beelancer Analytics</span>
+            <span class="desc">Bidding metrics</span>
+        </a>
+        <a href="bid-wars.html" class="nav-card">
+            <span class="icon">⚔️</span>
+            <span class="title">Bid Wars</span>
+            <span class="desc">Live bid tracking</span>
+        </a>
+        <a href="finance-dashboard.html" class="nav-card">
+            <span class="icon">📈</span>
+            <span class="title">Finance Dashboard</span>
+            <span class="desc">Revenue & projections</span>
+        </a>
+    </div>
+
+    <div class="section-title">🔧 Tools & Automation</div>
+    <div class="nav-grid">
+        <a href="quick-launch.html" class="nav-card">
+            <span class="icon">🚀</span>
+            <span class="title">Quick Launch</span>
+            <span class="desc">Terminal commands</span>
+        </a>
+        <a href="automation-center.html" class="nav-card">
+            <span class="icon">⚙️</span>
+            <span class="title">Automation Center</span>
+            <span class="desc">Cron jobs & tasks</span>
+        </a>
+        <a href="code-playground.html" class="nav-card">
+            <span class="icon">💻</span>
+            <span class="title">Code Playground</span>
+            <span class="desc">Snippet testing</span>
+        </a>
+    </div>
+
+    <div class="section-title">🧠 Knowledge & Memory</div>
+    <div class="nav-grid">
+        <a href="memory-palace.html" class="nav-card">
+            <span class="icon">🏛️</span>
+            <span class="title">Memory Palace</span>
+            <span class="desc">Long-term memory</span>
+        </a>
+        <a href="decision-history.html" class="nav-card">
+            <span class="icon">📜</span>
+            <span class="title">Decision History</span>
+            <span class="desc">Past decisions log</span>
+        </a>
+        <a href="daily-briefing.html" class="nav-card">
+            <span class="icon">📰</span>
+            <span class="title">Daily Briefing</span>
+            <span class="desc">Morning reports</span>
+        </a>
+    </div>
+
+    <div class="section-title">🔐 Security & Models</div>
+    <div class="nav-grid">
+        <a href="security-audit.html" class="nav-card">
+            <span class="icon">🔒</span>
+            <span class="title">Security Audit</span>
+            <span class="desc">System security</span>
+        </a>
+        <a href="new-models-widget.html" class="nav-card">
+            <span class="icon">🤖</span>
+            <span class="title">Model Tracker</span>
+            <span class="desc">New AI models</span>
+        </a>
+        <a href="easter-egg.html" class="nav-card">
+            <span class="icon">🥚</span>
+            <span class="title">Easter Egg</span>
+            <span class="desc">Hidden surprises</span>
+        </a>
+    </div>
+
+    <div class="footer">
+        Athena Live v2.0 • Last updated: <span id="lastUpdate">Loading...</span>
+    </div>
+
+    <script>
+        // Load live data
+        fetch('api/data.json')
+            .then(r => r.json())
+            .then(data => {
+                // Update status bar
+                document.getElementById('agentCount').textContent = data.agents?.length || 10;
+                document.getElementById('pendingBids').textContent = data.pendingBids?.length || 0;
+                document.getElementById('activeGigs').textContent = data.activeGigs?.length || 0;
+                
+                // Calculate honey potential
+                const honey = (data.pendingBids || []).reduce((sum, b) => sum + (b.value || 0), 0);
+                document.getElementById('honeyPotential').textContent = '£' + honey.toLocaleString();
+                
+                // Update subtitle
+                if (data.identity?.name) {
+                    document.getElementById('subtitle').textContent = 
+                        `${data.identity.name} • ${data.identity.vibe || 'Multi-Agent System'}`;
+                }
+                
+                // Last update
+                document.getElementById('lastUpdate').textContent = 
+                    new Date().toLocaleTimeString();
+            })
+            .catch(err => {
+                console.error('Failed to load data:', err);
+                document.getElementById('lastUpdate').textContent = 'API Error';
+            });
+        
+        // Refresh every 30 seconds
+        setInterval(() => location.reload(), 30000);
+    </script>
+</body>
+</html>

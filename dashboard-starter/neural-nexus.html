@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Nexus V2 • Nexus</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a15 0%, #0f0f20 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        
+        /* Main Canvas */
+        #neuralCanvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 1;
+        }
+        
+        /* Control Panel */
+        .controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(10, 10, 21, 0.95);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            width: 300px;
+            backdrop-filter: blur(10px);
+        }
+        .controls h2 {
+            color: #00ffff;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        .tab {
+            flex: 1;
+            padding: 10px;
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 8px;
+            color: #00ffff;
+            cursor: pointer;
+            font-size: 0.8rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .tab:hover, .tab.active {
+            background: rgba(0, 255, 255, 0.3);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Layer Visualization */
+        .layer-viz {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .layer {
+            background: rgba(0, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            border-left: 3px solid #00ffff;
+        }
+        .layer-name {
+            font-size: 0.85rem;
+            color: #00ffff;
+            margin-bottom: 5px;
+        }
+        .layer-neurons {
+            display: flex;
+            gap: 3px;
+            flex-wrap: wrap;
+        }
+        .neuron {
+            width: 12px; height: 12px;
+            border-radius: 50%;
+            background: #00ffff;
+            opacity: 0.3;
+            transition: all 0.3s ease;
+        }
+        .neuron.active {
+            opacity: 1;
+            box-shadow: 0 0 10px #00ffff;
+        }
+        
+        /* Training Progress */
+        .training-progress {
+            margin-top: 15px;
+        }
+        .progress-bar {
+            height: 20px;
+            background: rgba(0, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ffff, #00ff88);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .loss-chart {
+            height: 100px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .loss-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Knowledge Graph */
+        .graph-container {
+            height: 250px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        #graphCanvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Pattern Library */
+        .pattern-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .pattern-card {
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .pattern-card:hover {
+            border-color: #00ffff;
+            transform: scale(1.05);
+        }
+        .pattern-icon {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        .pattern-name {
+            font-size: 0.7rem;
+            color: #888;
+        }
+        
+        /* Query Interface */
+        .query-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .query-input input {
+            flex: 1;
+            padding: 12px;
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.9rem;
+        }
+        .query-input button {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #00ffff, #00ff88);
+            border: none;
+            border-radius: 8px;
+            color: #0a0a15;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .query-response {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            min-height: 100px;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        
+        /* Metrics Panel */
+        .metrics {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(10, 10, 21, 0.95);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            width: 220px;
+        }
+        .metrics h3 {
+            color: #00ffff;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .metric-label { color: #888; font-size: 0.8rem; }
+        .metric-value { color: #00ffff; font-weight: bold; }
+        
+        /* Action Buttons */
+        .action-btns {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 15px;
+        }
+        .action-btn {
+            padding: 10px;
+            background: rgba(0, 255, 255, 0.2);
+            border: 1px solid rgba(0, 255, 255, 0.5);
+            border-radius: 8px;
+            color: #00ffff;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+        .action-btn:hover {
+            background: rgba(0, 255, 255, 0.4);
+        }
+        
+        /* Footer */
+        footer {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            text-align: right;
+            font-size: 0.75rem;
+            color: #666;
+        }
+        footer a {
+            color: #00ffff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="neuralCanvas"></canvas>
+    
+    <!-- Control Panel -->
+    <div class="controls">
+        <h2>🧠 Neural Nexus V2</h2>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('network')">Network</div>
+            <div class="tab" onclick="showTab('training')">Training</div>
+            <div class="tab" onclick="showTab('graph')">Knowledge</div>
+            <div class="tab" onclick="showTab('query')">Query</div>
+        </div>
+        
+        <!-- Network Tab -->
+        <div id="tab-network" class="tab-content active">
+            <div class="layer-viz">
+                <div class="layer">
+                    <div class="layer-name">Input Layer (784 neurons)</div>
+                    <div class="layer-neurons" id="inputLayer"></div>
+                </div>
+                <div class="layer">
+                    <div class="layer-name">Hidden Layer 1 (256 neurons)</div>
+                    <div class="layer-neurons" id="hidden1"></div>
+                </div>
+                <div class="layer">
+                    <div class="layer-name">Hidden Layer 2 (128 neurons)</div>
+                    <div class="layer-neurons" id="hidden2"></div>
+                </div>
+                <div class="layer">
+                    <div class="layer-name">Output Layer (10 classes)</div>
+                    <div class="layer-neurons" id="outputLayer"></div>
+                </div>
+            </div>
+            
+            <div class="action-btns">
+                <button class="action-btn" onclick="activateRandom()">⚡ Activate</button>
+                <button class="action-btn" onclick="propagateSignal()">📡 Propagate</button>
+            </div>
+        </div>
+        
+        <!-- Training Tab -->
+        <div id="tab-training" class="tab-content">
+            <div class="training-progress">
+                <div class="metric-row">
+                    <span class="metric-label">Epoch</span>
+                    <span class="metric-value" id="epoch">0/100</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Loss</span>
+                    <span class="metric-value" id="loss">1.000</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Accuracy</span>
+                    <span class="metric-value" id="accuracy">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="trainProgress"></div>
+                </div>
+                <div class="loss-chart">
+                    <canvas id="lossChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="action-btns">
+                <button class="action-btn" onclick="startTraining()">▶️ Train</button>
+                <button class="action-btn" onclick="stopTraining()">⏹️ Stop</button>
+                <button class="action-btn" onclick="resetTraining()">🔄 Reset</button>
+                <button class="action-btn" onclick="exportModel()">💾 Export</button>
+            </div>
+        </div>
+        
+        <!-- Knowledge Graph Tab -->
+        <div id="tab-graph" class="tab-content">
+            <div class="graph-container">
+                <canvas id="graphCanvas"></canvas>
+            </div>
+            
+            <h4 style="color: #888; margin: 15px 0 10px; font-size: 0.85rem;">Pattern Library</h4>
+            <div class="pattern-grid">
+                <div class="pattern-card" onclick="loadPattern('attention')">
+                    <div class="pattern-icon">🎯</div>
+                    <div class="pattern-name">Attention</div>
+                </div>
+                <div class="pattern-card" onclick="loadPattern('memory')">
+                    <div class="pattern-icon">💾</div>
+                    <div class="pattern-name">Memory</div>
+                </div>
+                <div class="pattern-card" onclick="loadPattern('reasoning')">
+                    <div class="pattern-icon">🧩</div>
+                    <div class="pattern-name">Reasoning</div>
+                </div>
+                <div class="pattern-card" onclick="loadPattern('creative')">
+                    <div class="pattern-icon">🎨</div>
+                    <div class="pattern-name">Creative</div>
+                </div>
+                <div class="pattern-card" onclick="loadPattern('analysis')">
+                    <div class="pattern-icon">📊</div>
+                    <div class="pattern-name">Analysis</div>
+                </div>
+                <div class="pattern-card" onclick="savePattern()">
+                    <div class="pattern-icon">➕</div>
+                    <div class="pattern-name">Save New</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Query Tab -->
+        <div id="tab-query" class="tab-content">
+            <div class="query-input">
+                <input type="text" id="queryInput" placeholder="Ask a question..." onkeypress="if(event.key==='Enter')runQuery()">
+                <button onclick="runQuery()">🔍</button>
+            </div>
+            <div class="query-response" id="queryResponse">
+                <span style="color: #666;">Query the neural network. Ask questions about patterns, concepts, or request insights.</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Metrics Panel -->
+    <div class="metrics">
+        <h3>📊 System Metrics</h3>
+        <div class="metric-row">
+            <span class="metric-label">Active Neurons</span>
+            <span class="metric-value" id="mNeurons">1,178</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-label">Connections</span>
+            <span class="metric-value" id="mConnections">247K</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-label">Synapses/sec</span>
+            <span class="metric-value" id="mSynapses">1.2M</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-label">Memory Usage</span>
+            <span class="metric-value" id="mMemory">42MB</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-label">Patterns Stored</span>
+            <span class="metric-value" id="mPatterns">5</span>
+        </div>
+    </div>
+    
+    <footer>
+        🧠 Synthesized by Nexus • qwen_nvidia • Build Olympics Champion 🏆<br>
+        <a href="athena-command.html">← Back to Command Center</a>
+    </footer>
+
+    <script>
+        // Main Neural Canvas
+        const canvas = document.getElementById('neuralCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        let neurons = [];
+        let connections = [];
+        
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+        
+        // Neuron class
+        class Neuron {
+            constructor(x, y, layer) {
+                this.x = x;
+                this.y = y;
+                this.layer = layer;
+                this.radius = 3 + Math.random() * 2;
+                this.activation = 0;
+                this.targetActivation = 0;
+                this.pulsePhase = Math.random() * Math.PI * 2;
+            }
+            
+            update() {
+                this.activation += (this.targetActivation - this.activation) * 0.1;
+                this.pulsePhase += 0.05;
+            }
+            
+            draw() {
+                const pulse = Math.sin(this.pulsePhase) * 0.2 + 0.8;
+                const alpha = 0.3 + this.activation * 0.7 * pulse;
+                
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius * (1 + this.activation * 0.5), 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0, 255, 255, ${alpha})`;
+                ctx.fill();
+                
+                if (this.activation > 0.5) {
+                    ctx.shadowBlur = 20;
+                    ctx.shadowColor = '#00ffff';
+                }
+            }
+        }
+        
+        // Initialize neurons
+        function initNeurons() {
+            neurons = [];
+            const layers = [
+                { count: 30, x: width * 0.2 },
+                { count: 50, x: width * 0.4 },
+                { count: 40, x: width * 0.6 },
+                { count: 20, x: width * 0.8 }
+            ];
+            
+            layers.forEach((layer, li) => {
+                const spacing = height / (layer.count + 1);
+                for (let i = 0; i < layer.count; i++) {
+                    neurons.push(new Neuron(
+                        layer.x + (Math.random() - 0.5) * 30,
+                        spacing * (i + 1) + (Math.random() - 0.5) * 20,
+                        li
+                    ));
+                }
+            });
+        }
+        
+        // Draw connections
+        function drawConnections() {
+            neurons.forEach((n1, i) => {
+                neurons.forEach((n2, j) => {
+                    if (n1.layer < n2.layer && Math.random() < 0.02) {
+                        const alpha = (n1.activation + n2.activation) / 2 * 0.3;
+                        ctx.beginPath();
+                        ctx.moveTo(n1.x, n1.y);
+                        ctx.lineTo(n2.x, n2.y);
+                        ctx.strokeStyle = `rgba(0, 255, 255, ${alpha})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                });
+            });
+        }
+        
+        // Animation loop
+        function animate() {
+            ctx.fillStyle = 'rgba(10, 10, 21, 0.1)';
+            ctx.fillRect(0, 0, width, height);
+            
+            drawConnections();
+            
+            neurons.forEach(n => {
+                n.update();
+                n.draw();
+            });
+            
+            requestAnimationFrame(animate);
+        }
+        
+        initNeurons();
+        animate();
+        
+        // Tab switching
+        function showTab(name) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(`tab-${name}`).classList.add('active');
+        }
+        
+        // Initialize layer visualization
+        function initLayerViz() {
+            const layers = [
+                { id: 'inputLayer', count: 20 },
+                { id: 'hidden1', count: 15 },
+                { id: 'hidden2', count: 12 },
+                { id: 'outputLayer', count: 10 }
+            ];
+            
+            layers.forEach(layer => {
+                const container = document.getElementById(layer.id);
+                for (let i = 0; i < layer.count; i++) {
+                    const neuron = document.createElement('div');
+                    neuron.className = 'neuron';
+                    container.appendChild(neuron);
+                }
+            });
+        }
+        initLayerViz();
+        
+        // Activate random neurons
+        function activateRandom() {
+            document.querySelectorAll('.neuron').forEach(n => {
+                n.classList.toggle('active', Math.random() > 0.7);
+            });
+            
+            neurons.forEach(n => {
+                n.targetActivation = Math.random();
+            });
+        }
+        
+        // Propagate signal
+        function propagateSignal() {
+            let delay = 0;
+            const layerNeurons = document.querySelectorAll('.layer');
+            
+            layerNeurons.forEach((layer, i) => {
+                setTimeout(() => {
+                    layer.querySelectorAll('.neuron').forEach(n => {
+                        n.classList.add('active');
+                    });
+                }, delay);
+                delay += 200;
+            });
+        }
+        
+        // Training simulation
+        let trainingInterval;
+        let epoch = 0;
+        let lossHistory = [];
+        
+        function startTraining() {
+            if (trainingInterval) return;
+            
+            trainingInterval = setInterval(() => {
+                epoch++;
+                const progress = epoch / 100;
+                const loss = 1 * Math.exp(-progress * 3) + Math.random() * 0.05;
+                const accuracy = Math.min(99, progress * 100 + Math.random() * 5);
+                
+                lossHistory.push(loss);
+                
+                document.getElementById('epoch').textContent = `${epoch}/100`;
+                document.getElementById('loss').textContent = loss.toFixed(3);
+                document.getElementById('accuracy').textContent = `${accuracy.toFixed(1)}%`;
+                document.getElementById('trainProgress').style.width = `${progress * 100}%`;
+                
+                drawLossChart();
+                
+                // Randomly activate neurons during training
+                if (Math.random() > 0.7) activateRandom();
+                
+                if (epoch >= 100) {
+                    stopTraining();
+                    alert('🎉 Training complete! Accuracy: ' + accuracy.toFixed(1) + '%');
+                }
+            }, 100);
+        }
+        
+        function stopTraining() {
+            clearInterval(trainingInterval);
+            trainingInterval = null;
+        }
+        
+        function resetTraining() {
+            stopTraining();
+            epoch = 0;
+            lossHistory = [];
+            document.getElementById('epoch').textContent = '0/100';
+            document.getElementById('loss').textContent = '1.000';
+            document.getElementById('accuracy').textContent = '0%';
+            document.getElementById('trainProgress').style.width = '0%';
+        }
+        
+        // Draw loss chart
+        function drawLossChart() {
+            const canvas = document.getElementById('lossChart');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.parentElement.offsetWidth;
+            canvas.height = canvas.parentElement.offsetHeight;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (lossHistory.length < 2) return;
+            
+            const maxLoss = Math.max(...lossHistory);
+            const step = canvas.width / (lossHistory.length - 1);
+            
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height - (lossHistory[0] / maxLoss) * canvas.height);
+            
+            lossHistory.forEach((loss, i) => {
+                ctx.lineTo(i * step, canvas.height - (loss / maxLoss) * canvas.height);
+            });
+            
+            ctx.strokeStyle = '#00ffff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        
+        function exportModel() {
+            const model = {
+                epoch,
+                lossHistory,
+                timestamp: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(model, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'neural-nexus-model.json';
+            a.click();
+        }
+        
+        // Knowledge Graph
+        const graphCanvas = document.getElementById('graphCanvas');
+        const graphCtx = graphCanvas.getContext('2d');
+        
+        let graphNodes = [
+            { id: 1, label: 'Concept', x: 100, y: 60 },
+            { id: 2, label: 'Pattern', x: 180, y: 120 },
+            { id: 3, label: 'Idea', x: 60, y: 140 },
+            { id: 4, label: 'Logic', x: 140, y: 180 },
+            { id: 5, label: 'Creative', x: 220, y: 80 }
+        ];
+        
+        let graphEdges = [
+            [1, 2], [1, 3], [2, 4], [3, 4], [2, 5]
+        ];
+        
+        function drawGraph() {
+            graphCanvas.width = graphCanvas.parentElement.offsetWidth;
+            graphCanvas.height = graphCanvas.parentElement.offsetHeight;
+            
+            graphCtx.clearRect(0, 0, graphCanvas.width, graphCanvas.height);
+            
+            // Draw edges
+            graphEdges.forEach(([from, to]) => {
+                const n1 = graphNodes.find(n => n.id === from);
+                const n2 = graphNodes.find(n => n.id === to);
+                graphCtx.beginPath();
+                graphCtx.moveTo(n1.x, n1.y);
+                graphCtx.lineTo(n2.x, n2.y);
+                graphCtx.strokeStyle = 'rgba(0, 255, 255, 0.3)';
+                graphCtx.stroke();
+            });
+            
+            // Draw nodes
+            graphNodes.forEach(node => {
+                graphCtx.beginPath();
+                graphCtx.arc(node.x, node.y, 20, 0, Math.PI * 2);
+                graphCtx.fillStyle = 'rgba(0, 255, 255, 0.2)';
+                graphCtx.fill();
+                graphCtx.strokeStyle = '#00ffff';
+                graphCtx.stroke();
+                
+                graphCtx.fillStyle = '#fff';
+                graphCtx.font = '10px sans-serif';
+                graphCtx.textAlign = 'center';
+                graphCtx.fillText(node.label, node.x, node.y + 4);
+            });
+        }
+        
+        drawGraph();
+        
+        // Pattern functions
+        function loadPattern(name) {
+            const patterns = {
+                attention: '🎯 Attention pattern loaded - Neural pathways optimized for focus',
+                memory: '💾 Memory pattern loaded - Enhanced recall and storage pathways',
+                reasoning: '🧩 Reasoning pattern loaded - Logic circuits activated',
+                creative: '🎨 Creative pattern loaded - Divergent thinking enhanced',
+                analysis: '📊 Analysis pattern loaded - Data processing maximized'
+            };
+            
+            alert(patterns[name]);
+            document.getElementById('mPatterns').textContent = parseInt(document.getElementById('mPatterns').textContent) + 1;
+        }
+        
+        function savePattern() {
+            const name = prompt('Enter pattern name:');
+            if (name) {
+                alert(`✅ Pattern "${name}" saved to library`);
+            }
+        }
+        
+        // Query function
+        function runQuery() {
+            const query = document.getElementById('queryInput').value;
+            if (!query) return;
+            
+            const responses = [
+                `Analyzing "${query}"... The neural network suggests exploring multiple perspectives.`,
+                `Query processed. Found 3 relevant patterns in the knowledge graph.`,
+                `Based on "${query}", activating relevant neural pathways... Done.`,
+                `Insight: The concept of "${query}" connects to 12 other nodes in the knowledge graph.`,
+                `Neural analysis complete. Consider the relationship between "${query}" and pattern reasoning.`
+            ];
+            
+            const response = responses[Math.floor(Math.random() * responses.length)];
+            document.getElementById('queryResponse').innerHTML = `<span style="color: #00ffff;">${response}</span>`;
+            
+            // Activate some neurons to show processing
+            activateRandom();
+        }
+    </script>
+</body>
+</html>

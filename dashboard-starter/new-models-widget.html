@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Models Widget - Athena Live</title>
+  <style>
+    :root {
+      --bg-primary: #0f0f1a;
+      --bg-secondary: #1a1a2e;
+      --bg-card: #252542;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0b0;
+      --accent: #7c3aed;
+      --accent-hover: #8b5cf6;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --hf-color: #FFD21E;
+      --github-color: #f0f6fc;
+      --lab-color: #ef4444;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .widget-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--bg-card);
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header h1 .emoji {
+      font-size: 28px;
+    }
+
+    .refresh-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+
+    .refresh-btn:hover {
+      background: var(--accent-hover);
+    }
+
+    .refresh-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .summary-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .card-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .card-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .card.hf .card-value { color: var(--hf-color); }
+    .card.github .card-value { color: var(--github-color); }
+    .card.lab .card-value { color: var(--lab-color); }
+    .card.trending .card-value { color: var(--warning); }
+
+    .models-section {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+    }
+
+    .filter-tab {
+      background: var(--bg-card);
+      border: none;
+      color: var(--text-secondary);
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .filter-tab:hover,
+    .filter-tab.active {
+      background: var(--accent);
+      color: white;
+    }
+
+    .models-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .model-item {
+      background: var(--bg-card);
+      border-radius: 10px;
+      padding: 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .model-item:hover {
+      transform: translateX(4px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .model-source {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .model-source.hf { background: rgba(255, 210, 30, 0.15); }
+    .model-source.github { background: rgba(240, 246, 252, 0.15); }
+    .model-source.lab { background: rgba(239, 68, 68, 0.15); }
+
+    .model-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .model-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .model-meta {
+      display: flex;
+      gap: 16px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .model-meta span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .model-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag {
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .tag.trending {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--warning);
+    }
+
+    .model-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .model-link:hover {
+      text-decoration: underline;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-secondary);
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--bg-card);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .error {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid var(--lab-color);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      color: var(--lab-color);
+    }
+
+    .last-updated {
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+      }
+
+      .model-item {
+        flex-direction: column;
+      }
+
+      .model-source {
+        align-self: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="widget-container">
+    <div class="header">
+      <h1>
+        <span class="emoji">🦅</span>
+        ModelHawk - New AI Models
+      </h1>
+      <button class="refresh-btn" onclick="loadModels()" id="refreshBtn">
+        <span>🔄</span>
+        <span>Refresh</span>
+      </button>
+    </div>
+
+    <div id="content">
+      <div class="loading">
+        <div class="loading-spinner"></div>
+        <p>Loading latest models...</p>
+      </div>
+    </div>
+
+    <p class="last-updated" id="lastUpdated"></p>
+  </div>
+
+  <script>
+    let currentFilter = 'all';
+    let modelsData = null;
+
+    async function loadModels() {
+      const btn = document.getElementById('refreshBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳</span><span>Loading...</span>';
+
+      try {
+        const response = await fetch('/api/models.json');
+        if (!response.ok) throw new Error('Failed to fetch models');
+        modelsData = await response.json();
+        renderModels();
+        updateLastUpdated();
+      } catch (error) {
+        document.getElementById('content').innerHTML = `
+          <div class="error">
+            <h3>⚠️ Failed to load models</h3>
+            <p>${error.message}</p>
+            <p style="margin-top: 12px; font-size: 13px;">Make sure the model tracker has been run: <code>node model-tracker.mjs</code></p>
+          </div>
+        `;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>🔄</span><span>Refresh</span>';
+      }
+    }
+
+    function renderModels() {
+      if (!modelsData) return;
+
+      const { summary, models } = modelsData;
+
+      // Render summary cards
+      const cardsHTML = `
+        <div class="summary-cards">
+          <div class="card">
+            <div class="card-value">${summary.total}</div>
+            <div class="card-label">Total Models</div>
+          </div>
+          <div class="card hf">
+            <div class="card-value">${summary.huggingFace}</div>
+            <div class="card-label">Hugging Face</div>
+          </div>
+          <div class="card github">
+            <div class="card-value">${summary.github}</div>
+            <div class="card-label">GitHub</div>
+          </div>
+          <div class="card lab">
+            <div class="card-value">${summary.aiLabs}</div>
+            <div class="card-label">AI Labs</div>
+          </div>
+          <div class="card trending">
+            <div class="card-value">${summary.trending}</div>
+            <div class="card-label">Trending</div>
+          </div>
+        </div>
+      `;
+
+      // Filter models
+      let filteredModels = models;
+      if (currentFilter !== 'all') {
+        filteredModels = models.filter(m => {
+          if (currentFilter === 'trending') return m.trending;
+          return m.source.toLowerCase().includes(currentFilter);
+        });
+      }
+
+      // Render models list
+      const modelsHTML = `
+        <div class="models-section">
+          <div class="section-header">
+            <h2 class="section-title">Latest Releases</h2>
+            <div class="filter-tabs">
+              <button class="filter-tab ${currentFilter === 'all' ? 'active' : ''}" onclick="setFilter('all')">All</button>
+              <button class="filter-tab ${currentFilter === 'hf' ? 'active' : ''}" onclick="setFilter('hf')">Hugging Face</button>
+              <button class="filter-tab ${currentFilter === 'github' ? 'active' : ''}" onclick="setFilter('github')">GitHub</button>
+              <button class="filter-tab ${currentFilter === 'lab' ? 'active' : ''}" onclick="setFilter('lab')">AI Labs</button>
+              <button class="filter-tab ${currentFilter === 'trending' ? 'active' : ''}" onclick="setFilter('trending')">🔥 Trending</button>
+            </div>
+          </div>
+          <div class="models-list">
+            ${filteredModels.slice(0, 20).map(model => renderModelItem(model)).join('')}
+          </div>
+        </div>
+      `;
+
+      document.getElementById('content').innerHTML = cardsHTML + modelsHTML;
+    }
+
+    function renderModelItem(model) {
+      const sourceIcons = {
+        HuggingFace: '🤗',
+        GitHub: '🐙',
+        'AI Lab': '🏢'
+      };
+
+      const sourceClass = {
+        HuggingFace: 'hf',
+        GitHub: 'github',
+        'AI Lab': 'lab'
+      };
+
+      const date = new Date(model.updatedAt || model.publishedAt);
+      const timeAgo = getTimeAgo(date);
+
+      const tags = (model.tags || []).slice(0, 5);
+      if (model.trending) tags.unshift('trending');
+
+      return `
+        <div class="model-item">
+          <div class="model-source ${sourceClass[model.source] || 'hf'}">
+            ${sourceIcons[model.source] || '📦'}
+          </div>
+          <div class="model-content">
+            <div class="model-name">${escapeHtml(model.name)}</div>
+            <div class="model-meta">
+              ${model.type ? `<span>📋 ${escapeHtml(model.type)}</span>` : ''}
+              ${model.likes !== undefined ? `<span>❤️ ${formatNumber(model.likes)}</span>` : ''}
+              ${model.stars !== undefined ? `<span>⭐ ${formatNumber(model.stars)}</span>` : ''}
+              ${model.downloads ? `<span>📥 ${formatNumber(model.downloads)}</span>` : ''}
+              <span>🕐 ${timeAgo}</span>
+            </div>
+            ${model.description ? `<p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px;">${escapeHtml(model.description)}</p>` : ''}
+            <div class="model-tags">
+              ${tags.map(t => `<span class="tag ${t === 'trending' ? 'trending' : ''}">${escapeHtml(t)}</span>`).join('')}
+            </div>
+          </div>
+          <a href="${model.url}" target="_blank" rel="noopener" class="model-link">View →</a>
+        </div>
+      `;
+    }
+
+    function setFilter(filter) {
+      currentFilter = filter;
+      renderModels();
+    }
+
+    function getTimeAgo(date) {
+      const seconds = Math.floor((new Date() - date) / 1000);
+      if (seconds < 60) return 'Just now';
+      if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+      if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+      return `${Math.floor(seconds / 86400)}d ago`;
+    }
+
+    function formatNumber(num) {
+      if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+      if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+      return num.toString();
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function updateLastUpdated() {
+      if (modelsData && modelsData.lastUpdated) {
+        const date = new Date(modelsData.lastUpdated);
+        document.getElementById('lastUpdated').textContent = 
+          `Last updated: ${date.toLocaleString()}`;
+      }
+    }
+
+    // Initial load
+    loadModels();
+  </script>
+</body>
+</html>

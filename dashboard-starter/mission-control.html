@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 Athena Mission Control</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700;900&family=Orbitron:wght@400;700;900&display=swap');
+        
+        :root {
+            --primary: #00d4ff;
+            --secondary: #ff6b35;
+            --accent: #7b2cbf;
+            --success: #00ff88;
+            --warning: #ffcc00;
+            --danger: #ff3366;
+            --bg-dark: #0a0e17;
+            --bg-card: #111827;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: var(--bg-dark);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Starfield */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(123, 44, 191, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 20%, rgba(0, 212, 255, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(255, 107, 53, 0.05) 0%, transparent 50%);
+            z-index: -1;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding: 25px 40px;
+            background: linear-gradient(135deg, rgba(17, 24, 39, 0.9) 0%, rgba(10, 14, 23, 0.9) 100%);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            animation: spin 10s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .logo h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            background: linear-gradient(90deg, var(--primary), white);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header-stats {
+            display: flex;
+            gap: 30px;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Main Grid */
+        .mission-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+        
+        @media (max-width: 1200px) {
+            .mission-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        
+        @media (max-width: 768px) {
+            .mission-grid { grid-template-columns: 1fr; }
+        }
+        
+        /* Mission Card */
+        .mission-card {
+            background: linear-gradient(180deg, var(--bg-card) 0%, #0d1320 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .mission-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, var(--card-color, var(--primary)), transparent);
+        }
+        
+        .mission-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: var(--card-color, var(--primary));
+            box-shadow: 0 25px 80px rgba(0, 212, 255, 0.15);
+        }
+        
+        .mission-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        
+        .mission-icon {
+            font-size: 3rem;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        
+        .mission-status {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .mission-status.active {
+            background: rgba(0, 255, 136, 0.15);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+        
+        .mission-status.standby {
+            background: rgba(255, 204, 0, 0.15);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+        
+        .mission-status.complete {
+            background: rgba(0, 212, 255, 0.15);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+        
+        .mission-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            color: var(--card-color, var(--primary));
+        }
+        
+        .mission-desc {
+            color: #888;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .mission-progress {
+            margin-bottom: 20px;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--card-color, var(--primary)), var(--success));
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .mission-meta {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .meta-item {
+            text-align: center;
+        }
+        
+        .meta-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            color: var(--card-color, var(--primary));
+        }
+        
+        .meta-label {
+            font-size: 0.7rem;
+            color: #555;
+            text-transform: uppercase;
+        }
+        
+        /* Card Colors */
+        .mission-card.shannon { --card-color: #ff3366; }
+        .mission-card.cisco { --card-color: #ff9900; }
+        .mission-card.nexus { --card-color: #00ff88; }
+        .mission-card.themis { --card-color: #9b4dca; }
+        .mission-card.felicity { --card-color: #00d4ff; }
+        .mission-card.prometheus { --card-color: #ffcc00; }
+        
+        /* Launch Button */
+        .launch-btn {
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            background: linear-gradient(135deg, var(--card-color, var(--primary)), transparent);
+            border: 1px solid var(--card-color, var(--primary));
+            border-radius: 10px;
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .launch-btn:hover {
+            background: var(--card-color, var(--primary));
+            box-shadow: 0 10px 40px rgba(0, 212, 255, 0.3);
+        }
+        
+        /* Activity Feed */
+        .activity-panel {
+            grid-column: span 3;
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 1200px) {
+            .activity-panel { grid-column: span 2; }
+        }
+        
+        @media (max-width: 768px) {
+            .activity-panel { grid-column: span 1; }
+        }
+        
+        .panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+        
+        .activity-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .activity-item {
+            display: flex;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            border-left: 3px solid var(--primary);
+        }
+        
+        .activity-icon {
+            font-size: 1.5rem;
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-title {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .activity-time {
+            font-size: 0.8rem;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">🎯</div>
+                <h1>Athena Mission Control</h1>
+            </div>
+            <div class="header-stats">
+                <div class="stat">
+                    <div class="stat-value">10</div>
+                    <div class="stat-label">Active Agents</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">67</div>
+                    <div class="stat-label">Missions</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">99.9%</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+            </div>
+        </header>
+        
+        <div class="mission-grid">
+            <!-- Shannon -->
+            <div class="mission-card shannon">
+                <div class="mission-header">
+                    <div class="mission-icon">🛡️</div>
+                    <div class="mission-status active">Active</div>
+                </div>
+                <h3 class="mission-title">Shannon</h3>
+                <p class="mission-desc">AI Pentester - Autonomous vulnerability discovery and exploitation testing.</p>
+                <div class="mission-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 75%;"></div>
+                    </div>
+                    <div class="progress-label">
+                        <span>Scanning</span>
+                        <span>75%</span>
+                    </div>
+                </div>
+                <div class="mission-meta">
+                    <div class="meta-item">
+                        <div class="meta-value">12</div>
+                        <div class="meta-label">Tests Run</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-value">3</div>
+                        <div class="meta-label">Vulns Found</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-value">96%</div>
+                        <div class="meta-label">Accuracy</div>
+                    </div>
+                </div>
+                <button class="launch-btn" onclick="launchMission('shannon')">Launch Mission</button>
+            </div>
+            
+            <!-- Cisco -->
+            <div class="mission-card cisco">
+                <div class="mission-header">
+                    <div class="mission-icon">🔒</div>
+                    <div class="mission-status active">Active</div>
+                </div>
+                <h3 class="mission-title">Cisco</h3>
+                <p class="mission-desc">Security Operations - Continuous monitoring and threat detection.</p>
+                <div class="mission-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%;"></div>
+                    </div>
+                    <div class="progress-label">
+                        <span>Monitoring</span>
+                        <span>100%</span>
+                    </div>
+                </div>
+                <div class="mission-meta">
+                    <div class="meta-item">
+                        <div class="meta-value">247</div>
+                        <div class="meta-label">Scans</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-value">0</div>
+                        <div class="meta-label">Threats</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-value">Secure</div>
+                        <div class="meta-label">Status</div>
+                    </div>
+                </div>
+                <button class="launch-btn" onclick="launchMission('cisco')">Launch Mission</button>
+            </div>
+            
+            <!-- Nexus -->
+            <div class class="mission-card nexus">
+                <div class="mission-header">
+                    <div class="mission-icon">🧠</div>
+                    <div class="mission-status active">Active</div>
+                </div>
+                <h3 class="mission-title">Nexus</h3>
+                <p class="mission-desc">Intelligence Synthesis - Aggregating insights from multiple sources.</p>
+                <div class="mission-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 45%;"></div>
+                    </div>
+                    <div class="progress-label">
+                        <span>Synthesizing</span>
+                        <span>45%</span>
+                    </div>
+                </div>
+                <div class="mission-meta">
+                    <div class="meta-item">
+                        <div class="meta-value">156</div>
+                        <div class="meta-label">Sources</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-value">89%</div>
+                        <div class="meta-label">Confidence</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-value">12</div>
+                        <div class="meta-label">Insights</div>
+                    </div>
+                </div>
+                <button class="launch-btn" onclick="launchMission('nexus')">Launch Mission</button>
+            </div>
+            
+            <!-- THEMIS -->
+            <div class="mission-card themis">
+                <div class="mission-header">
+                    <div class="mission-icon">⚖️</div>
+                    <div class="mission-status standby">Deliberating</div>
+                </div>
+                <h3 class="mission-title">THEMIS</h3>
+                <p class="mission-desc">Council System - Multi-agent decision making and consensus building.</p>
+                <div class="mission-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 60%;"></div>
+                    </div>
+                    <div class="progress-label">
+                        <span>Council Voting</span>
+                        <span>60%</span>
+                    </div>
+                </div>
+                <div class="mission-meta">
+                    <div class="meta-item">
+                        <div class="meta-value">5</div>
+                        <div class="meta-label">Councilors</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-value">3/5</div>
+                        <div class="meta-label">Votes In</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-value">Pending</div>
+                        <div class="meta-label">Verdict</div>
+                    </div>
+                </div>
+                <button class="launch-btn" onclick="launchMission('themis')">Launch Mission</button>
+            </div>
+            
+            <!-- Felicity -->
+            <div class="mission-card felicity">
+                <div class="mission-header">
+                    <div class="mission-icon">💻</div>
+                    <div class="mission-status complete">Complete</div>
+                </div>
+                <h3 class="mission-title">Felicity</h3>
+                <p class="mission-desc">Frontend Development - Building beautiful user interfaces.</p>
+                <div class="mission-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%;"></div>
+                    </div>
+                    <div class="progress-label">
+                        <span>Completed</span>
+                        <span>100%</span>
+                    </div>
+                </div>
+                <div class="mission-meta">
+                    <div class="meta-item">
+                        <div class="meta-value">67</div>
+                        <div class="meta-label">Files Built</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-value">31KB</div>
+                        <div class="meta-label">Total Size</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-value">Done</div>
+                        <div class="meta-label">Status</div>
+                    </div>
+                </div>
+                <button class="launch-btn" onclick="launchMission('felicity')">View Results</button>
+            </div>
+            
+            <!-- Prometheus -->
+            <div class="mission-card prometheus">
+                <div class="mission-header">
+                    <div class="mission-icon">⚡</div>
+                    <div class="mission-status standby">Standby</div>
+                </div>
+                <h3 class="mission-title">Prometheus</h3>
+                <p class="mission-desc">Backend Execution - Running system operations and API integrations.</p>
+                <div class="mission-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%;"></div>
+                    </div>
+                    <div class="progress-label">
+                        <span>Idle</span>
+                        <span>0%</span>
+                    </div>
+                </div>
+                <div class="mission-meta">
+                    <div class="meta-item">
+                        <div class="meta-value">0</div>
+                        <div class="meta-label">Running</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-value">124</div>
+                        <div class="meta-label">Completed</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-value">98.5%</div>
+                        <div class="meta-label">Success</div>
+                    </div>
+                </div>
+                <button class="launch-btn" onclick="launchMission('prometheus')">Launch Mission</button>
+            </div>
+            
+            <!-- Activity Panel -->
+            <div class="activity-panel">
+                <h3 class="panel-title">📡 Live Activity Feed</h3>
+                <div class="activity-list">
+                    <div class="activity-item">
+                        <div class="activity-icon">🛡️</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Shannon completed vulnerability scan</div>
+                            <div class="activity-time">2 minutes ago</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">💻</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Felicity built 3 new dashboard components</div>
+                            <div class="activity-time">5 minutes ago</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">⚖️</div>
+                        <div class="activity-content">
+                            <div class="activity-title">THEMIS council started deliberation</div>
+                            <div class="activity-time">8 minutes ago</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">🔒</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Cisco completed security audit</div>
+                            <div class="activity-time">15 minutes ago</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function launchMission(agent) {
+            const missions = {
+                shannon: 'Launching Shannon pentester mission...',
+                cisco: 'Opening Cisco security operations...',
+                nexus: 'Starting Nexus intelligence synthesis...',
+                themis: 'Initializing THEMIS council deliberation...',
+                felicity: 'Loading Felicity build results...',
+                prometheus: 'Starting Prometheus backend execution...'
+            };
+            
+            alert(`🚀 ${missions[agent]}\n\nIn production, this would launch the ${agent} agent interface.`);
+        }
+        
+        // Animate progress bars on load
+        document.querySelectorAll('.progress-fill').forEach(bar => {
+            const width = bar.style.width;
+            bar.style.width = '0%';
+            setTimeout(() => {
+                bar.style.width = width;
+            }, 500);
+        });
+    </script>
+</body>
+</html>

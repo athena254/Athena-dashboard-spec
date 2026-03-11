@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Athena Automation Pipeline</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+      min-height: 100vh;
+      color: #e2e8f0;
+      overflow-x: hidden;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(90deg, #06b6d4, #8b5cf6, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+    }
+    
+    .subtitle {
+      color: #94a3b8;
+      font-size: 1.1rem;
+    }
+    
+    .pipeline-container {
+      position: relative;
+      background: rgba(30, 41, 59, 0.5);
+      border-radius: 20px;
+      padding: 40px;
+      border: 1px solid rgba(148, 163, 184, 0.1);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    
+    svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    
+    .connection {
+      fill: none;
+      stroke: url(#gradient);
+      stroke-width: 3;
+      stroke-linecap: round;
+    }
+    
+    .connection-animated {
+      stroke-dasharray: 20, 10;
+      animation: flow 1s linear infinite;
+    }
+    
+    @keyframes flow {
+      to { stroke-dashoffset: -30; }
+    }
+    
+    .nodes {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      position: relative;
+      z-index: 10;
+    }
+    
+    .node {
+      flex: 1;
+      background: linear-gradient(145deg, #1e293b, #0f172a);
+      border-radius: 16px;
+      padding: 30px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 2px solid transparent;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .node::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent-start), var(--accent-end));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .node:hover {
+      transform: translateY(-8px);
+      border-color: var(--accent-start);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 30px var(--glow);
+    }
+    
+    .node:hover::before {
+      opacity: 1;
+    }
+    
+    .node-icon {
+      width: 70px;
+      height: 70px;
+      margin: 0 auto 20px;
+      background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      box-shadow: 0 10px 30px var(--glow);
+    }
+    
+    .node-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #f1f5f9;
+    }
+    
+    .node-desc {
+      font-size: 0.9rem;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+    
+    .node[data-stage="cron"] {
+      --accent-start: #f59e0b;
+      --accent-end: #ef4444;
+      --glow: rgba(245, 158, 11, 0.3);
+    }
+    
+    .node[data-stage="spawn"] {
+      --accent-start: #8b5cf6;
+      --accent-end: #6366f1;
+      --glow: rgba(139, 92, 246, 0.3);
+    }
+    
+    .node[data-stage="execute"] {
+      --accent-start: #10b981;
+      --accent-end: #06b6d4;
+      --glow: rgba(16, 185, 129, 0.3);
+    }
+    
+    .node[data-stage="report"] {
+      --accent-start: #ec4899;
+      --accent-end: #f43f5e;
+      --glow: rgba(236, 72, 153, 0.3);
+    }
+    
+    .details-panel {
+      position: fixed;
+      right: -400px;
+      top: 0;
+      width: 380px;
+      height: 100vh;
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+      border-left: 1px solid rgba(148, 163, 184, 0.2);
+      padding: 40px 30px;
+      transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 100;
+      overflow-y: auto;
+      box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
+    }
+    
+    .details-panel.active {
+      right: 0;
+    }
+    
+    .details-panel h2 {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .details-panel h2 span {
+      font-size: 2rem;
+    }
+    
+    .close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #94a3b8;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.5rem;
+      transition: all 0.2s;
+    }
+    
+    .close-btn:hover {
+      background: rgba(239, 68, 68, 0.3);
+      color: #f1f5f9;
+    }
+    
+    .detail-section {
+      margin-bottom: 25px;
+    }
+    
+    .detail-section h3 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #64748b;
+      margin-bottom: 10px;
+    }
+    
+    .detail-item {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .detail-item .label {
+      color: #94a3b8;
+      font-size: 0.9rem;
+    }
+    
+    .detail-item .value {
+      color: #f1f5f9;
+      font-weight: 500;
+    }
+    
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    
+    .status-badge.active {
+      background: rgba(16, 185, 129, 0.2);
+      color: #10b981;
+    }
+    
+    .status-badge.waiting {
+      background: rgba(245, 158, 11, 0.2);
+      color: #f59e0b;
+    }
+    
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .data-flow-indicator {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background: #06b6d4;
+      border-radius: 50%;
+      box-shadow: 0 0 20px #06b6d4;
+      animation: flowIndicator 3s ease-in-out infinite;
+      z-index: 20;
+    }
+    
+    @keyframes flowIndicator {
+      0% { opacity: 0; transform: scale(0.5); }
+      10% { opacity: 1; transform: scale(1); }
+      90% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(0.5); }
+    }
+    
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 40px;
+      flex-wrap: wrap;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #94a3b8;
+      font-size: 0.9rem;
+    }
+    
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    
+    .legend-dot.cron { background: #f59e0b; }
+    .legend-dot.spawn { background: #8b5cf6; }
+    .legend-dot.execute { background: #10b981; }
+    .legend-dot.report { background: #ec4899; }
+    
+    .timeline {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 30px;
+    }
+    
+    .timeline h3 {
+      font-size: 1rem;
+      color: #94a3b8;
+      margin-bottom: 15px;
+    }
+    
+    .timeline-item {
+      display: flex;
+      gap: 15px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .timeline-item:last-child {
+      border-bottom: none;
+    }
+    
+    .timeline-time {
+      color: #64748b;
+      font-size: 0.85rem;
+      min-width: 60px;
+    }
+    
+    .timeline-event {
+      color: #cbd5e1;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>⚡ Automation Pipeline</h1>
+      <p class="subtitle">Athena Live — Interactive Workflow Visualizer</p>
+    </header>
+    
+    <div class="pipeline-container">
+      <svg>
+        <defs>
+          <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#f59e0b" />
+            <stop offset="33%" stop-color="#8b5cf6" />
+            <stop offset="66%" stop-color="#10b981" />
+            <stop offset="100%" stop-color="#ec4899" />
+          </linearGradient>
+        </defs>
+        <path class="connection connection-animated" d="M 200 120 C 280 120, 280 120, 360 120" />
+        <path class="connection connection-animated" d="M 520 120 C 600 120, 600 120, 680 120" />
+        <path class="connection connection-animated" d="M 840 120 C 920 120, 920 120, 1000 120" />
+      </svg>
+      
+      <div class="nodes">
+        <div class="node" data-stage="cron" onclick="showDetails('cron')">
+          <div class="node-icon">⏰</div>
+          <div class="node-title">Cron Trigger</div>
+          <div class="node-desc">Scheduled events & timers that initiate automation workflows</div>
+        </div>
+        
+        <div class="node" data-stage="spawn" onclick="showDetails('spawn')">
+          <div class="node-icon">🚀</div>
+          <div class="node-title">Agent Spawn</div>
+          <div class="node-desc">Dynamic agent instantiation with context & capabilities</div>
+        </div>
+        
+        <div class="node" data-stage="execute" onclick="showDetails('execute')">
+          <div class="node-icon">⚙️</div>
+          <div class="node-title">Task Execution</div>
+          <div class="node-desc">Parallel task processing with real-time status updates</div>
+        </div>
+        
+        <div class="node" data-stage="report" onclick="showDetails('report')">
+          <div class="node-icon">📊</div>
+          <div class="node-title">Reporting</div>
+          <div class="node-desc">Results aggregation, metrics & notifications</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot cron"></div>Trigger</div>
+      <div class="legend-item"><div class="legend-dot spawn"></div>Spawn</div>
+      <div class="legend-item"><div class="legend-dot execute"></div>Execute</div>
+      <div class="legend-item"><div class="legend-dot report"></div>Report</div>
+    </div>
+  </div>
+  
+  <div class="details-panel" id="detailsPanel">
+    <button class="close-btn" onclick="closeDetails()">×</button>
+    <div id="detailsContent"></div>
+  </div>
+
+  <script>
+    const nodeData = {
+      cron: {
+        title: '⏰ Cron Trigger',
+        icon: '⏰',
+        status: 'active',
+        sections: [
+          {
+            title: 'Active Schedules',
+            items: [
+              { label: 'Daily Backup', value: '00:00 UTC', badge: 'active' },
+              { label: 'Health Check', value: 'Every 30 min', badge: 'active' },
+              { label: 'Metrics Sync', value: 'Every 5 min', badge: 'active' }
+            ]
+          },
+          {
+            title: 'Last Triggers',
+            items: [
+              { label: 'Backup', value: '2 min ago' },
+              { label: 'Health Check', value: 'Just now' },
+              { label: 'Metrics Sync', value: '45 sec ago' }
+            ]
+          }
+        ],
+        timeline: [
+          { time: '02:10', event: 'Health check triggered' },
+          { time: '02:05', event: 'Metrics sync completed' },
+          { time: '02:00', event: 'Metrics sync triggered' },
+          { time: '01:30', event: 'Health check triggered' }
+        ]
+      },
+      spawn: {
+        title: '🚀 Agent Spawn',
+        icon: '🚀',
+        status: 'active',
+        sections: [
+          {
+            title: 'Active Agents',
+            items: [
+              { label: 'Sterling', value: 'Finance', badge: 'active' },
+              { label: 'Athena', value: 'Orchestrator', badge: 'active' },
+              { label: 'Prometheus', value: 'Monitor', badge: 'waiting' }
+            ]
+          },
+          {
+            title: 'Spawn Config',
+            items: [
+              { label: 'Max Agents', value: '9' },
+              { label: 'Spawn Timeout', value: '30s' },
+              { label: 'Context Window', value: '200K tokens' }
+            ]
+          }
+        ],
+        timeline: [
+          { time: '02:08', event: 'Prometheus spawned for monitoring' },
+          { time: '01:45', event: 'Sterling spawned for bidding' },
+          { time: '01:00', event: 'Athena spawned for orchestration' }
+        ]
+      },
+      execute: {
+        title: '⚙️ Task Execution',
+        icon: '⚙️',
+        status: 'active',
+        sections: [
+          {
+            title: 'Running Tasks',
+            items: [
+              { label: 'Auto-bidding', value: 'Running', badge: 'active' },
+              { label: 'Data sync', value: 'Completed' },
+              { label: 'API health', value: 'Running', badge: 'active' }
+            ]
+          },
+          {
+            title: 'Performance',
+            items: [
+              { label: 'Avg Duration', value: '2.4s' },
+              { label: 'Success Rate', value: '99.7%' },
+              { label: 'Tasks Today', value: '1,247' }
+            ]
+          }
+        ],
+        timeline: [
+          { time: '02:12', event: 'API health check started' },
+          { time: '02:11', event: 'Auto-bidding cycle #47' },
+          { time: '02:10', event: 'Data sync completed' }
+        ]
+      },
+      report: {
+        title: '📊 Reporting',
+        icon: '📊',
+        status: 'active',
+        sections: [
+          {
+            title: 'Recent Reports',
+            items: [
+              { label: 'Daily Summary', value: 'Generated' },
+              { label: 'Error Log', value: '0 issues' },
+              { label: 'Performance', value: '98% uptime' }
+            ]
+          },
+          {
+            title: 'Channels',
+            items: [
+              { label: 'Telegram', value: 'Active' },
+              { label: 'Discord', value: 'Active' },
+              { label: 'Email', value: 'Digest only' }
+            ]
+          }
+        ],
+        timeline: [
+          { time: '02:00', event: 'Daily report sent to Telegram' },
+          { time: '01:00', event: 'Hourly digest delivered' },
+          { time: '00:00', event: 'Daily backup report generated' }
+        ]
+      }
+    };
+
+    function showDetails(stage) {
+      const panel = document.getElementById('detailsPanel');
+      const content = document.getElementById('detailsContent');
+      const data = nodeData[stage];
+      
+      let html = `
+        <h2><span>${data.icon}</span> ${data.title.replace(/^./, '')}</h2>
+        <div class="status-badge ${data.status}">
+          <span class="status-dot"></span>
+          ${data.status.charAt(0).toUpperCase() + data.status.slice(1)}
+        </div>
+      `;
+      
+      data.sections.forEach(section => {
+        html += `<div class="detail-section"><h3>${section.title}</h3>`;
+        section.items.forEach(item => {
+          html += `
+            <div class="detail-item">
+              <span class="label">${item.label}</span>
+              <span class="value">
+                ${item.value}
+                ${item.badge ? `<span class="status-badge ${item.badge}"><span class="status-dot"></span></span>` : ''}
+              </span>
+            </div>
+          `;
+        });
+        html += '</div>';
+      });
+      
+      html += `
+        <div class="timeline">
+          <h3>Recent Activity</h3>
+          ${data.timeline.map(t => `
+            <div class="timeline-item">
+              <span class="timeline-time">${t.time}</span>
+              <span class="timeline-event">${t.event}</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      
+      content.innerHTML = html;
+      panel.classList.add('active');
+    }
+
+    function closeDetails() {
+      document.getElementById('detailsPanel').classList.remove('active');
+    }
+
+    // Add animated data flow particles
+    document.querySelectorAll('.node').forEach((node, index) => {
+      const flow = document.createElement('div');
+      flow.className = 'data-flow-indicator';
+      flow.style.left = `${25 + (index * 25)}%`;
+      flow.style.top = '110px';
+      flow.style.animationDelay = `${index * 0.8}s`;
+      node.appendChild(flow);
+    });
+  </script>
+</body>
+</html>

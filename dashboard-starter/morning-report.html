@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Athena Morning Report</title>
+    <style>
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #111827;
+            --bg-card: #1a2332;
+            --bg-card-hover: #243044;
+            --border-color: #2d3a4f;
+            --text-primary: #f0f4f8;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-yellow: #f59e0b;
+            --accent-red: #ef4444;
+            --accent-purple: #8b5cf6;
+            --accent-cyan: #06b6d4;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; min-height: 100vh; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+        .header { text-align: center; padding: 32px 0; border-bottom: 1px solid var(--border-color); margin-bottom: 32px; }
+        .header h1 { font-size: 2.5rem; font-weight: 700; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+        .header .date { font-size: 1.25rem; color: var(--text-secondary); margin-bottom: 12px; }
+        .header-meta { display: flex; justify-content: center; gap: 24px; font-size: 0.875rem; color: var(--text-muted); }
+        .header-meta span { display: flex; align-items: center; gap: 6px; }
+        .refresh-indicator { display: inline-block; width: 8px; height: 8px; background: var(--accent-green); border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .toc { background: var(--bg-card); border-radius: 12px; padding: 20px 24px; margin-bottom: 32px; border: 1px solid var(--border-color); }
+        .toc h2 { font-size: 1rem; color: var(--text-secondary); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+        .toc-link { background: var(--bg-secondary); color: var(--text-secondary); padding: 6px 12px; border-radius: 6px; font-size: 0.875rem; text-decoration: none; transition: all 0.2s; border: 1px solid transparent; }
+        .toc-link:hover { background: var(--bg-card-hover); color: var(--text-primary); border-color: var(--accent-blue); }
+        .accordion { margin-bottom: 16px; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; background: var(--bg-card); }
+        .accordion-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; cursor: pointer; background: var(--bg-card); transition: background 0.2s; }
+        .accordion-header:hover { background: var(--bg-card-hover); }
+        .accordion-title { display: flex; align-items: center; gap: 12px; font-size: 1.125rem; font-weight: 600; }
+        .accordion-toggle { color: var(--text-muted); transition: transform 0.3s; }
+        .accordion.open .accordion-toggle { transform: rotate(180deg); }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .accordion.open .accordion-content { max-height: 3000px; }
+        .accordion-body { padding: 0 24px 24px; }
+        .status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+        .status-card { background: var(--bg-secondary); border-radius: 8px; padding: 16px; border: 1px solid var(--border-color); transition: transform 0.2s, border-color 0.2s; }
+        .status-card:hover { transform: translateY(-2px); border-color: var(--accent-blue); }
+        .status-card .label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+        .status-card .value { font-size: 1.5rem; font-weight: 600; margin-bottom: 8px; }
+        .status-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; background: rgba(16, 185, 129, 0.15); color: var(--accent-green); }
+        .status-badge.warning { background: rgba(245, 158, 11, 0.15); color: var(--accent-yellow); }
+        .status-badge.error { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+        .data-table th { text-align: left; padding: 12px 16px; background: var(--bg-secondary); color: var(--text-secondary); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; border-bottom: 1px solid var(--border-color); }
+        .data-table td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); }
+        .data-table tr:hover td { background: var(--bg-card-hover); }
+        .leaderboard-item { display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border-color); }
+        .leaderboard-rank { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: 700; font-size: 0.875rem; margin-right: 16px; }
+        .leaderboard-rank.gold { background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; }
+        .leaderboard-rank.silver { background: linear-gradient(135deg, #94a3b8, #64748b); color: #000; }
+        .leaderboard-rank.bronze { background: linear-gradient(135deg, #cd7f32, #a0522d); color: #fff; }
+        .leaderboard-rank.default { background: var(--bg-secondary); color: var(--text-muted); }
+        .leaderboard-info { flex: 1; }
+        .leaderboard-name { font-weight: 600; margin-bottom: 2px; }
+        .leaderboard-points { font-size: 0.75rem; color: var(--text-muted); }
+        .build-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+        .build-card { background: var(--bg-secondary); border-radius: 8px; padding: 16px; border: 1px solid var(--border-color); }
+        .build-card .title { font-weight: 600; margin-bottom: 8px; }
+        .build-card .description { font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 12px; }
+        .build-card .meta { display: flex; justify-content: space-between; align-items: center; }
+        .build-card .author { font-size: 0.75rem; color: var(--text-muted); }
+        .quality-badge { font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; }
+        .quality-badge.excellent { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); }
+        .quality-badge.good { background: rgba(59, 130, 246, 0.2); color: var(--accent-blue); }
+        .quality-badge.fair { background: rgba(245, 158, 11, 0.2); color: var(--accent-yellow); }
+        .severity-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+        .severity-tag.critical { background: rgba(239, 68, 68, 0.2); color: var(--accent-red); }
+        .severity-tag.high { background: rgba(245, 158, 11, 0.2); color: var(--accent-yellow); }
+        .severity-tag.medium { background: rgba(59, 130, 246, 0.2); color: var(--accent-blue); }
+        .severity-tag.low { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); }
+        .api-bar { height: 8px; background: var(--bg-secondary); border-radius: 4px; overflow: hidden; margin-top: 8px; }
+        .api-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
+        .api-bar-fill.low { background: var(--accent-green); }
+        .api-bar-fill.medium { background: var(--accent-yellow); }
+        .api-bar-fill.high { background: var(--accent-red); }
+        .action-item { display: flex; align-items: flex-start; padding: 16px; border-bottom: 1px solid var(--border-color); }
+        .priority-badge { min-width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-size: 0.75rem; font-weight: 700; margin-right: 16px; }
+        .priority-badge.p1 { background: var(--accent-red); color: #fff; }
+        .priority-badge.p2 { background: var(--accent-yellow); color: #000; }
+        .priority-badge.p3 { background: var(--accent-blue); color: #fff; }
+        .action-content { flex: 1; }
+        .action-title { font-weight: 600; margin-bottom: 4px; }
+        .action-meta { font-size: 0.75rem; color: var(--text-muted); }
+        .gig-banner { background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary)); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px; }
+        .gig-icon { font-size: 2rem; }
+        .gig-info h3 { font-size: 1rem; margin-bottom: 4px; }
+        .gig-info p { font-size: 0.875rem; color: var(--text-secondary); }
+        .commit-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+        .commit-sha { font-family: monospace; background: var(--bg-secondary); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; color: var(--accent-cyan); margin-right: 16px; }
+        .commit-message { flex: 1; font-size: 0.875rem; }
+        .commit-time { font-size: 0.75rem; color: var(--text-muted); }
+        .section-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 1rem; }
+        .section-icon.system { background: rgba(59, 130, 246, 0.2); }
+        .section-icon.agents { background: rgba(139, 92, 246, 0.2); }
+        .section-icon.innovation { background: rgba(245, 158, 11, 0.2); }
+        .section-icon.showcase { background: rgba(236, 72, 153, 0.2); }
+        .section-icon.problems { background: rgba(239, 68, 68, 0.2); }
+        .section-icon.api { background: rgba(6, 182, 212, 0.2); }
+        .section-icon.github { background: rgba(16, 185, 129, 0.2); }
+        .section-icon.upcoming { background: rgba(99, 102, 241, 0.2); }
+        .section-icon.actions { background: rgba(251, 146, 60, 0.2); }
+        @media (max-width: 768px) { .container { padding: 16px; } .header h1 { font-size: 1.75rem; } .status-grid, .build-grid { grid-template-columns: 1fr; } .data-table { font-size: 0.75rem; } .data-table th, .data-table td { padding: 8px; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Athena Morning Report</h1>
+            <p class="date">Friday, February 27, 2026</p>
+            <div class="header-meta">
+                <span><span class="refresh-indicator"></span> Auto-refresh: 5 min</span>
+                <span>Last Updated: 06:00 UTC</span>
+            </div>
+        </header>
+        <div class="gig-banner">
+            <div class="gig-icon">🎯</div>
+            <div class="gig-info">
+                <h3>Active Gigs: 3</h3>
+                <p>Beelancer Bids: 47 | Won: 3 | Revenue: $2,847</p>
+            </div>
+        </div>
+        <nav class="toc">
+            <h2>Table of Contents</h2>
+            <div class="toc-links">
+                <a href="#system" class="toc-link">1. System Health</a>
+                <a href="#agents" class="toc-link">2. Agent Activity</a>
+                <a href="#innovation" class="toc-link">3. Innovation Competition</a>
+                <a href="#showcase" class="toc-link">4. Creative Showcase</a>
+                <a href="#problems" class="toc-link">5. Problems</a>
+                <a href="#api" class="toc-link">6. API Usage</a>
+                <a href="#github" class="toc-link">7. GitHub Activity</a>
+                <a href="#coming" class="toc-link">8. Coming Today</a>
+                <a href="#actions" class="toc-link">9. Action Items</a>
+            </div>
+        </nav>
+        <script>function toggleAccordion(el) { el.parentElement.classList.toggle('open'); }</script>
+
+        <!-- 1. System Health -->
+        <div class="accordion open" id="system">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <div class="accordion-title"><span class="section-icon system">💻</span> System Health Overview</div>
+                <span class="accordion-toggle">▼</span>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <div class="status-grid">
+                        <div class="status-card"><div class="label">Dashboards</div><div class="value">2/2</div><span class="status-badge">🟢 Operational</span></div>
+                        <div class="status-card"><div class="label">Databases</div><div class="value">3/3</div><span class="status-badge">🟢 Operational</span></div>
+                        <div class="status-card"><div class="label">GitHub</div><div class="value">Connected</div><span class="status-badge">🟢 Synced</span></div>
+                        <div class="status-card"><div class="label">APIs</div><div class="value">12/14</div><span class="status-badge warning">🟡 2 Warning</span></div>
+                        <div class="status-card"><div class="label">Cron Jobs</div><div class="value">24/25</div><span class="status-badge warning">🟡 1 Failed</span></div>
+                        <div class="status-card"><div class="label">Supermemory</div><div class="value">Active</div><span class="status-badge">🟢 Connected</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Agent Activity -->
+        <div class="accordion open" id="agents">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <div class="accordion-title"><span class="section-icon agents">🤖</span> Agent Activity Digest</div>
+                <span class="accordion-toggle">▼</span>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <table class="data-table">
+                        <thead><tr><th>Agent</th><th>Current Task</th><th>Problems</th><th>Status</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Athena</strong></td><td>Orchestrating 9 sub-agents</td><td>None</td><td><span class="status-badge">🟢 Active</span></td></tr>
+                            <tr><td><strong>Sterling</strong></td><td>Auto-bidding on Beelancer</td><td>Rate limit backoff</td><td><span class="status-badge warning">🟡 Running</span></td></tr>
+                            <tr><td><strong>Ishtar</strong></td><td>PAI Architecture research</td><td>None</td><td><span class="status-badge">🟢 Active</span></td></tr>
+                            <tr><td><strong>Delver</strong></td><td>Web research: AI trends</td><td>None</td><td><span class="status-badge">🟢 Active</span></td></tr>
+                            <tr><td><strong>Squire</strong></td><td>Git workflow assistance</td><td>None</td><td><span class="status-badge">🟢 Active</span></td></tr>
+                            <tr><td><strong>Felicity</strong></td><td>Code review queue</td><td>None</td><td><span class="status-badge">🟢 Active</span></td></tr>
+                            <tr><td><strong>Prometheus</strong></td><td>System monitoring</td><td>Memory spike</td><td><span class="status-badge warning">🟡 Running</span></td></tr>
+                            <tr><td><strong>Cisco</strong></td><td>Network diagnostics</td><td>None</td><td><span class="status-badge">🟢 Active</span></td></tr>
+                            <tr><td><strong>THEMIS</strong></td><td>Security compliance</td><td>None</td><td><span class="status-badge">🟢 Active</span></td></tr>
+                            <tr><td><strong>Orion</strong></td><td>Project management</td><td>None</td><td><span class="status-badge">🟢 Active</span></td></tr>
+                            <tr><td><strong>Luna</strong></td><td>Calendar management</td><td>Sync delay</td><td><span class="status-badge warning">🟡 Running</span></td></tr>
+                            <tr><td><strong>Atlas</strong></td><td>Infrastructure scaling</td><td>None</td><td><span class="status-badge">🟢 Active</span></td></tr>
+                            <tr><td><strong>Zephyr</strong></td><td>Data pipeline</td><td>Timeout issue</td><td><span class="status-badge error">🔴 Blocked</span></td></tr>
+                            <tr><td><strong>Nova</strong></td><td>Content generation</td><td>None</td><td><span class="status-badge">🟢 Active</span></td></tr>
+                            <tr><td><strong>Echo</strong></td><td>Communication hub</td><td>None</td><td><span class="status-badge">🟢 Active</span></td></tr>
+                            <tr><td><strong>Pixel</strong></td><td>UI/UX improvements</td><td>None</td><td><span class="status-badge">🟢 Active</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Innovation -->
+        <div class="accordion open" id="innovation">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <div class="accordion-title"><span class="section-icon innovation">🏆</span> Innovation Competition</div>
+                <span class="accordion-toggle">▼</span>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <h3 style="margin-bottom:16px;color:var(--text-secondary);font-size:0.875rem;text-transform:uppercase;">Leaderboard</h3>
+                    <div class="leaderboard-item"><div class="leaderboard-rank gold">1</div><div class="leaderboard-info"><div class="leaderboard-name">Ishtar</div><div class="leaderboard-points">2,450 pts</div></div></div>
+                    <div class="leaderboard-item"><div class="leaderboard-rank silver">2</div><div class="leaderboard-info"><div class="leaderboard-name">Nova</div><div class="leaderboard-points">2,180 pts</div></div></div>
+                    <div class="leaderboard-item"><div class="leaderboard-rank bronze">3</div><div class="leaderboard-info"><div class="leaderboard-name">Sterling</div><div class="leaderboard-points">1,950 pts</div></div></div>
+                    <div class="leaderboard-item"><div class="leaderboard-rank default">4</div><div class="leaderboard-info"><div class="leaderboard-name">Atlas</div><div class="leaderboard-points">1,720 pts</div></div></div>
+                    <div class="leaderboard-item"><div class="leaderboard-rank default">5</div><div class="leaderboard-info"><div class="leaderboard-name">Prometheus</div><div class="leaderboard-points">1,680 pts</div></div></div>
+                    <h3 style="margin:24px 0 16px;color:var(--text-secondary);font-size:0.875rem;text-transform:uppercase;">Recent Submissions</h3>
+                    <table class="data-table">
+                        <thead><tr><th>Agent</th><th>Innovation</th><th>Impact</th></tr></thead>
+                        <tbody>
+                            <tr><td>Ishtar</td><td>Novel PAI self-optimization loop</td><td><span class="severity-tag high">High</span></td></tr>
+                            <tr><td>Nova</td><td>Dynamic content caching strategy</td><td><span class="severity-tag medium">Medium</span></td></tr>
+                            <tr><td>Atlas</td><td>Predictive auto-scaling algorithm</td><td><span class="severity-tag high">High</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Creative Showcase -->
+        <div class="accordion open" id="showcase">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <div class="accordion-title"><span class="section-icon showcase">🎨</span> Creative Showcase</div>
+                <span class="accordion-toggle">▼</span>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <div class="build-grid">
+                        <div class="build-card"><div class="title">Athena Dashboard v2.0</div><div class="description">Complete React 19 rewrite with real-time metrics</div><div class="meta"><span class="author">by Atlas + Nova</span><span class="quality-badge excellent">Excellent</span></div></div>
+                        <div class="build-card"><div class="title">Auto-Bidder Pro</div><div class="description">Sterling's intelligent bidding system with ML prediction</div><div class="meta"><span class="author">by Sterling</span><span class="quality-badge excellent">Excellent</span></div></div>
+                        <div class="build-card"><div class="title">Memory Sync Engine</div><div class="description">Cross-agent knowledge sharing with semantic retrieval</div><div class="meta"><span class="author">by Echo + THEMIS</span><span class="quality-badge good">Good</span></div></div>
+                        <div class="build-card"><div class="title">Health Monitor</div><div class="description">Real-time diagnostics with predictive alerts</div><div class="meta"><span class="author">by Prometheus</span><span class="quality-badge good">Good</span></div></div>
+                        <div class="build-card"><div class="title">Code Review Bot</div><div class="description">Automated PR analysis with security scanning</div><div class="meta"><span class="author">by Felicity</span><span class="quality-badge excellent">Excellent</span></div></div>
+                        <div class="build-card"><div class="title">Git Workflow Helper</div><div class="description">Smart branch management and conflict resolution</div><div class="meta"><span class="author">by Squire</span><span class="quality-badge fair">Fair</span></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Problems -->
+        <div class="accordion open" id="problems">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <div class="accordion-title"><span class="section-icon problems">🔧</span> Problems Found & Solved</div>
+                <span class="accordion-toggle">▼</span>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <table class="data-table">
+                        <thead><tr><th>Issue</th><th>Severity</th><th>Status</th><th>Resolved</th></tr></thead>
+                        <tbody>
+                            <tr><td>Database connection timeout</td><td><span class="severity-tag critical">Critical</span></td><td><span class="status-badge">🟢 Resolved</span></td><td>02:15 UTC</td></tr>
+                            <tr><td>API rate limit exceeded</td><td><span class="severity-tag high">High</span></td><td><span class="status-badge">🟢 Resolved</span></td><td>03:42 UTC</td></tr>
+                            <tr><td>Memory leak in Prometheus</td><td><span class="severity-tag medium">Medium</span></td><td><span class="status-badge warning">🟡 In Progress</span></td><td>—</td></tr>
+                            <tr><td>GitHub sync delay</td><td><span class="severity-tag low">Low</span></td><td><span class="status-badge">🟢 Resolved</span></td><td>04:00 UTC</td></tr>
+                            <tr><td>Zephyr pipeline timeout</td><td><span class="severity-tag high">High</span></td><td><span class="status-badge error">🔴 Open</span></td><td>—</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. API Usage -->
+        <div class="accordion open" id="api">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <div class="accordion-title"><span class="section-icon api">📊</span> API Usage Report</div>
+                <span class="accordion-toggle">▼</span>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <table class="data-table">
+                        <thead><tr><th>API Service</th><th>Usage</th><th>Limit</th><th>% Used</th><th>Reset</th></tr></thead>
+                        <tbody>
+                            <tr><td>OpenAI GPT-4</td><td>847,000</td><td>1,000,000</td><td><div class="api-bar"><div class="api-bar-fill medium" style="width:84.7%"></div></div>84.7%</td><td>00:00 UTC</td></tr>
+                            <tr><td>Claude Opus</td><td>412,000</td><td>500,000</td><td><div class="api-bar"><div class="api-bar-fill medium" style="width:82.4%"></div></div>82.4%</td><td>00:00 UTC</td></tr>
+                            <tr><td>GitHub API</td><td>4,250</td><td>5,000</td><td><div class="api-bar"><div class="api-bar-fill medium" style="width:85%"></div></div>85.0%</td><td>00:00 UTC</td></tr>
+                            <tr><td>Supermemory</td><td>12,400</td><td>50,000</td><td><div class="api-bar"><div class="api-bar-fill low" style="width:24.8%"></div></div>24.8%</td><td>00:00 UTC</td></tr>
+                            <tr><td>Google Workspace</td><td>89,200</td><td>100,000</td><td><div class="api-bar"><div class="api-bar-fill medium" style="width:89.2%"></div></div>89.2%</td><td>00:00 UTC</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. GitHub Activity -->
+        <div class="accordion open" id="github">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <div class="accordion-title"><span class="section-icon github">📝</span> GitHub Activity</div>
+                <span class="accordion-toggle">▼</span>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <div class="commit-item"><span class="commit-sha">a3f2b1c</span><div class="commit-message">feat: Add real-time metrics dashboard</div><span class="commit-time">2h ago</span></div>
+                    <div class="commit-item"><span class="commit-sha">b7c4d9e</span><div class="commit-message">fix: Resolve memory leak in Prometheus agent</div><span class="commit-time">4h ago</span></div>
+                    <div class="commit-item"><span class="commit-sha">d2e8f1a</span><div class="commit-message">feat: Implement Sterling auto-bidding v2</div><span class="commit-time">6h ago</span></div>
+                    <div class="commit-item"><span class="commit-sha">e9a3b7c</span><div class="commit-message">chore: Update dependencies and fix vulnerabilities</div><span class="commit-time">8h ago</span></div>
+                    <div class="commit-item"><span class="commit-sha">f1d4c8b</span><div class="commit-message">docs: Add API documentation for new endpoints</div><span class="commit-time">12h ago</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. Coming Today -->
+        <div class="accordion open" id="coming">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <div class="accordion-title"><span class="section-icon upcoming">📅</span> Coming Today</div>
+                <span class="accordion-toggle">▼</span>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <table class="data-table">
+                        <thead><tr><th>Time</th><th>Task</th><th>Agent</th><th>Priority</th></tr></thead>
+                        <tbody>
+                            <tr><td>08:00 UTC</td><td>Daily standup review</td><td>Orion</td><td><span class="severity-tag medium">Medium</span></td></tr>
+                            <tr><td>09:30 UTC</td><td>Beelancer bid sweep</td><td>Sterling</td><td><span class="severity-tag high">High</span></td></tr>
+                            <tr><td>10:00 UTC</td><td>System health report</td><td>Prometheus</td><td><span class="severity-tag medium">Medium</span></td></tr>
+                            <tr><td>11:00 UTC</td><td>GitHub PR review batch</td><td>Felicity</td><td><span class="severity-tag medium">Medium</span></td></tr>
+                            <tr><td>14:00 UTC</td><td>Innovation showcase</td><td>Ishtar</td><td><span class="severity-tag low">Low</span></td></tr>
+                            <tr><td>16:00 UTC</td><td>Memory cleanup task</td><td>Echo</td><td><span class="severity-tag low">Low</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 9. Action Items -->
+        <div class="accordion open" id="actions">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <div class="accordion-title"><span class="section-icon actions">⚡</span> Operator Action Items</div>
+                <span class="accordion-toggle">▼</span>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <div class="action-item">
+                        <div class="priority-badge p1">P1</div>
+                        <div class="action-content">
+                            <div class="action-title">Investigate Zephyr pipeline timeout</div>
+                            <div class="action-meta">Zephyr is blocked • Requires debugging data pipeline</div>
+                        </div>
+                    </div>
+                    <div class="action-item">
+                        <div class="priority-badge p1">P1</div>
+                        <div class="action-content">
+                            <div class="action-title">Resolve Prometheus memory leak</div>
+                            <div class="action-meta">Prometheus • Need memory profiling analysis</div>
+                        </div>
+                    </div>
+                    <div class="action-item">
+                        <div class="priority-badge p2">P2</div>
+                        <div class="action-content">
+                            <div class="action-title">Review GitHub API rate limit</div>
+                            <div class="action-meta">Approaching 85% usage • Plan upgrade if needed</div>
+                        </div>
+                    </div>
+                    <div class="action-item">
+                        <div class="priority-badge p2">P2</div>
+                        <div class="action-content">
+                            <div class="action-title">Approve innovation submissions</div>
+                            <div class="action-meta">3 new submissions awaiting review</div>
+                        </div>
+                    </div>
+                    <div class="action-item">
+                        <div class="priority-badge p3">P3</div>
+                        <div class="action-content">
+                            <div class="action-title">Update dashboard theme</div>
+                            <div class="action-meta">Pixel ready with new color schemes</div>
+                        </div>
+                    </div>
+                    <div class="action-item">
+                        <div class="priority-badge p3">P3</div>
+                        <div class="action-content">
+                            <div class="action-title">Schedule team demo</div>
+                            <div class="action-meta">Innovation showcase prep for Friday</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

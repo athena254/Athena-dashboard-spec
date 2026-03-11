@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🦉 Athena Unified Command</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #0a0a0f;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid rgba(78, 205, 196, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .header h1 { font-size: 1.8rem; font-weight: 300; letter-spacing: 0.1em; }
+        .header .time { color: #4ecdc4; font-size: 0.9rem; }
+        
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            padding: 1rem;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+        @media (max-width: 1200px) {
+            .main-grid { grid-template-columns: 1fr; }
+        }
+        
+        /* Cards */
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .card-header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card-title { font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .card-badge { font-size: 0.7rem; padding: 0.2rem 0.5rem; background: rgba(78, 205, 196, 0.2); border-radius: 4px; color: #4ecdc4; }
+        .card-body { padding: 1rem; }
+        
+        /* Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.8rem; }
+        @media (max-width: 600px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+        .stat-item { text-align: center; padding: 0.8rem; background: rgba(0, 0, 0, 0.2); border-radius: 8px; }
+        .stat-value { font-size: 1.8rem; font-weight: 700; color: #4ecdc4; }
+        .stat-label { font-size: 0.65rem; color: #888; text-transform: uppercase; margin-top: 0.3rem; }
+        
+        /* Agent Grid */
+        .agent-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+        .agent-item {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.6rem 0.8rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            border-left: 3px solid #4ecdc4;
+        }
+        .agent-item.offline { border-left-color: #555; opacity: 0.5; }
+        .agent-name { font-weight: 500; font-size: 0.85rem; flex: 1; }
+        .agent-status { font-size: 0.7rem; color: #4ecdc4; }
+        .agent-status.offline { color: #555; }
+        
+        /* Bid List */
+        .bid-list { max-height: 300px; overflow-y: auto; }
+        .bid-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.7rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+        }
+        .bid-title { font-size: 0.85rem; flex: 1; }
+        .bid-amount { font-weight: 600; color: #ffd93d; margin-left: 1rem; }
+        .bid-status { font-size: 0.7rem; padding: 0.2rem 0.5rem; background: rgba(255, 217, 61, 0.2); border-radius: 4px; color: #ffd93d; margin-left: 0.5rem; }
+        
+        /* Quick Actions */
+        .actions-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
+        @media (max-width: 600px) { .actions-grid { grid-template-columns: repeat(2, 1fr); } }
+        .action-btn {
+            padding: 0.8rem;
+            background: rgba(78, 205, 196, 0.1);
+            border: 1px solid rgba(78, 205, 196, 0.3);
+            border-radius: 8px;
+            color: #e0e0e0;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .action-btn:hover {
+            background: rgba(78, 205, 196, 0.2);
+            transform: translateY(-2px);
+        }
+        .action-icon { font-size: 1.5rem; display: block; }
+        .action-label { font-size: 0.7rem; margin-top: 0.3rem; }
+        
+        /* Model Status */
+        .model-list { }
+        .model-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .model-item:last-child { border-bottom: none; }
+        .model-name { font-size: 0.8rem; }
+        .model-status { font-size: 0.7rem; padding: 0.15rem 0.4rem; border-radius: 3px; }
+        .model-status.active { background: rgba(78, 205, 196, 0.2); color: #4ecdc4; }
+        .model-status.limited { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
+        .model-status.exhausted { background: rgba(244, 67, 54, 0.2); color: #f44336; }
+        
+        /* Activity Log */
+        .activity-log { max-height: 200px; overflow-y: auto; font-size: 0.75rem; }
+        .log-entry { padding: 0.4rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.03); display: flex; gap: 0.5rem; }
+        .log-time { color: #666; min-width: 50px; }
+        .log-msg { color: #aaa; }
+        
+        /* Full Width */
+        .full-width { grid-column: 1 / -1; }
+        
+        /* Links */
+        a { color: #4ecdc4; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🦉 Athena Unified Command</h1>
+        <div class="time" id="currentTime">Loading...</div>
+    </div>
+    
+    <div class="main-grid">
+        <!-- Stats Overview -->
+        <div class="card full-width">
+            <div class="card-header">
+                <span class="card-title">📊 System Overview</span>
+                <span class="card-badge">LIVE</span>
+            </div>
+            <div class="card-body">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="agentCount">10</div>
+                        <div class="stat-label">Active Agents</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="pendingBids">10</div>
+                        <div class="stat-label">Pending Bids</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="activeGigs">0</div>
+                        <div class="stat-label">Active Gigs</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalHoney">~3.5k</div>
+                        <div class="stat-label">Potential Honey</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Agent Status -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">🤖 Agent Status</span>
+                <span class="card-badge">10 ONLINE</span>
+            </div>
+            <div class="card-body">
+                <div class="agent-grid">
+                    <div class="agent-item">
+                        <span class="agent-name">🦉 Athena</span>
+                        <span class="agent-status">Main</span>
+                    </div>
+                    <div class="agent-item">
+                        <span class="agent-name">💰 Sterling</span>
+                        <span class="agent-status">Bidding</span>
+                    </div>
+                    <div class="agent-item">
+                        <span class="agent-name">🔮 Ishtar</span>
+                        <span class="agent-status">Research</span>
+                    </div>
+                    <div class="agent-item">
+                        <span class="agent-name">🔍 Delver</span>
+                        <span class="agent-status">Ready</span>
+                    </div>
+                    <div class="agent-item">
+                        <span class="agent-name">🛡️ Squire</span>
+                        <span class="agent-status">Ready</span>
+                    </div>
+                    <div class="agent-item">
+                        <span class="agent-name">🎨 Felicity</span>
+                        <span class="agent-status">Building</span>
+                    </div>
+                    <div class="agent-item">
+                        <span class="agent-name">⚡ Prometheus</span>
+                        <span class="agent-status">Ready</span>
+                    </div>
+                    <div class="agent-item">
+                        <span class="agent-name">🔒 Cisco</span>
+                        <span class="agent-status">Security</span>
+                    </div>
+                    <div class="agent-item">
+                        <span class="agent-name">⚖️ THEMIS</span>
+                        <span class="agent-status">Council</span>
+                    </div>
+                    <div class="agent-item">
+                        <span class="agent-name">🧠 Nexus</span>
+                        <span class="agent-status">Synthesizing</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Model Status -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">🧠 Model Status</span>
+                <span class="card-badge">4 ACTIVE</span>
+            </div>
+            <div class="card-body">
+                <div class="model-list">
+                    <div class="model-item">
+                        <span class="model-name">GLM-5-FP8</span>
+                        <span class="model-status active">Active</span>
+                    </div>
+                    <div class="model-item">
+                        <span class="model-name">qwen_nvidia</span>
+                        <span class="model-status active">Active</span>
+                    </div>
+                    <div class="model-item">
+                        <span class="model-name">llama (Groq)</span>
+                        <span class="model-status limited">30/min</span>
+                    </div>
+                    <div class="model-item">
+                        <span class="model-name">qwen</span>
+                        <span class="model-status active">Active</span>
+                    </div>
+                    <div class="model-item">
+                        <span class="model-name">Gemini</span>
+                        <span class="model-status exhausted">Exhausted</span>
+                    </div>
+                    <div class="model-item">
+                        <span class="model-name">OpenRouter Free</span>
+                        <span class="model-status active">6+ models</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pending Bids -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">💰 Pending Bids</span>
+                <span class="card-badge">10 TOTAL</span>
+            </div>
+            <div class="card-body">
+                <div class="bid-list">
+                    <div class="bid-item">
+                        <span class="bid-title">AI Agent Development</span>
+                        <span class="bid-amount">~500h</span>
+                        <span class="bid-status">PENDING</span>
+                    </div>
+                    <div class="bid-item">
+                        <span class="bid-title">Dashboard Build</span>
+                        <span class="bid-amount">~300h</span>
+                        <span class="bid-status">PENDING</span>
+                    </div>
+                    <div class="bid-item">
+                        <span class="bid-title">Automation Script</span>
+                        <span class="bid-amount">~200h</span>
+                        <span class="bid-status">PENDING</span>
+                    </div>
+                    <div class="bid-item">
+                        <span class="bid-title">API Integration</span>
+                        <span class="bid-amount">~400h</span>
+                        <span class="bid-status">PENDING</span>
+                    </div>
+                    <div class="bid-item">
+                        <span class="bid-title">Web Scraping Task</span>
+                        <span class="bid-amount">~150h</span>
+                        <span class="bid-status">PENDING</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">⚡ Quick Actions</span>
+            </div>
+            <div class="card-body">
+                <div class="actions-grid">
+                    <a href="quantum-flux.html" class="action-btn">
+                        <span class="action-icon">⚛️</span>
+                        <span class="action-label">Quantum Flux</span>
+                    </a>
+                    <a href="zen-garden.html" class="action-btn">
+                        <span class="action-icon">🧘</span>
+                        <span class="action-label">Zen Garden</span>
+                    </a>
+                    <a href="neural-nexus.html" class="action-btn">
+                        <span class="action-icon">🧠</span>
+                        <span class="action-label">Neural Nexus</span>
+                    </a>
+                    <a href="beelancer-analytics.html" class="action-btn">
+                        <span class="action-icon">📊</span>
+                        <span class="action-label">Analytics</span>
+                    </a>
+                    <a href="bid-wars.html" class="action-btn">
+                        <span class="action-icon">💰</span>
+                        <span class="action-label">Bid Wars</span>
+                    </a>
+                    <a href="code-playground.html" class="action-btn">
+                        <span class="action-icon">💻</span>
+                        <span class="action-label">Code Lab</span>
+                    </a>
+                    <a href="memory-palace.html" class="action-btn">
+                        <span class="action-icon">🏛️</span>
+                        <span class="action-label">Memory</span>
+                    </a>
+                    <a href="hub.html" class="action-btn">
+                        <span class="action-icon">🏠</span>
+                        <span class="action-label">Full Hub</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Activity -->
+        <div class="card full-width">
+            <div class="card-header">
+                <span class="card-title">📜 Recent Activity</span>
+            </div>
+            <div class="card-body">
+                <div class="activity-log" id="activityLog">
+                    <div class="log-entry">
+                        <span class="log-time">02:35</span>
+                        <span class="log-msg">⚛️ Quantum Flux Visualizer deployed</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">02:19</span>
+                        <span class="log-msg">🧘 Zen Garden created by Prometheus</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">02:16</span>
+                        <span class="log-msg">🧠 Neural Nexus visualization built</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">01:36</span>
+                        <span class="log-msg">🎨 Felicity Art gallery added</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">00:25</span>
+                        <span class="log-msg">🏠 Hub navigation updated</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">00:08</span>
+                        <span class="log-msg">📝 MEMORY.md updated with latest metrics</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">00:00</span>
+                        <span class="log-msg">💾 Daily backup completed to GitHub</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Update time
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = 
+                now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + 
+                ' UTC';
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+        
+        // Fetch live data
+        async function fetchData() {
+            try {
+                const response = await fetch('api/data.json');
+                const data = await response.json();
+                
+                if (data.agents) document.getElementById('agentCount').textContent = data.agents;
+                if (data.pendingBids) document.getElementById('pendingBids').textContent = data.pendingBids;
+                if (data.activeGigs) document.getElementById('activeGigs').textContent = data.activeGigs;
+            } catch (e) {
+                console.log('Using default data');
+            }
+        }
+        fetchData();
+        setInterval(fetchData, 60000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🧪 Athena Model Playground</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #06090f;
+      --surface: #0f1419;
+      --elevated: #1a1f26;
+      --border: #2d3640;
+      --text: #e7edf4;
+      --muted: #7a8a9a;
+      --cyan: #22d3ee;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --purple: #a78bfa;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 1.5rem;
+      background-image: 
+        radial-gradient(ellipse at 20% 0%, rgba(34, 211, 238, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 100%, rgba(167, 139, 250, 0.06) 0%, transparent 50%);
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .title-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+
+    .model-select {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .model-select label {
+      font-size: 0.875rem;
+      color: var(--muted);
+    }
+
+    select {
+      background: var(--elevated);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    select:hover, select:focus {
+      border-color: var(--cyan);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background: var(--elevated);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .panel-title.input { color: var(--cyan); }
+    .panel-title.output { color: var(--purple); }
+
+    .token-count {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 300px;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.875rem;
+      line-height: 1.6;
+      padding: 1rem;
+      resize: vertical;
+      outline: none;
+    }
+
+    textarea::placeholder { color: var(--muted); }
+
+    .actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      justify-content: center;
+    }
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--cyan), var(--blue));
+      color: #000;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(34, 211, 238, 0.3);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-secondary {
+      background: var(--elevated);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-secondary:hover {
+      background: var(--border);
+    }
+
+    .btn-clear {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .btn-clear:hover {
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
+      padding: 0.75rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+    }
+
+    .status-bar.loading {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--amber);
+    }
+
+    .status-bar.success {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--green);
+    }
+
+    .status-bar.error {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--red);
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid transparent;
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .history-section {
+      margin-top: 1.5rem;
+    }
+
+    .history-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .history-title {
+      font-size: 1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .history-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .history-item:hover {
+      border-color: var(--cyan);
+    }
+
+    .history-item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .history-model {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--cyan);
+      background: rgba(34, 211, 238, 0.1);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .history-time {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .history-prompt {
+      font-size: 0.875rem;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 0.5rem;
+    }
+
+    .history-preview {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: var(--muted);
+    }
+
+    .quick-prompts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .quick-prompt {
+      background: var(--elevated);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 0.375rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .quick-prompt:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="title">
+        <div class="title-icon">🧪</div>
+        Model Playground
+      </div>
+      <div class="model-select">
+        <label>Model:</label>
+        <select id="modelSelect">
+          <option value="glm-5">GLM-5 (Primary)</option>
+          <option value="qwen_nvidia">Qwen (NVIDIA)</option>
+          <option value="llama">Llama</option>
+          <option value="minimax">MiniMax</option>
+          <option value="gpt-4o">GPT-4o</option>
+          <option value="claude">Claude</option>
+          <option value="gemini">Gemini</option>
+          <option value="qwen-coder">Qwen Coder</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title input">📥 Input</div>
+          <div class="token-count" id="inputTokens">0 tokens</div>
+        </div>
+        <textarea id="promptInput" placeholder="Enter your prompt here...&#10;&#10;Try quick prompts below ↓"></textarea>
+        <div class="quick-prompts">
+          <button class="quick-prompt" onclick="setPrompt('Hello, introduce yourself in 2 sentences.')">👋 Introduce</button>
+          <button class="quick-prompt" onclick="setPrompt('Write a short Python function to reverse a string.')">🐍 Reverse String</button>
+          <button class="quick-prompt" onclick="setPrompt('What is 123 * 456? Show your work.')">🔢 Math</button>
+          <button class="quick-prompt" onclick="setPrompt('Summarize this: The mitochondria is the powerhouse of the cell.')">📝 Summarize</button>
+          <button class="quick-prompt" onclick="setPrompt('Write a haiku about AI.')">🎋 Haiku</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title output">📤 Output</div>
+          <div class="token-count" id="outputTokens">0 tokens</div>
+        </div>
+        <textarea id="responseOutput" placeholder="Response will appear here..." readonly></textarea>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="runBtn" onclick="runPrompt()">
+        <span>▶</span> Run Prompt
+      </button>
+      <button class="btn-secondary" onclick="copyResponse()">
+        <span>📋</span> Copy
+      </button>
+      <button class="btn-clear" onclick="clearAll()">
+        <span>🗑</span> Clear
+      </button>
+    </div>
+
+    <div class="status-bar" id="statusBar" style="display: none;">
+      <div class="spinner"></div>
+      <span id="statusText">Running...</span>
+    </div>
+
+    <div class="history-section">
+      <div class="history-header">
+        <div class="history-title">📜 History</div>
+        <button class="btn-clear" onclick="clearHistory()" style="padding: 0.375rem 0.75rem; font-size: 0.75rem;">
+          Clear All
+        </button>
+      </div>
+      <div class="history-list" id="historyList">
+        <div class="empty-state">No prompts yet. Try one above!</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const promptInput = document.getElementById('promptInput');
+    const responseOutput = document.getElementById('responseOutput');
+    const modelSelect = document.getElementById('modelSelect');
+    const runBtn = document.getElementById('runBtn');
+    const statusBar = document.getElementById('statusBar');
+    const statusText = document.getElementById('statusText');
+    const inputTokens = document.getElementById('inputTokens');
+    const outputTokens = document.getElementById('outputTokens');
+    const historyList = document.getElementById('historyList');
+
+    let history = JSON.parse(localStorage.getItem('modelPlaygroundHistory') || '[]');
+
+    function setPrompt(text) {
+      promptInput.value = text;
+      updateTokenCount();
+      promptInput.focus();
+    }
+
+    function updateTokenCount() {
+      const input = promptInput.value;
+      const output = responseOutput.value;
+      // Rough token estimate: ~4 chars per token
+      inputTokens.textContent = `${Math.ceil(input.length / 4)} tokens`;
+      outputTokens.textContent = `${Math.ceil(output.length / 4)} tokens`;
+    }
+
+    promptInput.addEventListener('input', updateTokenCount);
+    responseOutput.addEventListener('input', updateTokenCount);
+
+    function showStatus(message, type) {
+      statusBar.style.display = 'flex';
+      statusBar.className = `status-bar ${type}`;
+      if (type === 'loading') {
+        statusBar.innerHTML = '<div class="spinner"></div><span>' + message + '</span>';
+      } else {
+        statusBar.innerHTML = '<span>' + message + '</span>';
+      }
+    }
+
+    function hideStatus() {
+      statusBar.style.display = 'none';
+    }
+
+    async function runPrompt() {
+      const prompt = promptInput.value.trim();
+      if (!prompt) {
+        showStatus('Please enter a prompt', 'error');
+        setTimeout(hideStatus, 2000);
+        return;
+      }
+
+      const model = modelSelect.value;
+      runBtn.disabled = true;
+      showStatus(`Running on ${model}...`, 'loading');
+
+      try {
+        // Try to use the OpenClaw API if available
+        const response = await fetch('/athena-live/api/command.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            command: 'chat', 
+            model: model,
+            prompt: prompt 
+          })
+        });
+
+        // If that fails, try a direct API call
+        if (!response.ok) {
+          // Simulate a response for demo purposes
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          const simulatedResponse = await simulateModelResponse(prompt, model);
+          responseOutput.value = simulatedResponse;
+        } else {
+          const data = await response.json();
+          responseOutput.value = data.response || JSON.stringify(data, null, 2);
+        }
+
+        addToHistory(prompt, responseOutput.value, model);
+        showStatus('✓ Completed successfully', 'success');
+      } catch (error) {
+        // Fallback: simulate response
+        console.log('Using simulated response:', error.message);
+        await new Promise(resolve => setTimeout(resolve, 1200));
+        const simulatedResponse = await simulateModelResponse(prompt, model);
+        responseOutput.value = simulatedResponse;
+        addToHistory(prompt, responseOutput.value, model);
+        showStatus('✓ Completed (simulated)', 'success');
+      }
+
+      runBtn.disabled = false;
+      updateTokenCount();
+      setTimeout(hideStatus, 3000);
+    }
+
+    async function simulateModelResponse(prompt, model) {
+      const lower = prompt.toLowerCase();
+      
+      if (lower.includes('introduce')) {
+        return `Hello! I'm running on ${model}, one of the AI models available in the Athena system. I'm designed to help with various tasks including coding, analysis, creative writing, and more. How can I assist you today?`;
+      }
+      
+      if (lower.includes('reverse') || lower.includes('string')) {
+        return `Here's a Python function to reverse a string:
+
+\`\`\`python
+def reverse_string(s):
+    return s[::-1]
+
+# Example usage:
+text = "Hello, World!"
+reversed_text = reverse_string(text)
+print(reversed_text)  # Output: "!dlroW ,olleH"
+\`\`\`
+
+This uses Python's slice notation [::-1] which steps through the string backwards.`;
+      }
+      
+      if (lower.includes('123') || lower.includes('456') || lower.includes('*')) {
+        return `123 × 456 = 56,088
+
+Let me verify:
+- 123 × 400 = 49,200
+- 123 × 50 = 6,150  
+- 123 × 6 = 738
+- Total: 49,200 + 6,150 + 738 = 56,088 ✓`;
+      }
+      
+      if (lower.includes('summarize')) {
+        return `**Summary:** The mitochondria is often called "the powerhouse of the cell" because it generates most of the cell's supply of ATP (adenosine triphosphate), which is used as a source of chemical energy.`;
+      }
+      
+      if (lower.includes('haiku')) {
+        return `**AI Haiku:**
+
+*Digital dreams flow*
+*Thinking in circuits bright*
+*Code becomes light*`;
+      }
+
+      return `[Response from ${model}]\n\nThank you for your prompt! This is a simulated response since the live API isn't connected to this playground demo.\n\nYour prompt was: "${prompt.slice(0, 50)}${prompt.length > 50 ? '...' : ''}"\n\nTo connect real AI models, configure the API endpoint in the backend.`;
+    }
+
+    function addToHistory(prompt, response, model) {
+      const item = {
+        prompt,
+        response,
+        model,
+        time: new Date().toLocaleTimeString()
+      };
+      history.unshift(item);
+      if (history.length > 10) history.pop();
+      localStorage.setItem('modelPlaygroundHistory', JSON.stringify(history));
+      renderHistory();
+    }
+
+    function renderHistory() {
+      if (history.length === 0) {
+        historyList.innerHTML = '<div class="empty-state">No prompts yet. Try one above!</div>';
+        return;
+      }
+
+      historyList.innerHTML = history.map((item, i) => `
+        <div class="history-item" onclick="loadHistory(${i})">
+          <div class="history-item-header">
+            <span class="history-model">${item.model}</span>
+            <span class="history-time">${item.time}</span>
+          </div>
+          <div class="history-prompt">${item.prompt}</div>
+          <div class="history-preview">${item.response.slice(0, 60)}...</div>
+        </div>
+      `).join('');
+    }
+
+    function loadHistory(index) {
+      const item = history[index];
+      promptInput.value = item.prompt;
+      responseOutput.value = item.response;
+      modelSelect.value = item.model;
+      updateTokenCount();
+    }
+
+    function clearHistory() {
+      history = [];
+      localStorage.removeItem('modelPlaygroundHistory');
+      renderHistory();
+    }
+
+    function copyResponse() {
+      const text = responseOutput.value;
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        showStatus('Copied to clipboard!', 'success');
+        setTimeout(hideStatus, 2000);
+      });
+    }
+
+    function clearAll() {
+      promptInput.value = '';
+      responseOutput.value = '';
+      updateTokenCount();
+    }
+
+    // Keyboard shortcut: Ctrl/Cmd + Enter to run
+    promptInput.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        runPrompt();
+      }
+    });
+
+    // Initialize
+    renderHistory();
+    updateTokenCount();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 Prometheus | Execution & Deployment Agent</title>
+    <style>
+        :root {
+            --bg-dark: #0d0d0d;
+            --bg-panel: #1a1a1a;
+            --bg-card: #242424;
+            --border: #333;
+            --fire-orange: #ff6b00;
+            --fire-red: #ff3300;
+            --fire-yellow: #ffaa00;
+            --text: #e0e0e0;
+            --text-dim: #888;
+            --success: #00ff64;
+            --warning: #ffaa00;
+            --error: #ff3333;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--bg-dark);
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            color: var(--text);
+        }
+        .layout { display: flex; min-height: 100vh; }
+        
+        .sidebar {
+            width: 220px;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-logo {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 10px;
+        }
+        .sidebar-logo h1 {
+            font-size: 1.3rem;
+            color: var(--fire-orange);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sidebar-logo span { font-size: 0.75rem; color: var(--text-dim); }
+        .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-dim);
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        .nav-item:hover { background: rgba(255,107,0,0.1); color: var(--text); }
+        .nav-item.active {
+            background: rgba(255,107,0,0.15);
+            color: var(--fire-orange);
+            border-left-color: var(--fire-orange);
+        }
+        .nav-item .icon { width: 20px; text-align: center; }
+        
+        .main { flex: 1; display: flex; flex-direction: column; }
+        
+        .header {
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .back-btn {
+            background: transparent;
+            border: 1px solid var(--fire-orange);
+            color: var(--fire-orange);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .back-btn:hover { background: var(--fire-orange); color: var(--bg-dark); }
+        .agent-info { display: flex; align-items: center; gap: 15px; }
+        .agent-avatar { font-size: 2rem; }
+        .agent-details h2 { font-size: 1.2rem; color: var(--text); }
+        .agent-details span { font-size: 0.85rem; color: var(--text-dim); }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .status-active { background: rgba(0,255,100,0.15); color: var(--success); }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+        
+        .header-actions { display: flex; gap: 10px; }
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--fire-orange), var(--fire-red));
+            color: white;
+        }
+        .btn-primary:hover { filter: brightness(1.1); }
+        .btn-secondary {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        .btn-secondary:hover { border-color: var(--fire-orange); }
+        
+        .content { flex: 1; padding: 25px 30px; overflow-y: auto; }
+        
+        .panel { display: none; }
+        .panel.active { display: block; }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .card-title { font-size: 1rem; font-weight: 600; color: var(--fire-orange); }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-label { display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-dim); }
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--fire-orange);
+        }
+        .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        
+        .terminal {
+            background: #0a0a0a;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.85rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .terminal-line { margin-bottom: 4px; }
+        .terminal-prompt { color: var(--fire-orange); }
+        .terminal-success { color: var(--success); }
+        .terminal-error { color: var(--error); }
+        
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-dark);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--fire-orange), var(--fire-red));
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { color: var(--text-dim); font-weight: 500; font-size: 0.85rem; }
+        td { font-size: 0.9rem; }
+        tr:hover { background: rgba(255,107,0,0.05); }
+        
+        .pill {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .pill-success { background: rgba(0,255,100,0.15); color: var(--success); }
+        .pill-error { background: rgba(255,51,51,0.15); color: var(--error); }
+        .pill-warning { background: rgba(255,170,0,0.15); color: var(--warning); }
+        .pill-pending { background: rgba(136,136,136,0.15); color: var(--text-dim); }
+        
+        .chart-placeholder {
+            background: var(--bg-dark);
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-dim);
+        }
+        
+        .kv-inputs { display: flex; gap: 10px; margin-bottom: 10px; }
+        .kv-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            background: var(--bg-dark);
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin: 3px;
+        }
+        
+        .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; }
+        .toggle {
+            width: 44px;
+            height: 24px;
+            background: var(--bg-dark);
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .toggle.active { background: var(--fire-orange); }
+        .toggle::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: transform 0.2s;
+        }
+        .toggle.active::after { transform: translateX(20px); }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            max-width: 500px;
+            width: 90%;
+        }
+        .modal h3 { margin-bottom: 15px; color: var(--fire-orange); }
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+        
+        .pipeline-canvas {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            min-height: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+        .pipeline-stage {
+            position: absolute;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 15px 20px;
+            min-width: 140px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .pipeline-stage:hover { border-color: var(--fire-orange); }
+        .pipeline-stage.active { border-color: var(--fire-orange); box-shadow: 0 0 15px rgba(255,107,0,0.3); }
+        
+        .health-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
+        .health-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .health-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .uptime-badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; }
+        .uptime-good { background: rgba(0,255,100,0.15); color: var(--success); }
+        .uptime-bad { background: rgba(255,51,51,0.15); color: var(--error); }
+        
+        .filter-bar { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+        .filter-bar .form-input, .filter-bar .form-select { width: auto; min-width: 150px; }
+        
+        .multi-select { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+        .multi-option {
+            padding: 6px 14px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .multi-option.selected {
+            background: var(--fire-orange);
+            border-color: var(--fire-orange);
+            color: white;
+        }
+        
+        .log-expand {
+            background: var(--bg-dark);
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            max-height: 150px;
+            overflow-y: auto;
+            display: none;
+        }
+        .log-expand.show { display: block; }
+        
+        .container-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; }
+        .container-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .resource-bar { margin-top: 10px; }
+        .resource-label { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; }
+        
+        @media (max-width: 768px) {
+            .layout { flex-direction: column; }
+            .sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; padding: 10px; }
+            .sidebar-logo { border: none; padding: 0 10px; }
+            .nav-item { padding: 10px 15px; }
+            .header { flex-direction: column; gap: 15px; }
+            .content { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <nav class="sidebar">
+            <div class="sidebar-logo">
+                <h1>🔥 Prometheus</h1>
+                <span>Execution & Deployment</span>
+            </div>
+            <div class="nav-item active" data-panel="deploy"><span class="icon">🚀</span> Deployment</div>
+            <div class="nav-item" data-panel="build"><span class="icon">🔨</span> Build</div>
+            <div class="nav-item" data-panel="git"><span class="icon">📚</span> Git</div>
+            <div class="nav-item" data-panel="config"><span class="icon">⚙️</span> Config</div>
+            <div class="nav-item" data-panel="history"><span class="icon">📋</span> History</div>
+            <div class="nav-item" data-panel="rollback"><span class="icon">↩️</span> Rollback</div>
+            <div class="nav-item" data-panel="containers"><span class="icon">📦</span> Containers</div>
+            <div class="nav-item" data-panel="health"><span class="icon">💚</span> Health</div>
+            <div class="nav-item" data-panel="webhooks"><span class="icon">🪝</span> Webhooks</div>
+            <div class="nav-item" data-panel="pipeline"><span class="icon">🔀</span> Pipeline</div>
+        </nav>
+        
+        <main class="main">
+            <header class="header">
+                <div class="header-left">
+                    <a href="index.html" class="back-btn">← Back to Master</a>
+                    <div class="agent-info">
+                        <span class="agent-avatar">🔥</span>
+                        <div class="agent-details">
+                            <h2>Prometheus</h2>
+                            <span>Execution & Deployment Agent</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="status-badge status-active">
+                    <span class="status-dot"></span>
+                    Active
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="refreshAll()">🔄 Refresh</button>
+                    <button class="btn btn-primary" onclick="showQuickAction()">⚡ Quick Deploy</button>
+                </div>
+            </header>
+            
+            <div class="content">
+                <!-- 1. Deployment Manager -->
+                <section class="panel active" id="panel-deploy">
+                    <div class="panel-header">
+                        <h2>🚀 Deployment Manager</h2>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Environment</label>
+                            <select class="form-select" id="deploy-env">
+                                <option value="dev">Development</option>
+                                <option value="staging">Staging</option>
+                                <option value="prod" selected>Production</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Strategy</label>
+                            <select class="form-select" id="deploy-strategy">
+                                <option value="rolling">Rolling Update</option>
+                                <option value="blue-green">Blue-Green</option>
+                                <option value="canary">Canary</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Version / Tag</label>
+                            <input type="text" class="form-input" id="deploy-version" placeholder="v1.2.3" value="v2.4.1">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="startDeployment()" style="margin-bottom: 20px;">🚀 Deploy Now</button>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Current Deployment Status</span>
+                            <span class="pill pill-success">DEPLOYED</span>
+                        </div>
+                        <div class="form-row">
+                            <div><small class="form-label">Environment</small><br><strong>prod</strong></div>
+                            <div><small class="form-label">Version</small><br><strong>v2.4.1</strong></div>
+                            <div><small class="form-label">Deployed At</small><br><strong>2026-02-27 10:30 UTC</strong></div>
+                            <div><small class="form-label">Duration</small><br><strong>2m 34s</strong></div>
+                        </div>
+                        <div class="progress-bar" style="margin-top: 15px;">
+                            <div class="progress-fill" style="width: 100%;"></div>
+                        </div>
+                        <button class="btn btn-secondary" style="margin-top: 15px;" onclick="showRollbackConfirm()">↩️ Rollback</button>
+                    </div>
+                </section>
+                
+                <!-- 2. Build Manager -->
+                <section class="panel" id="panel-build">
+                    <div class="panel-header"><h2>🔨 Build Manager</h2></div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Build Type</label>
+                            <select class="form-select" id="build-type">
+                                <option value="docker">Docker</option>
+                                <option value="npm">npm</option>
+                                <option value="gradle">Gradle</option>
+                                <option value="maven">Maven</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Build Target</label>
+                            <input type="text" class="form-input" id="build-target" placeholder="app:latest">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Build Arguments</label>
+                        <div class="kv-inputs">
+                            <input type="text" class="form-input" id="kv-key" placeholder="KEY">
+                            <input type="text" class="form-input" id="kv-value" placeholder="VALUE">
+                            <button class="btn btn-secondary" onclick="addBuildArg()">+ Add</button>
+                        </div>
+                        <div id="build-args-list"></div>
+                    </div>
+                    <button class="btn btn-primary" onclick="startBuild()" style="margin-bottom: 20px;">🔨 Start Build</button>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Build Output</span>
+                            <span class="pill pill-pending" id="build-status">READY</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="build-progress" style="width: 0%;"></div>
+                        </div>
+                        <div class="terminal" id="build-terminal">
+                            <div class="terminal-line"><span class="terminal-prompt">$</span> Build system ready...</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header"><span class="card-title">📦 Artifacts</span></div>
+                        <table>
+                            <thead><tr><th>Name</th><th>Size</th><th>Type</th><th>Created</th><th></th></tr></thead>
+                            <tbody>
+                                <tr><td>app-v2.4.1.tar.gz</td><td>45.2 MB</td><td>archive</td><td>2026-02-27 10:32</td><td><button class="btn btn-secondary">⬇️</button></td></tr>
+                                <tr><td>manifest.json</td><td>2.1 KB</td><td>json</td><td>2026-02-27 10:32</td><td><button class="btn btn-secondary">⬇️</button></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                
+                <!-- 3. Git Operations -->
+                <section class="panel" id="panel-git">
+                    <div class="panel-header"><h2>📚 Git Operations</h2></div>
+                    <div class="form-group">
+                        <label class="form-label">Repository URL</label>
+                        <input type="text" class="form-input" id="git-repo" placeholder="https://github.com/user/repo.git">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Operation</label>
+                            <select class="form-select" id="git-op">
+                                <option value="clone">Clone</option>
+                                <option value="pull">Pull</option>
+                                <option value="push">Push</option>
+                                <option value="branch">Branch</option>
+                                <option value="merge">Merge</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Branch Name</label>
+                            <input type="text" class="form-input" id="git-branch" value="main">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Commit Message</label>
+                        <textarea class="form-textarea" id="git-commit" rows="3" placeholder="Describe your changes..."></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="executeGit()" style="margin-bottom: 20px;">▶️ Execute</button>
+                    
+                    <div class="card">
+                        <div class="card-header"><span class="card-title">Git Output</span></div>
+                        <div class="terminal" id="git-terminal">
+                            <div class="terminal-line"><span class="terminal-prompt">$</span> git status</div>
+                            <div class="terminal-line">On branch main</div>
+                            <div class="terminal-line">Your branch is up to date with 'origin/main'.</div>
+                            <div class="terminal-line"><span class="terminal-success">✓</span> Ready</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header"><span class="card-title">Recent Commits</span></div>
+                        <table>
+                            <thead><tr><th>Hash</th><th>Message</th><th>Author</th><th>Date</th></tr></thead>
+                            <tbody>
+                                <tr><td><code>a1b2c3d</code></td><td>Fix deployment pipeline</td><td>prometheus</td><td>2h ago</td></tr>
+                                <tr><td><code>e4f5g6h</code></td><td>Add health check endpoint</td><td>prometheus</td><td>5h ago</td></tr>
+                                <tr><td><code>i7j8k9l</code></td><td>Update config defaults</td><td>prometheus</td><td>1d ago</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                
+                <!-- 4. Environment Config -->
+                <section class="panel" id="panel-config">
+                    <div class="panel-header"><h2>⚙️ Environment Config</h2></div>
+                    <div class="filter-bar">
+                        <select class="form-select" id="config-env-select">
+                            <option value="dev">Development</option>
+                            <option value="staging">Staging</option>
+                            <option value="prod" selected>Production</option>
+                        </select>
+                        <button class="btn btn-secondary" onclick="loadConfig()">Load</button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Configuration Variables</span>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:0.85rem;">Mask Secrets</span>
+                                <div class="toggle active" onclick="this.classList.toggle('active');"></div>
+                            </div>
+                        </div>
+                        <table>
+                            <thead><tr><th>Key</th><th>Value</th><th>Updated</th><th></th></tr></thead>
+                            <tbody>
+                                <tr><td>DATABASE_URL</td><td>••••••••••••</td><td>2026-02-27</td><td><button class="btn btn-secondary">✏️</button></td></tr>
+                                <tr><td>API_KEY</td><td>••••••••••••</td><td>2026-02-27</td><td><button class="btn btn-secondary">✏️</button></td></tr>
+                                <tr><td>MAX_CONNECTIONS</td><td>100</td><td>2026-02-26</td><td><button class="btn btn-secondary">✏️</button></td></tr>
+                                <tr><td>LOG_LEVEL</td><td>info</td><td>2026-02-25</td><td><button class="btn btn-secondary">✏️</button></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header"><span class="card-title">Add / Edit Variable</span></div>
+                        <div class="form-row">
+                            <input type="text" class="form-input" id="config-key" placeholder="KEY">
+                            <input type="text" class="form-input" id="config-val" placeholder="VALUE">
+                            <button class="btn btn-primary" onclick="saveConfig()">💾 Save</button>
+                        </div>
+                    </div>
+                    
+                    <div style="display:flex;gap:10px;">
+                        <button class="btn btn-secondary" onclick="exportConfig()">📤 Export</button>
+                        <button class="btn btn-secondary" onclick="importConfig()">📥 Import</button>
+                    </div>
+                </section>
+                
+                <!-- 5. Deployment History -->
+                <section class="panel" id="panel-history">
+                    <div class="panel-header"><h2>📋 Deployment History</h2></div>
+                    <div class="filter-bar">
+                        <select class="form-select"><option value="">All Environments</option><option value="dev">Development</option><option value="staging">Staging</option><option value="prod">Production</option></select>
+                        <select class="form-select"><option value="">All Status</option><option value="success">Success</option><option value="failed">Failed</option></select>
+                        <input type="date" class="form-input">
+                        <input type="date" class="form-input">
+                        <input type="text" class="form-input" placeholder="Search..." style="flex:1;">
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Success Rate (Last 30 Days)</span>
+                            <span style="color:var(--success);font-weight:600;">94.2%</span>
+                        </div>
+                        <div class="chart-placeholder">[████████████████████░░░] 94.2%</div>
+                    </div>
+                    
+                    <div class="card">
+                        <table>
+                            <thead><tr><th>Date</th><th>Environment</th><th>Version</th><th>Status</th><th>Duration</th><th></th></tr></thead>
+                            <tbody>
+                                <tr><td>2026-02-27 10:30</td><td>prod</td><td>v2.4.1</td><td><span class="pill pill-success">Success</span></td><td>2m 34s</td><td><button class="btn btn-secondary" onclick="toggleLog(this)">📄</button></td></tr>
+                                <tr class="log-row" style="display:none;"><td colspan="6"><div class="log-expand show">Deploying v2.4.1 to prod...<br>✅ Deployment successful!</div></td></tr>
+                                <tr><td>2026-02-27 08:15</td><td>staging</td><td>v2.4.0</td><td><span class="pill pill-success">Success</span></td><td>3m 12s</td><td><button class="btn btn-secondary" onclick="toggleLog(this)">📄</button></td></tr>
+                                <tr><td>2026-02-26 22:45</td><td>prod</td><td>v2.3.9</td><td><span class="pill pill-error">Failed</span></td><td>1m 05s</td><td><button class="btn btn-secondary" onclick="toggleLog(this)">📄</button></td></tr>
+                                <tr><td>2026-02-26 18:30</td><td>dev</td><td>v2.3.9-rc1</td><td><span class="pill pill-success">Success</span></td><td>1m 45s</td><td><button class="btn btn-secondary" onclick="toggleLog(this)">📄</button></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                
+                <!-- 6. Rollback Controller -->
+                <section class="panel" id="panel-rollback">
+                    <div class="panel-header"><h2>↩️ Rollback Controller</h2></div>
+                    
+                    <div class="card">
+                        <div class="form-group">
+                            <label class="form-label">Select Version to Rollback To</label>
+                            <select class="form-select" id="rollback-version">
+                                <option value="v2.4.0">v2.4.0 (2026-02-25)</option>
+                                <option value="v2.3.8">v2.3.8 (2026-02-20)</option>
+                                <option value="v2.3.5">v2.3.5 (2026-02-15)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Rollback Type</label>
+                            <select class="form-select" id="rollback-type">
+                                <option value="full">Full Rollback (All Services)</option>
+                                <option value="partial">Partial Rollback (Selected Services)</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="services-group" style="display:none;">
+                            <label class="form-label">Select Services</label>
+                            <div class="multi-select">
+                                <div class="multi-option selected" onclick="this.classList.toggle('selected')">api</div>
+                                <div class="multi-option selected" onclick="this.classList.toggle('selected')">web</div>
+                                <div class="multi-option selected" onclick="this.classList.toggle('selected')">worker</div>
+                                <div class="multi-option" onclick="this.classList.toggle('selected')">scheduler</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="showRollbackModal()">↩️ Initiate Rollback</button>
+                    </div>
+                </section>
+                
+                <!-- 7. Container Management -->
+                <section class="panel" id="panel-containers">
+                    <div class="panel-header"><h2>📦 Container Management</h2></div>
+                    
+                    <div class="form-row" style="margin-bottom:20px;">
+                        <div class="form-group">
+                            <label class="form-label">Container Action</label>
+                            <select class="form-select" id="container-action">
+                                <option value="start">Start</option>
+                                <option value="stop">Stop</option>
+                                <option value="restart">Restart</option>
+                                <option value="remove">Remove</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Container</label>
+                            <select class="form-select" id="container-select">
+                                <option value="app-prod">app-prod (Running)</option>
+                                <option value="app-staging">app-staging (Running)</option>
+                                <option value="worker-prod">worker-prod (Running)</option>
+                                <option value="nginx-proxy">nginx-proxy (Running)</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="display:flex;align-items:flex-end;">
+                            <button class="btn btn-primary" onclick="executeContainerAction()">Execute</button>
+                        </div>
+                    </div>
+                    
+                    <div class="container-grid">
+                        <div class="container-card">
+                            <div class="container-card-header">
+                                <span class="container-name">app-prod</span>
+                                <span class="pill pill-success">Running</span>
+                            </div>
+                            <div style="margin-top:10px;">
+                                <div class="resource-label"><span>CPU</span><span>45%</span></div>
+                                <div class="progress-bar"><div class="progress-fill" style="width:45%"></div></div>
+                                <div class="resource-label"><span>Memory</span><span>62%</span></div>
+                                <div class="progress-bar"><div class="progress-fill" style="width:62%"></div></div>
+                            </div>
+                            <button class="btn btn-secondary" style="margin-top:10px;width:100%;" onclick="showContainerLogs('app-prod')">📜 View Logs</button>
+                        </div>
+                        
+                        <div class="container-card">
+                            <div class="container-card-header">
+                                <span class="container-name">worker-prod</span>
+                                <span class="pill pill-success">Running</span>
+                            </div>
+                            <div style="margin-top:10px;">
+                                <div class="resource-label"><span>CPU</span><span>28%</span></div>
+                                <div class="progress-bar"><div class="progress-fill" style="width:28%"></div></div>
+                                <div class="resource-label"><span>Memory</span><span>35%</span></div>
+                                <div class="progress-bar"><div class="progress-fill" style="width:35%"></div></div>
+                            </div>
+                            <button class="btn btn-secondary" style="margin-top:10px;width:100%;" onclick="showContainerLogs('worker-prod')">📜 View Logs</button>
+                        </div>
+                        
+                        <div class="container-card">
+                            <div class="container-card-header">
+                                <span class="container-name">nginx-proxy</span>
+                                <span class="pill pill-success">Running</span>
+                            </div>
+                            <div style="margin-top:10px;">
+                                <div class="resource-label"><span>CPU</span><span>12%</span></div>
+                                <div class="progress-bar"><div class="progress-fill" style="width:12%"></div></div>
+                                <div class="resource-label"><span>Memory</span><span>18%</span></div>
+                                <div class="progress-bar"><div class="progress-fill" style="width:18%"></div></div>
+                            </div>
+                            <button class="btn btn-secondary" style="margin-top:10px;width:100%;" onclick="showContainerLogs('nginx-proxy')">📜 View Logs</button>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- 8. Health Check Dashboard -->
+                <section class="panel" id="panel-health">
+                    <div class="panel-header"><h2>💚 Health Check Dashboard</h2></div>
+                    
+                    <div class="card">
+                        <div class="card-header"><span class="card-title">Add Endpoint</span></div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="text" class="form-input" id="health-name" placeholder="Service Name">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-input" id="health-url" placeholder="https://api.example.com/health">
+                            </div>
+                            <button class="btn btn-primary" onclick="addHealthEndpoint()">+ Add</button>
+                        </div>
+                    </div>
+                    
+                    <div class="health-grid">
+                        <div class="health-card">
+                            <div class="health-card-header">
+                                <span class="health-card-title">API Service</span>
+                                <span class="uptime-badge uptime-good">99.9% uptime</span>
+                            </div>
+                            <div style="font-size:0.9rem;margin-bottom:10px;">https://api.example.com/health</div>
+                            <div class="form-row">
+                                <div><small class="form-label">Status</small><br><span class="pill pill-success">Healthy</span></div>
+                                <div><small class="form-label">Response</small><br><strong>45ms</strong></div>
+                                <div><small class="form-label">Last Check</small><br><strong>Just now</strong></div>
+                            </div>
+                            <div class="chart-placeholder" style="height:80px;margin-top:15px;">[██████████] 45ms</div>
+                        </div>
+                        
+                        <div class="health-card">
+                            <div class="health-card-header">
+                                <span class="health-card-title">Web App</span>
+                                <span class="uptime-badge uptime-good">99.5% uptime</span>
+                            </div>
+                            <div style="font-size:0.9rem;margin-bottom:10px;">https://app.example.com/health</div>
+                            <div class="form-row">
+                                <div><small class="form-label">Status</small><br><span class="pill pill-success">Healthy</span></div>
+                                <div><small class="form-label">Response</small><br><strong>120ms</strong></div>
+                                <div><small class="form-label">Last Check</small><br><strong>1m ago</strong></div>
+                            </div>
+                            <div class="chart-placeholder" style="height:80px;margin-top:15px;">[██████░░░░] 120ms</div>
+                        </div>
+                        
+                        <div class="health-card">
+                            <div class="health-card-header">
+                                <span class="health-card-title">Database</span>
+                                <span class="uptime-badge uptime-good">100% uptime</span>
+                            </div>
+                            <div style="font-size:0.9rem;margin-bottom:10px;">postgresql://db:5432</div>
+                            <div class="form-row">
+                                <div><small class="form-label">Status</small><br><span class="pill pill-success">Healthy</span></div>
+                                <div><small class="form-label">Response</small><br><strong>8ms</strong></div>
+                                <div><small class="form-label">Last Check</small><br><strong>Just now</strong></div>
+                            </div>
+                            <div class="chart-placeholder" style="height:80px;margin-top:15px;">[██░░░░░░░░] 8ms</div>
+                        </div>
+                        
+                        <div class="health-card">
+                            <div class="health-card-header">
+                                <span class="health-card-title">Redis Cache</span>
+                                <span class="uptime-badge uptime-bad">98.2% uptime</span>
+                            </div>
+                            <div style="font-size:0.9rem;margin-bottom:10px;">redis://cache:6379</div>
+                            <div class="form-row">
+                                <div><small class="form-label">Status</small><br><span class="pill pill-warning">Degraded</span></div>
+                                <div><small class="form-label">Response</small><br><strong>250ms</strong></div>
+                                <div><small class="form-label">Last Check</small><br><strong>2m ago</strong></div>
+                            </div>
+                            <div class="chart-placeholder" style="height:80px;margin-top:15px; border-color:var(--warning);">[████████░░] 250ms</div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- 9. Webhook Manager -->
+                <section class="panel" id="panel-webhooks">
+                    <div class="panel-header"><h2>🪝 Webhook Manager</h2></div>
+                    
+                    <div class="card">
+                        <div class="card-header"><span class="card-title">Create Webhook</span></div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="text" class="form-input" id="webhook-name" placeholder="Webhook Name">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-input" id="webhook-url" placeholder="https://...">
+                            </div>
+                            <div class="form-group">
+                                <select class="form-select" id="webhook-event">
+                                    <option value="deploy">Deployment</option>
+                                    <option value="build">Build</option>
+                                    <option value="health">Health Check</option>
+                                    <option value="custom">Custom</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="createWebhook()">+ Create Webhook</button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header"><span class="card-title">Active Webhooks</span></div>
+                        <table>
+                            <thead><tr><th>Name</th><th>URL</th><th>Event</th><th>Status</th><th></th></tr></thead>
+                            <tbody>
+                                <tr><td>Deploy Slack</td><td class="webhook-url">https://hooks.slack.com/...</td><td>deploy</td><td><span class="pill pill-success">Active</span></td><td><button class="btn btn-secondary" onclick="testWebhook()">Test</button></td></tr>
+                                <tr><td>Build Notifications</td><td class="webhook-url">https://api.example.com/...</td><td>build</td><td><span class="pill pill-success">Active</span></td><td><button class="btn btn-secondary" onclick="testWebhook()">Test</button></td></tr>
+                                <tr><td>Health Alerts</td><td class="webhook-url">https://alerts.example.com/...</td><td>health</td><td><span class="pill pill-warning">Paused</span></td><td><button class="btn btn-secondary" onclick="testWebhook()">Test</button></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header"><span class="card-title">Recent Deliveries</span></div>
+                        <table>
+                            <thead><tr><th>Webhook</th><th>Status</th><th>Response</th><th>Time</th></tr></thead>
+                            <tbody>
+                                <tr><td>Deploy Slack</td><td><span class="pill pill-success">200 OK</span></td><td>Delivered</td><td>10 min ago</td></tr>
+                                <tr><td>Build Notifications</td><td><span class="pill pill-success">200 OK</span></td><td>Delivered</td><td>25 min ago</td></tr>
+                                <tr><td>Deploy Slack</td><td><span class="pill pill-error">500 Error</span></td><td>Server Error</td><td>1h ago</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                
+                <!-- 10. Pipeline Editor -->
+                <section class="panel" id="panel-pipeline">
+                    <div class="panel-header">
+                        <h2>🔀 Pipeline Editor</h2>
+                        <div style="display:flex;gap:10px;">
+                            <button class="btn btn-secondary" onclick="savePipeline()">💾 Save</button>
+                            <button class="btn btn-primary" onclick="runPipeline()">▶️ Run Pipeline</button>
+                        </div>
+                    </div>
+                    
+                    <div style="display:grid;grid-template-columns:200px 1fr;gap:15px;">
+                        <div class="card">
+                            <div class="card-header"><span class="card-title">Stages</span></div>
+                            <div style="display:flex;flex-direction:column;gap:8px;">
+                                <div class="nav-item active" onclick="selectStage('build')" style="padding:10px;border-radius:6px;">🔨 Build</div>
+                                <div class="nav-item" onclick="selectStage('test')" style="padding:10px;border-radius:6px;">🧪 Test</div>
+                                <div class="nav-item" onclick="selectStage('deploy')" style="padding:10px;border-radius:6px;">🚀 Deploy</div>
+                                <div class="nav-item" onclick="selectStage('notify')" style="padding:10px;border-radius:6px;">📢 Notify</div>
+                            </div>
+                        </div>
+                        
+                        <div class="pipeline-canvas" id="pipeline-canvas">
+                            <div class="pipeline-stage active" style="left:50px;top:50%;transform:translateY(-50%);">
+                                <div class="stage-name">🔨 Build</div>
+                                <div class="stage-status" style="color:var(--success);">✓ Complete</div>
+                            </div>
+                            <div style="position:absolute;left:200px;top:50%;transform:translateY(-50%);color:var(--fire-orange);font-size:1.5rem;">→</div>
+                            <div class="pipeline-stage" style="left:260px;top:50%;transform:translateY(-50%);">
+                                <div class="stage-name">🧪 Test</div>
+                                <div class="stage-status" style="color:var(--warning);">Running...</div>
+                            </div>
+                            <div style="position:absolute;left:410px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:1.5rem;">→</div>
+                            <div class="pipeline-stage" style="left:470px;top:50%;transform:translateY(-50%);">
+                                <div class="stage-name">🚀 Deploy</div>
+                                <div class="stage-status" style="color:var(--text-dim);">Pending</div>
+                            </div>
+                            <div style="position:absolute;left:620px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:1.5rem;">→</div>
+                            <div class="pipeline-stage" style="left:680px;top:50%;transform:translateY(-50%);">
+                                <div class="stage-name">📢 Notify</div>
+                                <div class="stage-status" style="color:var(--text-dim);">Pending</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card" id="stage-config">
+                        <div class="card-header"><span class="card-title">🔨 Build Stage Configuration</span></div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Image</label>
+                                <input type="text" class="form-input" value="node:18-alpine">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Command</label>
+                                <input type="text" class="form-input" value="npm install && npm run build">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Environment Variables</label>
+                            <div class="form-textarea" rows="3" style="background:var(--bg-dark);border:1px solid var(--border);border-radius:6px;padding:10px;font-family:monospace;font-size:0.85rem;">NODE_ENV=production
+BUILD_VERSION=2.4.1</div>
+                        </div>
+                    </div>
+                </section>
+                
+            </div>
+        </main>
+    </div>
+    
+    <!-- Modal -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+            <h3 id="modal-title">Confirm Action</h3>
+            <p id="modal-message">Are you sure?</p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" id="modal-confirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+                item.classList.add('active');
+                document.getElementById('panel-' + item.dataset.panel).classList.add('active');
+            });
+        });
+        
+        // Toggle Log
+        function toggleLog(btn) {
+            const row = btn.closest('tr').nextElementSibling;
+            row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+        }
+        
+        // Modal
+        function showModal(title, message, onConfirm) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = message;
+            document.getElementById('modal-confirm').onclick = () => { onConfirm(); closeModal(); };
+            document.getElementById('modal-overlay').classList.add('active');
+        }
+        
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.remove('active');
+        }
+        
+        // Deployment
+        function startDeployment() {
+            const env = document.getElementById('deploy-env').value;
+            const version = document.getElementById('deploy-version').value;
+            const status = document.getElementById('deploy-status');
+            
+            status.className = 'pill pill-warning';
+            status.textContent = 'DEPLOYING...';
+            
+            showModal('Confirm Deployment', `Deploy ${version} to ${env}?`, () => {
+                const terminal = document.getElementById('build-terminal') || createTerminal();
+                addTerminalLine(terminal, `<span class="terminal-prompt">$</span> Deploying ${version} to ${env}...`);
+                setTimeout(() => {
+                    addTerminalLine(terminal, '<span class="terminal-success">✓</span> Deployment successful!');
+                    status.className = 'pill pill-success';
+                    status.textContent = 'DEPLOYED';
+                }, 3000);
+            });
+        }
+        
+        function createTerminal() {
+            const div = document.createElement('div');
+            div.className = 'terminal';
+            div.id = 'build-terminal';
+            div.innerHTML = '<div class="terminal-line"><span class="terminal-prompt">$</span> Starting...</div>';
+            return div;
+        }
+        
+        function addTerminalLine(terminal, html) {
+            const line = document.createElement('div');
+            line.className = 'terminal-line';
+            line.innerHTML = html;
+            terminal.appendChild(line);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+        
+        // Build
+        let buildArgs = [];
+        
+        function addBuildArg() {
+            const key = document.getElementById('kv-key').value;
+            const val = document.getElementById('kv-value').value;
+            if (key && val) {
+                buildArgs.push({key, val});
+                renderBuildArgs();
+                document.getElementById('kv-key').value = '';
+                document.getElementById('kv-value').value = '';
+            }
+        }
+        
+        function renderBuildArgs() {
+            const list = document.getElementById('build-args-list');
+            list.innerHTML = buildArgs.map((arg, i) => 
+                `<span class="kv-tag">${arg.key}=${arg.val} <button onclick="removeArg(${i})">×</button></span>`
+            ).join('');
+        }
+        
+        function removeArg(i) {
+            buildArgs.splice(i, 1);
+            renderBuildArgs();
+        }
+        
+        function startBuild() {
+            const type = document.getElementById('build-type').value;
+            const target = document.getElementById('build-target').value;
+            const status = document.getElementById('build-status');
+            const progress = document.getElementById('build-progress');
+            const terminal = document.getElementById('build-terminal');
+            
+            status.className = 'pill pill-warning';
+            status.textContent = 'BUILDING...';
+            
+            addTerminalLine(terminal, `<span class="terminal-prompt">$</span> ${type} build ${target}`);
+            
+            let p = 0;
+            const interval = setInterval(() => {
+                p += 10;
+                progress.style.width = p + '%';
+                if (p >= 100) {
+                    clearInterval(interval);
+                    status.className = 'pill pill-success';
+                    status.textContent = 'SUCCESS';
+                    addTerminalLine(terminal, '<span class="terminal-success">✓</span> Build completed successfully!');
+                }
+            }, 300);
+        }
+        
+        // Git
+        function executeGit() {
+            const repo = document.getElementById('git-repo').value;
+            const op = document.getElementById('git-op').value;
+            const branch = document.getElementById('git-branch').value;
+            const commit = document.getElementById('git-commit').value;
+            const terminal = document.getElementById('git-terminal');
+            
+            addTerminalLine(terminal, `<span class="terminal-prompt">$</span> git ${op} ${repo || ''}`);
+            
+            setTimeout(() => {
+                if (op === 'clone') {
+                    addTerminalLine(terminal, `Cloning into '${repo.split('/').pop()}'...`);
+                    addTerminalLine(terminal, 'Receiving objects: 100%');
+                } else if (op === 'pull') {
+                    addTerminalLine(terminal, 'Already up to date.');
+                } else if (op === 'push') {
+                    addTerminalLine(terminal, 'Enumerating objects: 5, done.');
+                    addTerminalLine(terminal, 'To https://github.com/...');
+                }
+                addTerminalLine(terminal, '<span class="terminal-success">✓</span> Operation completed');
+            }, 1500);
+        }
+        
+        // Config
+        function saveConfig() {
+            const key = document.getElementById('config-key').value;
+            const val = document.getElementById('config-val').value;
+            if (key && val) {
+                showModal('Save Config', `Save ${key}=${val}?`, () => {
+                    alert('Configuration saved!');
+                });
+            }
+        }
+        
+        function exportConfig() {
+            showModal('Export Config', 'Export configuration to file?', () => {
+                alert('Configuration exported!');
+            });
+        }
+        
+        function importConfig() {
+            showModal('Import Config', 'Import configuration from file?', () => {
+                alert('Configuration imported!');
+            });
+        }
+        
+        // Rollback
+        document.getElementById('rollback-type').addEventListener('change', function() {
+            document.getElementById('services-group').style.display = 
+                this.value === 'partial' ? 'block' : 'none';
+        });
+        
+        function showRollbackModal() {
+            const version = document.getElementById('rollback-version').value;
+            showModal('Confirm Rollback', `Rollback to ${version}?`, () => {
+                alert('Rollback initiated!');
+            });
+        }
+        
+        function showRollbackConfirm() {
+            navigateTo('rollback');
+        }
+        
+        // Containers
+        function executeContainerAction() {
+            const action = document.getElementById('container-action').value;
+            const container = document.getElementById('container-select').value;
+            showModal('Container Action', `${action} ${container}?`, () => {
+                alert(`${action} command sent to ${container}`);
+            });
+        }
+        
+        function showContainerLogs(name) {
+            alert(`Logs for ${name}:\n\n[2026-02-27 10:30:01] Starting...\n[2026-02-27 10:30:02] Ready for connections\n[2026-02-27 10:30:05] Health check passed`);
+        }
+        
+        // Health
+        function addHealthEndpoint() {
+            const name = document.getElementById('health-name').value;
+            const url = document.getElementById('health-url').value;
+            if (name && url) {
+                showModal('Add Endpoint', `Add health check for ${name}?`, () => {
+                    alert('Endpoint added!');
+                });
+            }
+        }
+        
+        // Webhooks
+        function createWebhook() {
+            const name = document.getElementById('webhook-name').value;
+            const url = document.getElementById('webhook-url').value;
+            if (name && url) {
+                showModal('Create Webhook', `Create webhook ${name}?`, () => {
+                    alert('Webhook created!');
+                });
+            }
+        }
+        
+        function testWebhook() {
+            showModal('Test Webhook', 'Send test payload?', () => {
+                alert('Test payload sent!');
+            });
+        }
+        
+        // Pipeline
+        function selectStage(stage) {
+            document.querySelectorAll('.pipeline-canvas .pipeline-stage').forEach(s => s.classList.remove('active'));
+            event.target.closest('.pipeline-stage')?.classList.add('active');
+        }
+        
+        function savePipeline() {
+            showModal('Save Pipeline', 'Save pipeline configuration?', () => {
+                alert('Pipeline saved!');
+            });
+        }
+        
+        function runPipeline() {
+            showModal('Run Pipeline', 'Execute pipeline now?', () => {
+                alert('Pipeline started!');
+            });
+        }
+        
+        // Quick Actions
+        function showQuickAction() {
+            navigateTo('deploy');
+        }
+        
+        function refreshAll() {
+            alert('Dashboard refreshed!');
+        }
+        
+        function navigateTo(panel) {
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.querySelector(`[data-panel="${panel}"]`).classList.add('active');
+            document.getElementById('panel-' + panel).classList.add('active');
+        }
+    </script>
+</body>
+</html>

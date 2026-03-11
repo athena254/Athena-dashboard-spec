@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Chip - Athena Live</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .chip-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .chip:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .chip-icon {
+            font-size: 1rem;
+        }
+
+        /* Status variants */
+        .chip-online {
+            background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+            color: #1a1a2e;
+        }
+
+        .chip-busy {
+            background: linear-gradient(135deg, #ffaa00 0%, #ff8800 100%);
+            color: #1a1a2e;
+        }
+
+        .chip-away {
+            background: linear-gradient(135deg, #ff4757 0%, #ff3344 100%);
+            color: #fff;
+        }
+
+        .chip-offline {
+            background: linear-gradient(135deg, #555555 0%, #333333 100%);
+            color: #fff;
+        }
+
+        .chip-thinking {
+            background: linear-gradient(135deg, #4a90d9 0%, #357abd 100%);
+            color: #fff;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .chip-waiting {
+            background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+            color: #fff;
+        }
+
+        /* Animated dot for active states */
+        .chip-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            animation: blink 1.5s ease-in-out infinite;
+        }
+
+        .chip-outline {
+            background: transparent;
+            border: 2px solid #00ff88;
+            color: #00ff88;
+        }
+
+        .chip-outline:hover {
+            background: #00ff88;
+            color: #1a1a2e;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 4px 15px rgba(74, 144, 217, 0.4);
+            }
+            50% {
+                box-shadow: 0 4px 25px rgba(74, 144, 217, 0.8);
+            }
+        }
+
+        @keyframes blink {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        .label {
+            color: #888;
+            font-size: 0.75rem;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        h1 {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="chip-container">
+        <h1>🏷️ Agent Chips / Tags</h1>
+        
+        <div>
+            <div class="chip chip-online">
+                <span class="chip-icon">🦉</span>
+                <span>Athena</span>
+                <span class="chip-dot"></span>
+            </div>
+            <p class="label">Online</p>
+        </div>
+
+        <div>
+            <div class="chip chip-busy">
+                <span class="chip-icon">⚡</span>
+                <span>Prometheus</span>
+                <span class="chip-dot"></span>
+            </div>
+            <p class="label">Busy</p>
+        </div>
+
+        <div>
+            <div class="chip chip-thinking">
+                <span class="chip-icon">🧠</span>
+                <span>Processing</span>
+                <span class="chip-dot"></span>
+            </div>
+            <p class="label">Thinking</p>
+        </div>
+
+        <div>
+            <div class="chip chip-away">
+                <span class="chip-icon">🔴</span>
+                <span>Do Not Disturb</span>
+            </div>
+            <p class="label">Away</p>
+        </div>
+
+        <div>
+            <div class="chip chip-offline">
+                <span class="chip-icon">⚫</span>
+                <span>Offline</span>
+            </div>
+            <p class="label">Offline</p>
+        </div>
+
+        <div>
+            <div class="chip chip-waiting">
+                <span class="chip-icon">⏳</span>
+                <span>Waiting</span>
+                <span class="chip-dot"></span>
+            </div>
+            <p class="label">Waiting</p>
+        </div>
+
+        <div>
+            <div class="chip chip-outline">
+                <span class="chip-icon">📌</span>
+                <span>Tag</span>
+            </div>
+            <p class="label">Outline Style</p>
+        </div>
+    </div>
+
+    <script>
+        // Add click interaction
+        document.querySelectorAll('.chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                // Toggle a selected state
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 150);
+            });
+        });
+    </script>
+</body>
+</html>

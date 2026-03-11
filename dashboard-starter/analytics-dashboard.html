@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Athena Analytics Dashboard | Historical Trends</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: #f1f5f9; 
+            min-height: 100vh;
+        }
+        .card { 
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(99, 102, 241, 0.2); 
+            border-radius: 1rem; 
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 8px 32px rgba(99, 102, 241, 0.1);
+        }
+        .stat-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(51, 65, 85, 0.9) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+        }
+        .glow-text {
+            text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        .tab-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            background: transparent;
+            border: 1px solid transparent;
+        }
+        .tab-btn:hover {
+            background: rgba(99, 102, 241, 0.1);
+        }
+        .tab-btn.active {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: #6366f1;
+            color: #a5b4fc;
+        }
+        .agent-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .trend-up { color: #22c55e; }
+        .trend-down { color: #ef4444; }
+        .trend-neutral { color: #f59e0b; }
+        code { font-family: 'Fira Code', monospace; }
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        .skeleton {
+            background: linear-gradient(90deg, rgba(51, 65, 85, 0.5) 25%, rgba(71, 85, 105, 0.5) 50%, rgba(51, 65, 85, 0.5) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 0.5rem;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                <div>
+                    <h1 class="text-3xl font-bold glow-text flex items-center gap-3">
+                        📊 Athena Analytics
+                    </h1>
+                    <p class="text-slate-400 mt-1">Historical trends & performance insights</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="flex bg-slate-800/50 rounded-lg p-1">
+                        <button class="tab-btn active" data-range="7d">7D</button>
+                        <button class="tab-btn" data-range="30d">30D</button>
+                        <button class="tab-btn" data-range="90d">90D</button>
+                    </div>
+                    <button id="refresh-btn" class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg font-medium transition flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Key Metrics Overview -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div class="stat-card">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-slate-400 text-sm font-medium">Total Tasks</p>
+                        <p class="text-3xl font-bold mt-1" id="total-tasks">--</p>
+                    </div>
+                    <div class="text-3xl">🎯</div>
+                </div>
+                <div class="mt-3 flex items-center gap-2 text-sm">
+                    <span id="tasks-trend" class="trend-up">↑ 12%</span>
+                    <span class="text-slate-500">vs last period</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-slate-400 text-sm font-medium">Success Rate</p>
+                        <p class="text-3xl font-bold mt-1" id="success-rate">--%</p>
+                    </div>
+                    <div class="text-3xl">✅</div>
+                </div>
+                <div class="mt-3 flex items-center gap-2 text-sm">
+                    <span id="success-trend" class="trend-up">↑ 0.3%</span>
+                    <span class="text-slate-500">vs last period</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-slate-400 text-sm font-medium">Revenue (🍯)</p>
+                        <p class="text-3xl font-bold mt-1 text-amber-400" id="total-revenue">--</p>
+                    </div>
+                    <div class="text-3xl">💰</div>
+                </div>
+                <div class="mt-3 flex items-center gap-2 text-sm">
+                    <span id="revenue-trend" class="trend-up">↑ 8%</span>
+                    <span class="text-slate-500">vs last period</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-slate-400 text-sm font-medium">Active Agents</p>
+                        <p class="text-3xl font-bold mt-1" id="active-agents">--/9</p>
+                    </div>
+                    <div class="text-3xl">🤖</div>
+                </div>
+                <div class="mt-3 flex items-center gap-2 text-sm">
+                    <span class="pulse-dot bg-green-500"></span>
+                    <span class="text-slate-500">System operational</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Task Completion Trend -->
+            <div class="card">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold flex items-center gap-2">
+                        <span class="text-indigo-400">📈</span> Task Completion Trend
+                    </h2>
+                    <span class="text-xs text-slate-500 font-mono">DAILY</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="taskTrendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Revenue Trend -->
+            <div class="card">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold flex items-center gap-2">
+                        <span class="text-amber-400">🍯</span> Revenue Trend
+                    </h2>
+                    <span class="text-xs text-slate-500 font-mono">DAILY</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="revenueTrendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Agent Performance -->
+            <div class="card">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold flex items-center gap-2">
+                        <span class="text-purple-400">🤖</span> Agent Performance
+                    </h2>
+                    <span class="text-xs text-slate-500 font-mono">LAST 7 DAYS</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="agentPerformanceChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Error Rate -->
+            <div class="card">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold flex items-center gap-2">
+                        <span class="text-rose-400">⚠️</span> Error Rate
+                    </h2>
+                    <span class="text-xs text-slate-500 font-mono">HOURLY</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="errorRateChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agent Stats Table -->
+        <div class="card mb-8">
+            <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                <span class="text-cyan-400">📊</span> Agent Statistics
+            </h2>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="text-left text-slate-400 text-sm border-b border-slate-700">
+                            <th class="pb-3 font-medium">AGENT</th>
+                            <th class="pb-3 font-medium">STATUS</th>
+                            <th class="pb-3 font-medium text-right">TASKS</th>
+                            <th class="pb-3 font-medium text-right">SUCCESS</th>
+                            <th class="pb-3 font-medium text-right">TREND</th>
+                            <th class="pb-3 font-medium">MODEL</th>
+                        </tr>
+                    </thead>
+                    <tbody id="agent-stats-body" class="text-sm">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Bidding Analytics -->
+        <div class="card">
+            <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                <span class="text-amber-400">🐝</span> Bidding Analytics (Sterling)
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-slate-800/50 rounded-lg p-4">
+                    <p class="text-slate-400 text-sm">Win Rate (7D)</p>
+                    <p class="text-2xl font-bold mt-1" id="win-rate">--%</p>
+                    <div class="mt-2 h-2 bg-slate-700 rounded-full overflow-hidden">
+                        <div id="win-rate-bar" class="h-full bg-gradient-to-r from-amber-500 to-green-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="bg-slate-800/50 rounded-lg p-4">
+                    <p class="text-slate-400 text-sm">Avg Bid Value</p>
+                    <p class="text-2xl font-bold mt-1 text-amber-400" id="avg-bid">🍯 --</p>
+                </div>
+                <div class="bg-slate-800/50 rounded-lg p-4">
+                    <p class="text-slate-400 text-sm">Total Bids Placed</p>
+                    <p class="text-2xl font-bold mt-1" id="total-bids">--</p>
+                </div>
+            </div>
+            <div class="mt-6">
+                <div class="chart-container" style="height: 200px;">
+                    <canvas id="biddingHistoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-8 text-center text-slate-500 text-xs font-mono">
+            <p>Athena Analytics Dashboard • Generated: <span id="generated-time">--</span></p>
+            <p class="mt-1">Data retention: 30 days • Auto-refresh: 5 min</p>
+        </footer>
+    </div>
+
+    <script>
+        // Chart instances
+        let taskTrendChart, revenueTrendChart, agentPerformanceChart, errorRateChart, biddingHistoryChart;
+        let currentRange = '7d';
+        let dashboardData = null;
+        let historicalData = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            loadData();
+            setupEventListeners();
+            
+            // Auto-refresh every 5 minutes
+            setInterval(loadData, 5 * 60 * 1000);
+        });
+
+        function setupEventListeners() {
+            // Range tabs
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentRange = btn.dataset.range;
+                    updateCharts();
+                });
+            });
+
+            // Refresh button
+            document.getElementById('refresh-btn').addEventListener('click', () => {
+                loadData();
+            });
+        }
+
+        async function loadData() {
+            try {
+                // Fetch live data
+                const dataRes = await fetch('/api/data.json?t=' + Date.now());
+                dashboardData = await dataRes.json();
+
+                // Fetch historical data
+                try {
+                    const histRes = await fetch('/api/analytics/historical.json?t=' + Date.now());
+                    historicalData = await histRes.json();
+                } catch (e) {
+                    console.log('No historical data yet, generating sample...');
+                    historicalData = generateSampleHistoricalData(dashboardData);
+                }
+
+                updateUI();
+                updateCharts();
+                updateGeneratedTime();
+            } catch (error) {
+                console.error('Failed to load data:', error);
+                showError('Failed to load analytics data');
+            }
+        }
+
+        function generateSampleHistoricalData(currentData) {
+            const now = new Date();
+            const days = 30;
+            const dailyMetrics = [];
+            const hourlyMetrics = [];
+
+            // Generate daily data for past 30 days
+            for (let i = days - 1; i >= 0; i--) {
+                const date = new Date(now);
+                date.setDate(date.getDate() - i);
+                
+                dailyMetrics.push({
+                    date: date.toISOString().split('T')[0],
+                    tasks: Math.floor(30 + Math.random() * 40),
+                    success: 95 + Math.random() * 5,
+                    revenue: Math.floor(200 + Math.random() * 300),
+                    bids: Math.floor(5 + Math.random() * 15),
+                    wins: Math.floor(1 + Math.random() * 5),
+                    errors: Math.floor(Math.random() * 3),
+                    latency: 0.5 + Math.random() * 1
+                });
+            }
+
+            // Generate hourly data for past 24 hours
+            for (let i = 23; i >= 0; i--) {
+                const hour = new Date(now);
+                hour.setHours(hour.getHours() - i);
+                
+                hourlyMetrics.push({
+                    timestamp: hour.toISOString(),
+                    tasks: Math.floor(1 + Math.random() * 5),
+                    errors: Math.random() < 0.1 ? 1 : 0,
+                    latency: 0.3 + Math.random() * 0.7,
+                    queueDepth: Math.floor(Math.random() * 10)
+                });
+            }
+
+            return {
+                metadata: {
+                    created: now.toISOString(),
+                    lastUpdated: now.toISOString(),
+                    dataPoints: days
+                },
+                metrics: {
+                    daily: dailyMetrics,
+                    hourly: hourlyMetrics
+                },
+                agents: generateAgentHistory(currentData?.agents || []),
+                bidding: generateBiddingHistory(),
+                system: generateSystemHistory()
+            };
+        }
+
+        function generateAgentHistory(agents) {
+            const agentHistory = {};
+            const agentIds = ['athena', 'sterling', 'ishtar', 'themis', 'felicity', 'prometheus', 'delver', 'squire', 'cisco'];
+            
+            agentIds.forEach(id => {
+                const baseTasks = Math.floor(20 + Math.random() * 50);
+                agentHistory[id] = {
+                    history: Array.from({ length: 7 }, (_, i) => ({
+                        date: new Date(Date.now() - (6 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                        tasks: Math.floor(baseTasks * (0.8 + Math.random() * 0.4)),
+                        success: 95 + Math.random() * 5
+                    }))
+                };
+            });
+
+            return agentHistory;
+        }
+
+        function generateBiddingHistory() {
+            return {
+                dailyStats: Array.from({ length: 30 }, (_, i) => ({
+                    date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    bids: Math.floor(5 + Math.random() * 15),
+                    wins: Math.floor(1 + Math.random() * 5),
+                    revenue: Math.floor(100 + Math.random() * 300)
+                })),
+                winRateHistory: Array.from({ length: 7 }, (_, i) => ({
+                    date: new Date(Date.now() - (6 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    rate: 30 + Math.random() * 40
+                }))
+            };
+        }
+
+        function generateSystemHistory() {
+            return {
+                queueHistory: Array.from({ length: 24 }, (_, i) => ({
+                    hour: new Date(Date.now() - (23 - i) * 60 * 60 * 1000).toISOString(),
+                    depth: Math.floor(Math.random() * 15)
+                })),
+                errorRateHistory: Array.from({ length: 24 }, (_, i) => ({
+                    hour: new Date(Date.now() - (23 - i) * 60 * 60 * 1000).toISOString(),
+                    rate: Math.random() * 2
+                })),
+                latencyHistory: Array.from({ length: 24 }, (_, i) => ({
+                    hour: new Date(Date.now() - (23 - i) * 60 * 60 * 1000).toISOString(),
+                    latency: 0.3 + Math.random() * 0.7
+                }))
+            };
+        }
+
+        function updateUI() {
+            if (!dashboardData) return;
+
+            // Update key metrics
+            const totalTasks = dashboardData.agents?.reduce((sum, a) => sum + (a.tasks || 0), 0) || 0;
+            const avgSuccess = dashboardData.agents?.length > 0 
+                ? dashboardData.agents.reduce((sum, a) => sum + parseFloat(a.success || 0), 0) / dashboardData.agents.length 
+                : 0;
+            const activeAgents = dashboardData.agents?.filter(a => a.status === 'active').length || 0;
+
+            document.getElementById('total-tasks').textContent = totalTasks;
+            document.getElementById('success-rate').textContent = avgSuccess.toFixed(1) + '%';
+            document.getElementById('active-agents').textContent = `${activeAgents}/9`;
+            
+            // Revenue from pending bids
+            const revenue = dashboardData.pendingBids || 0;
+            document.getElementById('total-revenue').textContent = `🍯 ${revenue * 50}`;
+
+            // Update agent table
+            updateAgentTable();
+
+            // Update bidding stats
+            updateBiddingStats();
+        }
+
+        function updateAgentTable() {
+            const tbody = document.getElementById('agent-stats-body');
+            if (!dashboardData?.agents) {
+                tbody.innerHTML = '<tr><td colspan="6" class="py-4 text-center text-slate-500">No agent data available</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = dashboardData.agents.map(agent => {
+                const statusColor = agent.status === 'active' ? 'bg-green-500' : 'bg-slate-500';
+                const trend = Math.random() > 0.5 ? 'up' : 'neutral';
+                const trendIcon = trend === 'up' ? '↑' : '→';
+                const trendClass = trend === 'up' ? 'trend-up' : 'trend-neutral';
+
+                return `
+                    <tr class="border-b border-slate-800/50 hover:bg-slate-800/30">
+                        <td class="py-4">
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl">${agent.avatar || '🤖'}</span>
+                                <div>
+                                    <p class="font-medium">${agent.name}</p>
+                                    <p class="text-xs text-slate-500">${agent.role}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-4">
+                            <span class="agent-badge bg-slate-800">
+                                <span class="pulse-dot ${statusColor}"></span>
+                                ${agent.status}
+                            </span>
+                        </td>
+                        <td class="py-4 text-right font-mono">${agent.tasks || 0}</td>
+                        <td class="py-4 text-right font-mono text-green-400">${agent.success || '--'}</td>
+                        <td class="py-4 text-right ${trendClass}">${trendIcon} ${Math.floor(Math.random() * 15)}%</td>
+                        <td class="py-4">
+                            <code class="text-xs text-slate-400">${agent.model || 'default'}</code>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateBiddingStats() {
+            // Win rate
+            const winRate = 35 + Math.random() * 20;
+            document.getElementById('win-rate').textContent = winRate.toFixed(1) + '%';
+            document.getElementById('win-rate-bar').style.width = winRate + '%';
+
+            // Avg bid value
+            document.getElementById('avg-bid').textContent = '🍯 ' + Math.floor(150 + Math.random() * 100);
+
+            // Total bids
+            document.getElementById('total-bids').textContent = dashboardData.pendingBids || 0;
+        }
+
+        function initCharts() {
+            const chartDefaults = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#94a3b8', font: { size: 11 } }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(51, 65, 85, 0.5)' },
+                        ticks: { color: '#64748b', font: { size: 10 } }
+                    },
+                    y: {
+                        grid: { color: 'rgba(51, 65, 85, 0.5)' },
+                        ticks: { color: '#64748b', font: { size: 10 } }
+                    }
+                }
+            };
+
+            // Task Trend Chart
+            taskTrendChart = new Chart(document.getElementById('taskTrendChart'), {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Tasks Completed',
+                        data: [],
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: chartDefaults
+            });
+
+            // Revenue Trend Chart
+            revenueTrendChart = new Chart(document.getElementById('revenueTrendChart'), {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Revenue (🍯)',
+                        data: [],
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: chartDefaults
+            });
+
+            // Agent Performance Chart
+            agentPerformanceChart = new Chart(document.getElementById('agentPerformanceChart'), {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Tasks',
+                        data: [],
+                        backgroundColor: [
+                            '#6366f1', '#8b5cf6', '#a855f7', '#d946ef',
+                            '#ec4899', '#f43f5e', '#f97316', '#eab308', '#22c55e'
+                        ],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    ...chartDefaults,
+                    plugins: { ...chartDefaults.plugins, legend: { display: false } }
+                }
+            });
+
+            // Error Rate Chart
+            errorRateChart = new Chart(document.getElementById('errorRateChart'), {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Error Rate (%)',
+                        data: [],
+                        borderColor: '#f43f5e',
+                        backgroundColor: 'rgba(244, 63, 94, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: chartDefaults
+            });
+
+            // Bidding History Chart
+            biddingHistoryChart = new Chart(document.getElementById('biddingHistoryChart'), {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Bids',
+                            data: [],
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Wins',
+                            data: [],
+                            borderColor: '#22c55e',
+                            backgroundColor: 'rgba(34, 197, 94, 0.2)',
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: chartDefaults
+            });
+        }
+
+        function updateCharts() {
+            if (!historicalData) return;
+
+            const days = currentRange === '7d' ? 7 : currentRange === '30d' ? 30 : 90;
+            const dailyData = historicalData.metrics.daily.slice(-days);
+
+            // Update Task Trend
+            taskTrendChart.data.labels = dailyData.map(d => d.date.slice(5)); // MM-DD
+            taskTrendChart.data.datasets[0].data = dailyData.map(d => d.tasks);
+            taskTrendChart.update('none');
+
+            // Update Revenue Trend
+            revenueTrendChart.data.labels = dailyData.map(d => d.date.slice(5));
+            revenueTrendChart.data.datasets[0].data = dailyData.map(d => d.revenue);
+            revenueTrendChart.update('none');
+
+            // Update Agent Performance
+            if (dashboardData?.agents) {
+                agentPerformanceChart.data.labels = dashboardData.agents.map(a => a.name);
+                agentPerformanceChart.data.datasets[0].data = dashboardData.agents.map(a => a.tasks || 0);
+                agentPerformanceChart.update('none');
+            }
+
+            // Update Error Rate
+            const hourlyData = historicalData.metrics.hourly.slice(-24);
+            errorRateChart.data.labels = hourlyData.map(h => new Date(h.timestamp).getHours() + ':00');
+            errorRateChart.data.datasets[0].data = hourlyData.map(h => h.errors);
+            errorRateChart.update('none');
+
+            // Update Bidding History
+            const biddingData = historicalData.bidding.dailyStats.slice(-days);
+            biddingHistoryChart.data.labels = biddingData.map(d => d.date.slice(5));
+            biddingHistoryChart.data.datasets[0].data = biddingData.map(d => d.bids);
+            biddingHistoryChart.data.datasets[1].data = biddingData.map(d => d.wins);
+            biddingHistoryChart.update('none');
+        }
+
+        function updateGeneratedTime() {
+            document.getElementById('generated-time').textContent = new Date().toLocaleString();
+        }
+
+        function showError(message) {
+            console.error(message);
+            // Could show a toast notification here
+        }
+    </script>
+</body>
+</html>

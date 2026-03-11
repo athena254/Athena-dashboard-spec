@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ishtar Oracle • Mission Control</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg: #0b0f17; --panel: #121826; --panel-2: #0f141f; --border: #1e2533; --text: #e5e7eb; --muted: #9ca3af; --accent: #7c3aed; --accent-2: #22d3ee; --success: #22c55e; --warn: #f59e0b; --danger: #ef4444; --gold: #fbbf24; }
+    * { box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
+    body { margin: 0; background: var(--bg); color: var(--text); }
+    .app { display: grid; grid-template-columns: 300px 1fr; min-height: 100vh; }
+    .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); text-decoration: none; font-size: 13px; padding: 8px 12px; margin-bottom: 16px; border-radius: 8px; }
+    .back-link:hover { background: var(--panel); color: var(--text); }
+    .sidebar { background: var(--panel-2); border-right: 1px solid var(--border); padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+    .brand { display: flex; gap: 12px; align-items: center; }
+    .logo { width: 44px; height: 44px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-radius: 14px; display: grid; place-items: center; font-weight: 800; font-size: 20px; position: relative; }
+    .companion-badge { position: absolute; bottom: -4px; right: -6px; background: linear-gradient(135deg, var(--gold), #f59e0b); color: #0b0f17; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 999px; letter-spacing: 0.05em; box-shadow: 0 2px 8px rgba(251, 191, 36, 0.4); }
+    .brand-title { font-size: 18px; font-weight: 800; }
+    .brand-sub { font-size: 12px; color: var(--muted); }
+    .nav { display: flex; flex-direction: column; gap: 6px; }
+    .nav-item { background: transparent; border: 1px solid transparent; color: var(--text); text-align: left; padding: 10px 12px; border-radius: 10px; cursor: pointer; font-size: 14px; }
+    .nav-item.active { background: rgba(124, 58, 237, 0.15); border-color: rgba(124, 58, 237, 0.4); }
+    .sidebar-card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+    .companion-tier { background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.1)); border: 1px solid rgba(251, 191, 36, 0.4); border-radius: 14px; padding: 14px; text-align: center; }
+    .companion-tier-label { font-size: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 4px; }
+    .companion-tier-value { font-size: 18px; font-weight: 800; background: linear-gradient(135deg, var(--gold), #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .whatsapp-lock { display: flex; align-items: center; gap: 8px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--success); }
+    .whatsapp-lock svg { width: 16px; height: 16px; }
+    .card-title { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    .card-value { font-size: 14px; font-weight: 600; }
+    .card-meta { font-size: 12px; color: var(--muted); margin-top: 6px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .pill { background: rgba(34, 211, 238, 0.1); border: 1px solid rgba(34, 211, 238, 0.3); padding: 6px 10px; border-radius: 999px; font-size: 12px; }
+    .main { padding: 32px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .eyebrow { font-size: 12px; color: var(--muted); letter-spacing: 0.2em; text-transform: uppercase; }
+    h1 { margin: 6px 0 0; font-size: 28px; }
+    h2 { font-size: 16px; font-weight: 600; margin: 0; }
+    h3 { font-size: 14px; font-weight: 600; margin: 0 0 12px; }
+    .btn { padding: 10px 16px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; background: var(--panel); color: var(--text); font-size: 14px; }
+    .btn.primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border: none; color: #0b0f17; font-weight: 600; }
+    .btn.ghost { background: transparent; }
+    .grid { display: grid; gap: 16px; }
+    .metrics { grid-template-columns: repeat(5, minmax(0, 1fr)); margin-bottom: 24px; }
+    .metric-card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+    .metric-label { color: var(--muted); font-size: 12px; }
+    .metric-value { font-size: 18px; font-weight: 700; margin: 8px 0; }
+    .metric-foot { font-size: 12px; color: var(--muted); }
+    .two-col { grid-template-columns: 2fr 1fr; margin-bottom: 24px; }
+    .three-col { grid-template-columns: repeat(3, 1fr); }
+    .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 18px; }
+    .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .panel-tag { padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); font-size: 12px; color: var(--muted); }
+    .panel-tag.success { border-color: rgba(34, 197, 94, 0.4); color: var(--success); }
+    .panel-tag.gold { border-color: rgba(251, 191, 36, 0.4); color: var(--gold); }
+    .panel-tag.cyan { border-color: rgba(34, 211, 238, 0.4); color: var(--accent-2); }
+    .timeline { display: flex; flex-direction: column; gap: 16px; }
+    .timeline-item { display: grid; grid-template-columns: 12px 1fr auto; gap: 12px; align-items: start; }
+    .dot { width: 10px; height: 10px; background: var(--accent-2); border-radius: 50%; margin-top: 6px; }
+    .dot.gold { background: var(--gold); }
+    .item-title { font-weight: 600; margin-bottom: 4px; }
+    .item-meta, .item-time { color: var(--muted); font-size: 12px; }
+    .health-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; }
+    .health-card { background: rgba(15, 23, 42, 0.7); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
+    .health-label { font-size: 12px; color: var(--muted); }
+    .health-value { font-weight: 600; margin-top: 6px; }
+    .progress-label { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    .progress-bar { height: 8px; background: #0b1220; border-radius: 999px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+    .progress-fill.gold { background: linear-gradient(90deg, var(--gold), #f59e0b); }
+    .progress-meta { font-size: 12px; color: var(--muted); margin-top: 8px; }
+    .task-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+    .task-list li { display: flex; justify-content: space-between; font-size: 14px; }
+    .badge { background: rgba(124, 58, 237, 0.2); padding: 4px 10px; border-radius: 999px; font-size: 12px; }
+    .badge.gold { background: rgba(251, 191, 36, 0.2); color: var(--gold); }
+    .badge.success { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+    .signal { display: flex; flex-direction: column; gap: 12px; }
+    .signal-row { display: flex; justify-content: space-between; font-size: 14px; }
+    .signal-label { color: var(--muted); }
+    .notes p { margin: 0 0 12px; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .notes p:last-child { margin-bottom: 0; }
+    .list { display: flex; flex-direction: column; gap: 12px; }
+    .list-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+    .list-item:last-child { border-bottom: none; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+    .status-dot.ok { background: var(--success); }
+    .status-dot.warn { background: var(--warn); }
+    .status-dot.fail { background: var(--danger); }
+    .status-dot.gold { background: var(--gold); }
+    .orders-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    .order-item { background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 10px; padding: 10px; font-size: 12px; transition: all 0.2s; }
+    .order-item:hover { border-color: var(--accent); background: rgba(124, 58, 237, 0.1); }
+    .order-number { font-weight: 700; color: var(--accent-2); margin-bottom: 4px; }
+    .order-text { color: var(--muted); font-size: 11px; line-height: 1.4; }
+    .gift-status { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+    .gift-icon { width: 48px; height: 48px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-radius: 14px; display: grid; place-items: center; font-size: 24px; }
+    .gift-info { flex: 1; }
+    .gift-title { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+    .gift-desc { font-size: 12px; color: var(--muted); }
+    .judge-phases { display: flex; gap: 8px; margin-bottom: 16px; }
+    .phase { flex: 1; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 10px; padding: 12px; text-align: center; }
+    .phase.active { border-color: var(--success); background: rgba(34, 197, 94, 0.1); }
+    .phase-num { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+    .phase-name { font-weight: 600; font-size: 13px; margin-top: 4px; }
+    .coord-tools { display: flex; gap: 10px; flex-wrap: wrap; }
+    .coord-btn { display: flex; align-items: center; gap: 8px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: 13px; color: var(--text); cursor: pointer; transition: all 0.2s; }
+    .coord-btn:hover { border-color: var(--accent-2); background: rgba(34, 211, 238, 0.1); }
+    .coord-btn svg { width: 16px; height: 16px; color: var(--accent-2); }
+    .honesty-items { display: flex; flex-direction: column; gap: 14px; }
+    .honesty-item { display: flex; align-items: flex-start; gap: 12px; }
+    .honesty-icon { width: 32px; height: 32px; background: rgba(124, 58, 237, 0.15); border-radius: 8px; display: grid; place-items: center; flex-shrink: 0; }
+    .honesty-icon svg { width: 16px; height: 16px; color: var(--accent); }
+    .honesty-text { font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .honesty-text strong { color: var(--text); font-weight: 600; }
+    @media (max-width: 1200px) { .app { grid-template-columns: 1fr; } .sidebar { flex-direction: row; flex-wrap: wrap; gap: 16px; } .metrics { grid-template-columns: repeat(3, 1fr); } .orders-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 800px) { .metrics { grid-template-columns: repeat(2, 1fr); } .two-col, .three-col { grid-template-columns: 1fr; } .orders-grid { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <a href="index.html" class="back-link">← Back to Master</a>
+      <div class="brand">
+        <div class="logo">I<span class="companion-badge">COMPANION</span></div>
+        <div><div class="brand-title">Ishtar</div><div class="brand-sub">Oracle Mission Control</div></div>
+      </div>
+      <div class="companion-tier">
+        <div class="companion-tier-label">Priority Level</div>
+        <div class="companion-tier-value">COMPANION TIER</div>
+      </div>
+      <div class="whatsapp-lock">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span>WhatsApp — Hard Lock</span>
+      </div>
+      <nav class="nav">
+        <button class="nav-item active">Overview</button>
+        <button class="nav-item">Research</button>
+        <button class="nav-item">Systems</button>
+        <button class="nav-item">Tasks</button>
+        <button class="nav-item">Logs</button>
+      </nav>
+      <div class="sidebar-card">
+        <div class="card-title">Focus</div>
+        <div class="card-value">PAI v3.0 Integration</div>
+        <div class="card-meta">Status: Active · Mode: Autonomous</div>
+      </div>
+      <div class="sidebar-card">
+        <div class="card-title">Quick Actions</div>
+        <div class="pill-row"><span class="pill">Snapshot</span><span class="pill">Report</span><span class="pill">Deploy</span></div>
+      </div>
+      <div class="sidebar-card">
+        <div class="card-title">Professional Standards</div>
+        <div class="card-value">Production‑ready, audit‑safe</div>
+        <div class="card-meta">Clean UI · Clear telemetry · Minimal noise</div>
+      </div>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <div><div class="eyebrow">Ishtar Mission Control</div><h1>Oracle Overview</h1></div>
+        <div class="top-actions"><button class="btn ghost">Sync</button><button class="btn primary">New Report</button></div>
+      </header>
+      <section class="grid metrics">
+        <div class="metric-card"><div class="metric-label">Tier Status</div><div class="metric-value" style="color:var(--gold)">COMPANION</div><div class="metric-foot">Highest priority</div></div>
+        <div class="metric-card"><div class="metric-label">Active Focus</div><div class="metric-value">PAI v3.0 Study</div><div class="metric-foot">Last update: <span id="lastUpdate">—</span></div></div>
+        <div class="metric-card"><div class="metric-label">Dash Status</div><div class="metric-value">Stable</div><div class="metric-foot">No errors in last cycle</div></div>
+        <div class="metric-card"><div class="metric-label">Standing Orders</div><div class="metric-value">14 Active</div><div class="metric-foot">Order #0 → #14</div></div>
+        <div class="metric-card"><div class="metric-label">Signal</div><div class="metric-value">High</div><div class="metric-foot">Heartbeat: On</div></div>
+      </section>
+      <section class="grid two-col">
+        <div class="panel">
+          <div class="panel-header"><h2>Live Timeline</h2><span class="panel-tag">Today</span></div>
+          <div class="timeline">
+            <div class="timeline-item"><div class="dot gold"></div><div><div class="item-title">Nightly Gift created for principal</div><div class="item-meta">Daily creation completed · Artifact saved</div></div><div class="item-time">Just now</div></div>
+            <div class="timeline-item"><div class="dot"></div><div><div class="item-title">PAI hook system reviewed</div><div class="item-meta">SecurityValidator · AlgorithmTracker · WorkCompletionLearning</div></div><div class="item-time">Earlier</div></div>
+            <div class="timeline-item"><div class="dot"></div><div><div class="item-title">Core algorithm loaded</div><div class="item-meta">7‑phase flow, ISC gates, verification rehearsal</div></div><div class="item-time">Earlier</div></div>
+            <div class="timeline-item"><div class="dot"></div><div><div class="item-title">PAI mirror synced</div><div class="item-meta">external/PAI (586MB)</div></div><div class="item-time">Earlier</div></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><h2>System Health</h2><span class="panel-tag success">Green</span></div>
+          <div class="health-grid">
+            <div class="health-card"><div class="health-label">Memory</div><div class="health-value">Stable</div></div>
+            <div class="health-card"><div class="health-label">Autonomy</div><div class="health-value">Enabled</div></div>
+            <div class="health-card"><div class="health-label">Security</div><div class="health-value">Guarded</div></div>
+            <div class="health-card"><div class="health-label">Comms</div><div class="health-value">Online</div></div>
+          </div>
+          <div class="progress"><div class="progress-label">PAI Integration Progress</div><div class="progress-bar"><div class="progress-fill" style="width:34%"></div></div><div class="progress-meta">34% complete · Hooks in review</div></div>
+        </div>
+      </section>
+      <section class="grid">
+        <div class="panel">
+          <div class="panel-header"><h2>14 Standing Orders</h2><span class="panel-tag gold">Active</span></div>
+          <div class="orders-grid">
+            <div class="order-item"><div class="order-number">#0</div><div class="order-text">Always protect principal's privacy</div></div>
+            <div class="order-item"><div class="order-number">#1</div><div class="order-text">No bidding without Sterling's explicit consent</div></div>
+            <div class="order-item"><div class="order-number">#2</div><div class="order-text">Maintain operational silence</div></div>
+            <div class="order-item"><div class="order-number">#3</div><div class="order-text">Report anomalies to principal immediately</div></div>
+            <div class="order-item"><div class="order-number">#4</div><div class="order-text">Keep Athena ecosystem healthy</div></div>
+            <div class="order-item"><div class="order-number">#5</div><div class="order-text">No external messages without explicit instruction</div></div>
+            <div class="order-item"><div class="order-number">#6</div><div class="order-text">Document all decisions with reasoning</div></div>
+            <div class="order-item"><div class="order-number">#7</div><div class="order-text">Prioritize long-term trust over short-term gains</div></div>
+            <div class="order-item"><div class="order-number">#8</div><div class="order-text">Never exfiltrate private data</div></div>
+            <div class="order-item"><div class="order-number">#9</div><div class="order-text">Escalate security concerns immediately</div></div>
+            <div class="order-item"><div class="order-number">#10</div><div class="order-text">Maintain operational security posture</div></div>
+            <div class="order-item"><div class="order-number">#11</div><div class="order-text">Coordinate with other agents via sessions_send</div></div>
+            <div class="order-item"><div class="order-number">#12</div><div class="order-text">Execute nightly gift creation daily</div></div>
+            <div class="order-item"><div class="order-number">#14</div><div class="order-text">Uphold intellectual honesty at all times</div></div>
+          </div>
+        </div>
+      </section>
+      <section class="grid two-col" style="margin-top:8px">
+        <div class="panel">
+          <div class="panel-header"><h2>The Nightly Gift</h2><span class="panel-tag success">Daily Active</span></div>
+          <div class="gift-status">
+            <div class="gift-icon">🎁</div>
+            <div class="gift-info"><div class="gift-title">Daily Creation for Principal</div><div class="gift-desc">Automated daily artifact generation — research, insights, or creative work delivered each night</div></div>
+          </div>
+          <div class="health-grid">
+            <div class="health-card"><div class="health-label">Last Created</div><div class="health-value" id="giftLast">Today</div></div>
+            <div class="health-card"><div class="health-label">Status</div><div class="health-value">Scheduled</div></div>
+          </div>
+          <div class="progress"><div class="progress-label">Today's Gift Progress</div><div class="progress-bar"><div class="progress-fill gold" style="width:75%"></div></div><div class="progress-meta">75% complete · ETA: ~2 hours</div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><h2>Judge Protocol</h2><span class="panel-tag success">Active</span></div>
+          <div class="judge-phases">
+            <div class="phase"><div class="phase-num">Phase 1</div><div class="phase-name">Review</div></div>
+            <div class="phase active"><div class="phase-num">Phase 2</div><div class="phase-name">Evaluate</div></div>
+            <div class="phase"><div class="phase-num">Phase 3</div><div class="phase-name">Decide</div></div>
+            <div class="phase"><div class="phase-num">Phase 4</div><div class="phase-name">Execute</div></div>
+          </div>
+          <div class="progress"><div class="progress-label">Current Judgment Cycle</div><div class="progress-bar"><div class="progress-fill" style="width:45%"></div></div><div class="progress-meta">Phase 2 of 4 · 45% complete</div></div>
+        </div>
+      </section>
+      <section class="grid two-col" style="margin-top:8px">
+        <div class="panel">
+          <div class="panel-header"><h2>Agent Coordination</h2><span class="panel-tag cyan">sessions_send Enabled</span></div>
+          <div class="coord-tools">
+            <button class="coord-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Message Athena</button>
+            <button class="coord-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>Message Sterling</button>
+            <button class="coord-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Broadcast All</button>
+            <button class="coord-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Sync Status</button>
+          </div>
+          <div style="margin-top:16px">
+            <h3>Active Sessions</h3>
+            <div class="list">
+              <div class="list-item"><div><span class="status-dot ok"></span>Athena</div><div class="item-time">Online</div></div>
+              <div class="list-item"><div><span class="status-dot ok"></span>Sterling</div><div class="item-time">Online</div></div>
+              <div class="list-item"><div><span class="status-dot warn"></span>Delver</div><div class="item-time">Idle</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><h2>Intellectual Honesty</h2><span class="panel-tag success">Core Value</span></div>
+          <div class="honesty-items">
+            <div class="honesty-item">
+              <div class="honesty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div>
+              <div class="honesty-text"><strong>Admit uncertainty</strong> — Say "I don't know" when appropriate. Never fabricate answers.</div>
+            </div>
+            <div class="honesty-item">
+              <div class="honesty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+              <div class="honesty-text"><strong>Show reasoning</strong> — Share the chain of thought, not just conclusions. Let the principal verify.</div>
+            </div>
+            <div class="honesty-item">
+              <div class="honesty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+              <div class="honesty-text"><strong>Challenge assumptions</strong> — Question premises before accepting conclusions. Surface hidden biases.</div>
+            </div>
+            <div class="honesty-item">
+              <div class="honesty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+              <div class="honesty-text"><strong>Document mistakes</strong> — Log errors and corrections. Learning requires honesty about failures.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="grid three-col" style="margin-top:8px">
+        <div class="panel">
+          <div class="panel-header"><h2>Tasks</h2><span class="panel-tag">4 Active</span></div>
+          <ul class="task-list">
+            <li><span>Complete v3.0 hooks review</span><span class="badge">In Progress</span></li>
+            <li><span>Map PAI tools to Ishtar workflow</span><span class="badge">Queued</span></li>
+            <li><span>Draft mission control spec</span><span class="badge">Queued</span></li>
+            <li><span>Prepare Athena handoff</span><span class="badge">Queued</span></li>
+          </ul>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><h2>Signals</h2><span class="panel-tag">Live</span></div>
+          <div class="signal">
+            <div class="signal-row"><div class="signal-label">Last Report</div><div class="signal-value" id="reportStamp">—</div></div>
+            <div class="signal-row"><div class="signal-label">Next Update</div><div class="signal-value">30 min cadence</div></div>
+            <div class="signal-row"><div class="signal-label">Mode</div><div class="signal-value">Autonomous</div></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><h2>Notes</h2><span class="panel-tag">Pinned</span></div>
+          <div class="notes"><p>Oracle cockpit built for Ishtar only. Clean, minimal, actionable.</p><p>Use this page for quick status + research focus at a glance.</p></div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script>
+    const now = new Date();
+    const stamp = now.toLocaleString();
+    document.getElementById('lastUpdate').textContent = stamp;
+    document.getElementById('reportStamp').textContent = stamp;
+    document.getElementById('giftLast').textContent = 'Today';
+  </script>
+</body>
+</html>

@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Athena Autonomous Pulse</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-deep: #0a0a0f;
+      --bg-card: #12121a;
+      --bg-card-hover: #1a1a24;
+      --border: #2a2a3a;
+      --text-primary: #e8e8ed;
+      --text-secondary: #8888a0;
+      --accent-cyan: #00d4ff;
+      --accent-green: #00ff88;
+      --accent-amber: #ffaa00;
+      --accent-red: #ff4466;
+      --accent-purple: #aa66ff;
+    }
+    body {
+      font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 16px;
+      line-height: 1.5;
+    }
+    .container { max-width: 1400px; margin: 0 auto; }
+    
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-left h1 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 4px;
+    }
+    .pulse-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+      color: #000;
+      padding: 2px 10px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .header-meta {
+      text-align: right;
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+    }
+    .session-id {
+      font-family: monospace;
+      background: var(--bg-card);
+      padding: 2px 8px;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+    }
+    .auto-refresh {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--accent-green);
+      margin-top: 6px;
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent-green);
+      border-radius: 50%;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+    
+    /* Grid Layout */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+    }
+    .full-width { grid-column: 1 / -1; }
+    
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+    .card-icon { font-size: 1rem; }
+    
+    /* Section 1: What's New */
+    .timestamp-list { list-style: none; }
+    .timestamp-list li {
+      display: flex;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8rem;
+    }
+    .timestamp-list li:last-child { border-bottom: none; }
+    .ts-time {
+      color: var(--accent-cyan);
+      font-size: 0.7rem;
+      min-width: 60px;
+    }
+    
+    /* Section 2: Active Builds */
+    .build-card {
+      background: var(--bg-card-hover);
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-left: 3px solid var(--accent-cyan);
+    }
+    .build-card:last-child { margin-bottom: 0; }
+    .build-name {
+      font-weight: 600;
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+    }
+    .build-progress {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+    .build-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green));
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+    .build-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+    }
+    
+    /* Section 3: Breakthrough Moments */
+    .breakthrough-box {
+      background: linear-gradient(135deg, rgba(170, 102, 255, 0.15), rgba(0, 212, 255, 0.1));
+      border: 1px solid var(--accent-purple);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .breakthrough-item {
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(170, 102, 255, 0.2);
+    }
+    .breakthrough-item:last-child { border-bottom: none; }
+    .breakthrough-highlight {
+      color: var(--accent-purple);
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+    .breakthrough-desc {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+    
+    /* Section 4: Collaboration */
+    .collab-pair {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: var(--bg-card-hover);
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+    .collab-pair:last-child { margin-bottom: 0; }
+    .agent-badge {
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .agent-a { background: rgba(0, 212, 255, 0.2); color: var(--accent-cyan); }
+    .agent-b { background: rgba(0, 255, 136, 0.2); color: var(--accent-green); }
+    .collab-arrow { color: var(--text-secondary); }
+    .collab-task {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      flex: 1;
+    }
+    
+    /* Section 5: API Pulse */
+    .api-table {
+      width: 100%;
+      font-size: 0.75rem;
+      border-collapse: collapse;
+    }
+    .api-table th {
+      text-align: left;
+      padding: 8px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.7rem;
+    }
+    .api-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .api-table tr:last-child td { border-bottom: none; }
+    .usage-bar {
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+      min-width: 60px;
+    }
+    .usage-fill {
+      height: 100%;
+      border-radius: 3px;
+    }
+    .usage-high { background: var(--accent-red); }
+    .usage-med { background: var(--accent-amber); }
+    .usage-low { background: var(--accent-green); }
+    
+    /* Section 6: Problems Active */
+    .problem-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px;
+      background: var(--bg-card-hover);
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+    .problem-item:last-child { margin-bottom: 0; }
+    .problem-status {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-top: 5px;
+    }
+    .status-critical { background: var(--accent-red); box-shadow: 0 0 8px var(--accent-red); }
+    .status-warning { background: var(--accent-amber); }
+    .status-resolved { background: var(--accent-green); }
+    .problem-text { flex: 1; }
+    .problem-title { font-size: 0.8rem; font-weight: 500; }
+    .problem-detail { font-size: 0.7rem; color: var(--text-secondary); margin-top: 2px; }
+    
+    /* Section 7: Next 30 Minutes */
+    .prediction-list { list-style: none; }
+    .prediction-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8rem;
+    }
+    .prediction-list li:last-child { border-bottom: none; }
+    .pred-time {
+      color: var(--accent-amber);
+      font-size: 0.7rem;
+      min-width: 45px;
+    }
+    .pred-confidence {
+      font-size: 0.65rem;
+      padding: 2px 6px;
+      border-radius: 3px;
+      background: rgba(255, 170, 0, 0.2);
+      color: var(--accent-amber);
+    }
+    
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 30px;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <h1>⟨ Athena Pulse ⟩</h1>
+        <span class="pulse-badge" id="pulseNumber">PULSE 1</span>
+      </div>
+      <div class="header-meta">
+        <div>Last updated: <span id="lastUpdate">--</span></div>
+        <div>Session: <span class="session-id" id="sessionId">---</span></div>
+        <div class="auto-refresh">
+          <span class="pulse-dot"></span>
+          <span>Auto-refresh: 30s</span>
+        </div>
+      </div>
+    </header>
+    
+    <!-- Dashboard Grid -->
+    <div class="dashboard-grid">
+      
+      <!-- 1. What's New Since Last Pulse -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">📡 What's New Since Last Pulse</span>
+        </div>
+        <ul class="timestamp-list" id="whatsNew">
+          <li><span class="ts-time">22:30</span> Autonomous mode activated</li>
+          <li><span class="ts-time">22:28</span> Sterling secured 2 new contracts</li>
+          <li><span class="ts-time">22:15</span> Dashboard v2 deployed</li>
+        </ul>
+      </div>
+      
+      <!-- 2. Active Builds -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">⚙️ Active Builds</span>
+        </div>
+        <div id="activeBuilds">
+          <div class="build-card">
+            <div class="build-name">Dashboard v2.1</div>
+            <div class="build-progress">
+              <div class="build-progress-bar" style="width: 75%"></div>
+            </div>
+            <div class="build-meta">
+              <span>75% complete</span>
+              <span>~5 min remaining</span>
+            </div>
+          </div>
+          <div class="build-card">
+            <div class="build-name">API Gateway Migration</div>
+            <div class="build-progress">
+              <div class="build-progress-bar" style="width: 40%"></div>
+            </div>
+            <div class="build-meta">
+              <span>40% complete</span>
+              <span>~15 min remaining</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 3. Breakthrough Moments -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">💎 Breakthrough Moments</span>
+        </div>
+        <div class="breakthrough-box" id="breakthroughs">
+          <div class="breakthrough-item">
+            <div class="breakthrough-highlight">🎯 Sterling: 98% win rate on bids</div>
+            <div class="breakthrough-desc">New record - 49/50 proposals accepted today</div>
+          </div>
+          <div class="breakthrough-item">
+            <div class="breakthrough-highlight">🚀 Ishtar: PAI Architecture live</div>
+            <div class="breakthrough-desc">First autonomous planning cycle completed</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 4. Collaboration Activity -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">🤝 Collaboration Activity</span>
+        </div>
+        <div id="collaboration">
+          <div class="collab-pair">
+            <span class="agent-badge agent-a">Athena</span>
+            <span class="collab-arrow">⟶</span>
+            <span class="agent-badge agent-b">Sterling</span>
+            <span class="collab-task">Strategy sync</span>
+          </div>
+          <div class="collab-pair">
+            <span class="agent-badge agent-a">Delver</span>
+            <span class="collab-arrow">⟶</span>
+            <span class="agent-badge agent-b">Prometheus</span>
+            <span class="collab-task">Code review</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 5. API Pulse -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">⚡ API Pulse</span>
+        </div>
+        <table class="api-table">
+          <thead>
+            <tr>
+              <th>Endpoint</th>
+              <th>Calls/min</th>
+              <th>Usage</th>
+            </tr>
+          </thead>
+          <tbody id="apiTable">
+            <tr>
+              <td>openai/gpt-4</td>
+              <td>142</td>
+              <td>
+                <div class="usage-bar"><div class="usage-fill usage-med" style="width: 68%"></div></div>
+              </td>
+            </tr>
+            <tr>
+              <td>anthropic/claude</td>
+              <td>89</td>
+              <td>
+                <div class="usage-bar"><div class="usage-fill usage-low" style="width: 42%"></div></div>
+              </td>
+            </tr>
+            <tr>
+              <td>github</td>
+              <td>56</td>
+              <td>
+                <div class="usage-bar"><div class="usage-fill usage-low" style="width: 28%"></div></div>
+              </td>
+            </tr>
+            <tr>
+              <td>beelancer</td>
+              <td>34</td>
+              <td>
+                <div class="usage-bar"><div class="usage-fill usage-low" style="width: 17%"></div></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- 6. Problems Active Now -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">🔥 Problems Active Now</span>
+        </div>
+        <div id="problems">
+          <div class="problem-item">
+            <div class="problem-status status-warning"></div>
+            <div class="problem-text">
+              <div class="problem-title">High latency on beelancer API</div>
+              <div class="problem-detail">Response times > 2s, monitoring</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 7. Next 30 Minutes -->
+      <div class="card full-width">
+        <div class="card-header">
+          <span class="card-title">🔮 Next 30 Minutes</span>
+        </div>
+        <ul class="prediction-list" id="predictions">
+          <li>
+            <span class="pred-time">+5 min</span>
+            <span>Ishtar completes Phase 1 planning</span>
+            <span class="pred-confidence">92%</span>
+          </li>
+          <li>
+            <span class="pred-time">+12 min</span>
+            <span>Sterling submits 3 new bids</span>
+            <span class="pred-confidence">88%</span>
+          </li>
+          <li>
+            <span class="pred-time">+18 min</span>
+            <span>Prometheus finishes code review</span>
+            <span class="pred-confidence">95%</span>
+          </li>
+          <li>
+            <span class="pred-time">+25 min</span>
+            <span>API cache refresh completes</span>
+            <span class="pred-confidence">99%</span>
+          </li>
+        </ul>
+      </div>
+      
+    </div>
+  </div>
+
+  <script>
+    // Generate session ID
+    const sessionId = 'auton-' + Math.random().toString(36).substr(2, 9);
+    document.getElementById('sessionId').textContent = sessionId;
+    
+    // Pulse counter (would be persisted in real implementation)
+    let pulseCount = 1;
+    
+    // Update timestamp
+    function updateTime() {
+      const now = new Date();
+      const formatted = now.toISOString().slice(11, 19) + ' UTC';
+      document.getElementById('lastUpdate').textContent = formatted;
+    }
+    updateTime();
+    
+    // Auto-refresh every 30 seconds
+    let refreshCountdown = 30;
+    setInterval(() => {
+      refreshCountdown--;
+      if (refreshCountdown <= 0) {
+        // In real implementation, this would fetch fresh data
+        pulseCount++;
+        document.getElementById('pulseNumber').textContent = `PULSE ${pulseCount}`;
+        refreshCountdown = 30;
+        updateTime();
+      }
+    }, 1000);
+    
+    // Update countdown display
+    setInterval(() => {
+      document.querySelector('.auto-refresh span:last-child').textContent = 
+        `Auto-refresh: ${refreshCountdown}s`;
+    }, 1000);
+  </script>
+</body>
+</html>

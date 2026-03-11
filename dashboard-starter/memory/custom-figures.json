@@ -1,0 +1,13 @@
+{
+  "socrates": {
+    "name": "Socrates",
+    "era": "Ancient Greece",
+    "facts": [
+      "Born 470 BC in Athens",
+      "Founder of Western philosophy",
+      "Teacher of Plato",
+      "Died by hemlock 399 BC"
+    ],
+    "wiki": "Socrates"
+  }
+}

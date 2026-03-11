@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Athena | Live Activity Feed</title>
+  <style>
+    :root {
+      --bg: #0a0e17;
+      --surface: #111827;
+      --elevated: #1a2234;
+      --border: #1e293b;
+      --text: #f1f5f9;
+      --muted: #64748b;
+      --accent: #6366f1;
+      --green: #10b981;
+      --yellow: #f59e0b;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --purple: #8b5cf6;
+      --cyan: #06b6d4;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'SF Mono', 'Fira Code', 'Monaco', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(ellipse at top, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom right, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--accent), var(--cyan));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+
+    .logo-text {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .logo-text span {
+      color: var(--accent);
+    }
+
+    .live-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.375rem 0.75rem;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 20px;
+      font-size: 0.75rem;
+      color: var(--green);
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.9); }
+    }
+
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-card.active .stat-value { color: var(--green); }
+    .stat-card.idle .stat-value { color: var(--yellow); }
+    .stat-card.bids .stat-value { color: var(--purple); }
+    .stat-card.gigs .stat-value { color: var(--blue); }
+
+    .feed-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .feed-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--elevated);
+    }
+
+    .feed-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .feed-count {
+      background: var(--accent);
+      color: white;
+      font-size: 0.65rem;
+      padding: 0.125rem 0.5rem;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+
+    .refresh-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 0.375rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .refresh-btn:hover {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    .feed-list {
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    .feed-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .feed-list::-webkit-scrollbar-track {
+      background: var(--surface);
+    }
+
+    .feed-list::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    .event {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    .event:hover {
+      background: var(--elevated);
+    }
+
+    .event:last-child {
+      border-bottom: none;
+    }
+
+    .event-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .event-icon.athena { background: rgba(99, 102, 241, 0.2); }
+    .event-icon.sterling { background: rgba(16, 185, 129, 0.2); }
+    .event-icon.beelancer { background: rgba(245, 158, 11, 0.2); }
+    .event-icon.felicity { background: rgba(236, 72, 153, 0.2); }
+    .event-icon.prometheus { background: rgba(239, 68, 68, 0.2); }
+    .event-icon.themis { background: rgba(139, 92, 246, 0.2); }
+    .event-icon.ishtar { background: rgba(6, 182, 212, 0.2); }
+    .event-icon.default { background: rgba(100, 116, 139, 0.2); }
+
+    .event-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .event-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .event-agent {
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    .event-action {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .event-time {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    .event-detail {
+      font-size: 0.8rem;
+      color: var(--text);
+      opacity: 0.85;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .event-tag {
+      display: inline-block;
+      font-size: 0.65rem;
+      padding: 0.125rem 0.375rem;
+      border-radius: 4px;
+      margin-top: 0.375rem;
+      font-weight: 500;
+    }
+
+    .event-tag.bid { background: rgba(245, 158, 11, 0.2); color: var(--yellow); }
+    .event-tag.task { background: rgba(59, 130, 246, 0.2); color: var(--blue); }
+    .event-tag.decision { background: rgba(139, 92, 246, 0.2); color: var(--purple); }
+    .event-tag.success { background: rgba(16, 185, 129, 0.2); color: var(--green); }
+    .event-tag.error { background: rgba(239, 68, 68, 0.2); color: var(--red); }
+    .event-tag.info { background: rgba(100, 116, 139, 0.2); color: var(--muted); }
+
+    .empty-state {
+      padding: 3rem;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .empty-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      opacity: 0.5;
+    }
+
+    .agent-filter {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      padding: 0.75rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .filter-btn {
+      background: var(--elevated);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 0.375rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+      border-color: var(--accent);
+      color: var(--text);
+      background: rgba(99, 102, 241, 0.15);
+    }
+
+    @media (max-width: 640px) {
+      .stats-bar {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .container {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <div class="logo-icon">📡</div>
+        <div class="logo-text">Athena <span>Live Feed</span></div>
+      </div>
+      <div class="live-indicator">
+        <div class="live-dot"></div>
+        LIVE
+      </div>
+    </header>
+
+    <div class="stats-bar">
+      <div class="stat-card active">
+        <div class="stat-value" id="activeCount">-</div>
+        <div class="stat-label">Active Agents</div>
+      </div>
+      <div class="stat-card idle">
+        <div class="stat-value" id="idleCount">-</div>
+        <div class="stat-label">Idle Agents</div>
+      </div>
+      <div class="stat-card bids">
+        <div class="stat-value" id="pendingBids">-</div>
+        <div class="stat-label">Pending Bids</div>
+      </div>
+      <div class="stat-card gigs">
+        <div class="stat-value" id="activeGigs">-</div>
+        <div class="stat-label">Active Gigs</div>
+      </div>
+    </div>
+
+    <div class="feed-container">
+      <div class="agent-filter" id="filterBar"></div>
+      <div class="feed-header">
+        <div class="feed-title">
+          ⚡ Activity Stream
+          <span class="feed-count" id="eventCount">0</span>
+        </div>
+        <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+      </div>
+      <div class="feed-list" id="feedList">
+        <div class="empty-state">
+          <div class="empty-icon">⏳</div>
+          <div>Loading activity...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Simulated activity events based on agent data
+    const eventTemplates = [
+      { agent: 'sterling', action: 'placed bid on', tag: 'bid', detail: 'React Developer @ $45/hr' },
+      { agent: 'sterling', action: 'analyzing', tag: 'info', detail: 'Upwork project requirements' },
+      { agent: 'athena', action: 'coordinating', tag: 'task', detail: 'Multi-agent task distribution' },
+      { agent: 'athena', action: 'routing', tag: 'info', detail: 'User request to appropriate agent' },
+      { agent: 'felicity', action: 'building', tag: 'task', detail: 'New dashboard component' },
+      { agent: 'felicity', action: 'optimizing', tag: 'info', detail: 'UI rendering performance' },
+      { agent: 'prometheus', action: 'executing', tag: 'task', detail: 'Automation workflow' },
+      { agent: 'prometheus', action: 'completed', tag: 'success', detail: 'Background job #1247' },
+      { agent: 'themis', action: 'deliberating', tag: 'decision', detail: 'Security policy recommendation' },
+      { agent: 'themis', action: 'evaluating', tag: 'decision', detail: 'Risk assessment for new agent' },
+      { agent: 'beelancer', action: 'scanning', tag: 'info', detail: 'Freelance platforms for gigs' },
+      { agent: 'beelancer', action: 'found', tag: 'bid', detail: '3 new matching opportunities' },
+      { agent: 'ishtar', action: 'researching', tag: 'info', detail: 'PAI architecture patterns' },
+      { agent: 'ishtar', action: 'analyzing', tag: 'info', detail: 'Model performance metrics' },
+      { agent: 'delver', action: 'mining', tag: 'info', detail: 'Knowledge base for insights' },
+      { agent: 'squire', action: 'maintaining', tag: 'task', detail: 'System health check' },
+      { agent: 'cisco', action: 'auditing', tag: 'info', detail: 'Security scan complete' },
+      { agent: 'hermes', action: 'monitoring', tag: 'info', detail: 'Telegram channel activity' },
+    ];
+
+    const agentNames = {
+      athena: '🦉 Athena',
+      sterling: '💰 Sterling',
+      ishtar: '🌙 Ishtar',
+      themis: '⚖️ THEMIS',
+      felicity: '🎨 Felicity',
+      prometheus: '⚡ Prometheus',
+      beelancer: '🐝 Beelancer',
+      delver: '🕵️ Delver',
+      squire: '🤴 Squire',
+      cisco: '🔒 Cisco',
+      hermes: '✉️ Hermes',
+      nexus: '🧠 Nexus',
+      scribe: '📝 Scribe',
+    };
+
+    let currentFilter = 'all';
+    let events = [];
+
+    function generateEvents(agents) {
+      const now = Date.now();
+      const activeAgents = agents.filter(a => a.status === 'active');
+      
+      // Generate 15-25 random events
+      const numEvents = 15 + Math.floor(Math.random() * 10);
+      const generatedEvents = [];
+
+      for (let i = 0; i < numEvents; i++) {
+        const template = eventTemplates[Math.floor(Math.random() * eventTemplates.length)];
+        const agent = activeAgents[Math.floor(Math.random() * activeAgents.length)] || agents[0];
+        const minutesAgo = Math.floor(Math.random() * 60);
+        
+        generatedEvents.push({
+          id: i,
+          agent: agent?.id || 'athena',
+          agentName: agentNames[agent?.id] || '❓ Unknown',
+          action: template.action,
+          detail: template.detail,
+          tag: template.tag,
+          timestamp: new Date(now - minutesAgo * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        });
+      }
+
+      // Sort by time (most recent first)
+      return generatedEvents.sort((a, b) => {
+        const timeA = parseInt(a.timestamp.replace(':', ''));
+        const timeB = parseInt(b.timestamp.replace(':', ''));
+        return timeB - timeA;
+      });
+    }
+
+    function renderFeed(filteredEvents) {
+      const feedList = document.getElementById('feedList');
+      const eventCount = document.getElementById('eventCount');
+      
+      eventCount.textContent = filteredEvents.length;
+
+      if (filteredEvents.length === 0) {
+        feedList.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <div>No events to display</div>
+          </div>
+        `;
+        return;
+      }
+
+      feedList.innerHTML = filteredEvents.map(event => `
+        <div class="event">
+          <div class="event-icon ${event.agent}">${event.agentName.split(' ')[0]}</div>
+          <div class="event-content">
+            <div class="event-header">
+              <span class="event-agent">${event.agentName.split(' ')[1]}</span>
+              <span class="event-action">${event.action}</span>
+              <span class="event-time">${event.timestamp}</span>
+            </div>
+            <div class="event-detail">${event.detail}</div>
+            <span class="event-tag ${event.tag}">${event.tag}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderFilters(agents) {
+      const filterBar = document.getElementById('filterBar');
+      const uniqueAgents = [...new Set(events.map(e => e.agent))];
+      
+      let html = `<button class="filter-btn active" onclick="filterBy('all')">All</button>`;
+      
+      uniqueAgents.forEach(agentId => {
+        const agent = agents.find(a => a.id === agentId);
+        if (agent) {
+          html += `<button class="filter-btn" onclick="filterBy('${agentId}')">${agent.avatar} ${agent.name}</button>`;
+        }
+      });
+      
+      filterBar.innerHTML = html;
+    }
+
+    function filterBy(agentId) {
+      currentFilter = agentId;
+      
+      // Update button states
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.textContent.toLowerCase().includes(agentId) || (agentId === 'all' && btn.textContent === 'All')) {
+          btn.classList.add('active');
+        }
+      });
+
+      const filtered = agentId === 'all' 
+        ? events 
+        : events.filter(e => e.agent === agentId);
+      
+      renderFeed(filtered);
+    }
+
+    async function loadData() {
+      try {
+        const response = await fetch('api/data.json');
+        const data = await response.json();
+        
+        // Update stats
+        const activeAgents = data.agents.filter(a => a.status === 'active');
+        const idleAgents = data.agents.filter(a => a.status === 'idle');
+        
+        document.getElementById('activeCount').textContent = activeAgents.length;
+        document.getElementById('idleCount').textContent = idleAgents.length;
+        document.getElementById('pendingBids').textContent = data.pendingBids || 0;
+        document.getElementById('activeGigs').textContent = data.activeGigs || 0;
+
+        // Generate events
+        events = generateEvents(data.agents);
+        
+        // Initial render
+        renderFilters(data.agents);
+        renderFeed(events);
+
+      } catch (error) {
+        console.error('Failed to load data:', error);
+        document.getElementById('feedList').innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">⚠️</div>
+            <div>Failed to load data</div>
+          </div>
+        `;
+      }
+    }
+
+    // Auto-refresh every 30 seconds
+    loadData();
+    setInterval(loadData, 30000);
+  </script>
+</body>
+</html>

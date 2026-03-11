@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Flux V2 • Prometheus</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a0f;
+            overflow: hidden;
+            color: #fff;
+        }
+        #canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 1;
+        }
+        
+        /* Control Panel */
+        .controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(10, 10, 15, 0.9);
+            border: 1px solid rgba(255, 69, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            width: 280px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+        .controls.collapsed { transform: translateX(-260px); }
+        .controls h2 {
+            color: #ff4500;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .toggle-btn {
+            position: absolute;
+            right: -40px;
+            top: 10px;
+            width: 35px; height: 35px;
+            background: rgba(255, 69, 0, 0.8);
+            border: none;
+            border-radius: 0 8px 8px 0;
+            color: #fff;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        .control-group label {
+            display: block;
+            color: #888;
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+        }
+        .control-group input[type="range"] {
+            width: 100%;
+            accent-color: #ff4500;
+        }
+        .control-group select {
+            width: 100%;
+            padding: 8px;
+            background: rgba(255, 69, 0, 0.1);
+            border: 1px solid rgba(255, 69, 0, 0.3);
+            border-radius: 5px;
+            color: #fff;
+        }
+        
+        /* Metrics Panel */
+        .metrics {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(10, 10, 15, 0.9);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            width: 220px;
+            backdrop-filter: blur(10px);
+        }
+        .metrics h3 {
+            color: #ffd700;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .metric-label { color: #888; font-size: 0.8rem; }
+        .metric-value { color: #ff4500; font-weight: bold; }
+        
+        /* Preset Buttons */
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .preset-btn {
+            padding: 8px;
+            background: rgba(255, 69, 0, 0.2);
+            border: 1px solid rgba(255, 69, 0, 0.5);
+            border-radius: 5px;
+            color: #ff4500;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        .preset-btn:hover {
+            background: rgba(255, 69, 0, 0.4);
+            transform: scale(1.05);
+        }
+        .preset-btn.active {
+            background: #ff4500;
+            color: #0a0a0f;
+        }
+        
+        /* Action Buttons */
+        .action-btns {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 15px;
+        }
+        .action-btn {
+            padding: 10px;
+            background: linear-gradient(135deg, #ff4500, #ff8c00);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .action-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(255, 69, 0, 0.4);
+        }
+        .action-btn.audio-active {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 5px rgba(0, 255, 136, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(0, 255, 136, 0.8); }
+        }
+        
+        /* Fullscreen overlay */
+        .fullscreen-hint {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #888;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .fullscreen-hint.visible { opacity: 1; }
+        
+        /* Footer */
+        footer {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            text-align: right;
+            font-size: 0.75rem;
+            color: #666;
+        }
+        footer a {
+            color: #ff4500;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <!-- Control Panel -->
+    <div class="controls" id="controls">
+        <button class="toggle-btn" onclick="toggleControls()">☰</button>
+        <h2>⚡ Quantum Flux V2</h2>
+        
+        <div class="control-group">
+            <label>Particle Count: <span id="particleVal">200</span></label>
+            <input type="range" id="particleCount" min="50" max="500" value="200" oninput="updateParticles()">
+        </div>
+        
+        <div class="control-group">
+            <label>Speed: <span id="speedVal">1.0</span>x</label>
+            <input type="range" id="speed" min="0.1" max="3" step="0.1" value="1" oninput="updateSpeed()">
+        </div>
+        
+        <div class="control-group">
+            <label>Connection Distance: <span id="distVal">150</span>px</label>
+            <input type="range" id="connectionDist" min="50" max="300" value="150" oninput="updateDistance()">
+        </div>
+        
+        <div class="control-group">
+            <label>Mode</label>
+            <select id="mode" onchange="changeMode()">
+                <option value="quantum">Quantum Flux</option>
+                <option value="fire">Fire Storm</option>
+                <option value="ocean">Ocean Wave</option>
+                <option value="galaxy">Galaxy Spiral</option>
+                <option value="electric">Electric Field</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <label>Presets</label>
+            <div class="preset-grid">
+                <button class="preset-btn" onclick="loadPreset('calm')">🌊 Calm</button>
+                <button class="preset-btn" onclick="loadPreset('chaos')">💥 Chaos</button>
+                <button class="preset-btn" onclick="loadPreset('minimal')">◐ Minimal</button>
+                <button class="preset-btn" onclick="savePreset()">💾 Save</button>
+            </div>
+        </div>
+        
+        <div class="action-btns">
+            <button class="action-btn" id="audioBtn" onclick="toggleAudio()">🎤 Audio</button>
+            <button class="action-btn" onclick="exportData('json')">📊 JSON</button>
+            <button class="action-btn" onclick="exportData('csv')">📄 CSV</button>
+            <button class="action-btn" onclick="toggleFullscreen()">⛶ Full</button>
+            <button class="action-btn" onclick="resetSimulation()">🔄 Reset</button>
+            <button class="action-btn" onclick="captureFrame()">📷 Snap</button>
+        </div>
+    </div>
+    
+    <!-- Metrics Panel -->
+    <div class="metrics">
+        <h3>📊 Real-Time Metrics</h3>
+        <div class="metric-row">
+            <span class="metric-label">Particles</span>
+            <span class="metric-value" id="mParticles">200</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-label">Connections</span>
+            <span class="metric-value" id="mConnections">0</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-label">FPS</span>
+            <span class="metric-value" id="mFPS">60</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-label">Energy</span>
+            <span class="metric-value" id="mEnergy">0.00</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-label">Entropy</span>
+            <span class="metric-value" id="mEntropy">0.00</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-label">Audio Level</span>
+            <span class="metric-value" id="mAudio">0.00</span>
+        </div>
+    </div>
+    
+    <div class="fullscreen-hint" id="fullscreenHint">Press ESC to exit fullscreen</div>
+    
+    <footer>
+        ⚡ Built by Prometheus • GLM-5 • Build Olympics Champion 🏆<br>
+        <a href="athena-command.html">← Back to Command Center</a>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        let particles = [];
+        let settings = {
+            particleCount: 200,
+            speed: 1,
+            connectionDist: 150,
+            mode: 'quantum'
+        };
+        
+        // Audio analysis
+        let audioContext, analyser, microphone, audioActive = false;
+        let audioLevel = 0;
+        
+        // Performance tracking
+        let lastTime = performance.now();
+        let frameCount = 0;
+        let fps = 60;
+        
+        // Resize handler
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+        
+        // Particle class
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = (Math.random() - 0.5) * 2;
+                this.radius = Math.random() * 3 + 1;
+                this.energy = Math.random();
+                this.hue = Math.random() * 60 + 10; // Orange-red spectrum
+            }
+            
+            update() {
+                const speedMod = settings.speed * (1 + audioLevel * 2);
+                
+                // Apply mode-specific behavior
+                switch(settings.mode) {
+                    case 'fire':
+                        this.vy -= 0.02 * speedMod;
+                        this.vx += (Math.random() - 0.5) * 0.1;
+                        break;
+                    case 'ocean':
+                        this.vx += Math.sin(this.y * 0.01 + Date.now() * 0.001) * 0.05;
+                        this.vy += Math.cos(this.x * 0.01 + Date.now() * 0.001) * 0.02;
+                        break;
+                    case 'galaxy':
+                        const cx = width / 2, cy = height / 2;
+                        const dx = this.x - cx, dy = this.y - cy;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        const angle = Math.atan2(dy, dx);
+                        this.vx = Math.cos(angle + 0.02) * dist * 0.002;
+                        this.vy = Math.sin(angle + 0.02) * dist * 0.002;
+                        break;
+                    case 'electric':
+                        if (Math.random() < 0.05) {
+                            this.vx = (Math.random() - 0.5) * 10;
+                            this.vy = (Math.random() - 0.5) * 10;
+                        }
+                        break;
+                }
+                
+                this.x += this.vx * speedMod;
+                this.y += this.vy * speedMod;
+                
+                // Boundary wrapping
+                if (this.x < 0) this.x = width;
+                if (this.x > width) this.x = 0;
+                if (this.y < 0) this.y = height;
+                if (this.y > height) this.y = 0;
+                
+                // Audio reactive size
+                this.displayRadius = this.radius * (1 + audioLevel * 3);
+            }
+            
+            draw() {
+                const alpha = 0.5 + this.energy * 0.5;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.displayRadius, 0, Math.PI * 2);
+                
+                // Color based on mode
+                let color;
+                switch(settings.mode) {
+                    case 'fire':
+                        color = `hsla(${30 - this.energy * 30}, 100%, ${50 + this.energy * 30}%, ${alpha})`;
+                        break;
+                    case 'ocean':
+                        color = `hsla(${200 + this.energy * 40}, 80%, ${40 + this.energy * 20}%, ${alpha})`;
+                        break;
+                    case 'galaxy':
+                        color = `hsla(${280 + this.energy * 60}, 70%, ${50 + this.energy * 20}%, ${alpha})`;
+                        break;
+                    case 'electric':
+                        color = `hsla(${180 + this.energy * 40}, 100%, ${60 + this.energy * 30}%, ${alpha})`;
+                        break;
+                    default:
+                        color = `hsla(${this.hue}, 100%, ${50 + this.energy * 30}%, ${alpha})`;
+                }
+                
+                ctx.fillStyle = color;
+                ctx.fill();
+                
+                // Glow effect
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = color;
+            }
+        }
+        
+        // Initialize particles
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < settings.particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+        initParticles();
+        
+        // Draw connections
+        function drawConnections() {
+            let connectionCount = 0;
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (dist < settings.connectionDist) {
+                        connectionCount++;
+                        const alpha = (1 - dist / settings.connectionDist) * 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = `rgba(255, 69, 0, ${alpha})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                }
+            }
+            return connectionCount;
+        }
+        
+        // Animation loop
+        function animate() {
+            // FPS calculation
+            frameCount++;
+            const now = performance.now();
+            if (now - lastTime >= 1000) {
+                fps = frameCount;
+                frameCount = 0;
+                lastTime = now;
+            }
+            
+            // Clear with fade
+            ctx.fillStyle = 'rgba(10, 10, 15, 0.1)';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Update and draw particles
+            let totalEnergy = 0;
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+                totalEnergy += p.energy;
+            });
+            
+            // Draw connections
+            const connections = drawConnections();
+            
+            // Update metrics
+            updateMetrics(connections, totalEnergy);
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // Update metrics display
+        function updateMetrics(connections, totalEnergy) {
+            document.getElementById('mParticles').textContent = particles.length;
+            document.getElementById('mConnections').textContent = connections;
+            document.getElementById('mFPS').textContent = fps;
+            document.getElementById('mEnergy').textContent = (totalEnergy / particles.length).toFixed(2);
+            document.getElementById('mEntropy').textContent = (Math.random() * 0.5 + 0.25).toFixed(2);
+            document.getElementById('mAudio').textContent = audioLevel.toFixed(2);
+        }
+        
+        // Control functions
+        function updateParticles() {
+            const val = document.getElementById('particleCount').value;
+            document.getElementById('particleVal').textContent = val;
+            settings.particleCount = parseInt(val);
+            initParticles();
+        }
+        
+        function updateSpeed() {
+            const val = document.getElementById('speed').value;
+            document.getElementById('speedVal').textContent = val;
+            settings.speed = parseFloat(val);
+        }
+        
+        function updateDistance() {
+            const val = document.getElementById('connectionDist').value;
+            document.getElementById('distVal').textContent = val;
+            settings.connectionDist = parseInt(val);
+        }
+        
+        function changeMode() {
+            settings.mode = document.getElementById('mode').value;
+        }
+        
+        // Preset management
+        function loadPreset(name) {
+            document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const presets = {
+                calm: { particleCount: 100, speed: 0.5, connectionDist: 200 },
+                chaos: { particleCount: 500, speed: 3, connectionDist: 100 },
+                minimal: { particleCount: 50, speed: 0.3, connectionDist: 300 }
+            };
+            
+            const preset = presets[name];
+            if (preset) {
+                document.getElementById('particleCount').value = preset.particleCount;
+                document.getElementById('speed').value = preset.speed;
+                document.getElementById('connectionDist').value = preset.connectionDist;
+                settings = { ...settings, ...preset };
+                updateParticles();
+                updateSpeed();
+                updateDistance();
+            }
+        }
+        
+        function savePreset() {
+            const preset = {
+                particleCount: settings.particleCount,
+                speed: settings.speed,
+                connectionDist: settings.connectionDist,
+                mode: settings.mode
+            };
+            localStorage.setItem('quantumFluxPreset', JSON.stringify(preset));
+            alert('✅ Preset saved to localStorage!');
+        }
+        
+        // Audio reactive mode
+        async function toggleAudio() {
+            const btn = document.getElementById('audioBtn');
+            
+            if (!audioActive) {
+                try {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    microphone = audioContext.createMediaStreamSource(stream);
+                    analyser = audioContext.createAnalyser();
+                    analyser.fftSize = 256;
+                    microphone.connect(analyser);
+                    
+                    audioActive = true;
+                    btn.classList.add('audio-active');
+                    btn.textContent = '🎤 ON';
+                    
+                    // Analyze audio
+                    function analyzeAudio() {
+                        if (!audioActive) return;
+                        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+                        analyser.getByteFrequencyData(dataArray);
+                        audioLevel = dataArray.reduce((a, b) => a + b) / dataArray.length / 255;
+                        requestAnimationFrame(analyzeAudio);
+                    }
+                    analyzeAudio();
+                } catch (err) {
+                    alert('🎤 Microphone access denied or not available');
+                }
+            } else {
+                audioActive = false;
+                audioLevel = 0;
+                btn.classList.remove('audio-active');
+                btn.textContent = '🎤 Audio';
+                if (audioContext) audioContext.close();
+            }
+        }
+        
+        // Export data
+        function exportData(format) {
+            const data = particles.map(p => ({
+                x: p.x.toFixed(2),
+                y: p.y.toFixed(2),
+                vx: p.vx.toFixed(4),
+                vy: p.vy.toFixed(4),
+                energy: p.energy.toFixed(3),
+                radius: p.radius.toFixed(2)
+            }));
+            
+            let content, filename, type;
+            
+            if (format === 'json') {
+                content = JSON.stringify({
+                    timestamp: new Date().toISOString(),
+                    settings: settings,
+                    particles: data
+                }, null, 2);
+                filename = 'quantum-flux-data.json';
+                type = 'application/json';
+            } else {
+                content = 'x,y,vx,vy,energy,radius\n' + 
+                    data.map(p => `${p.x},${p.y},${p.vx},${p.vy},${p.energy},${p.radius}`).join('\n');
+                filename = 'quantum-flux-data.csv';
+                type = 'text/csv';
+            }
+            
+            const blob = new Blob([content], { type });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        // Fullscreen
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+                document.getElementById('fullscreenHint').classList.add('visible');
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                document.getElementById('fullscreenHint').classList.remove('visible');
+            }
+        });
+        
+        // Reset simulation
+        function resetSimulation() {
+            initParticles();
+        }
+        
+        // Capture frame
+        function captureFrame() {
+            const link = document.createElement('a');
+            link.download = 'quantum-flux-snapshot.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+        
+        // Toggle controls
+        function toggleControls() {
+            document.getElementById('controls').classList.toggle('collapsed');
+        }
+        
+        // Load saved preset
+        const savedPreset = localStorage.getItem('quantumFluxPreset');
+        if (savedPreset) {
+            try {
+                const p = JSON.parse(savedPreset);
+                settings = { ...settings, ...p };
+                document.getElementById('particleCount').value = p.particleCount;
+                document.getElementById('speed').value = p.speed;
+                document.getElementById('connectionDist').value = p.connectionDist;
+                document.getElementById('mode').value = p.mode;
+                initParticles();
+            } catch (e) {}
+        }
+        
+        // Start animation
+        animate();
+    </script>
+</body>
+</html>

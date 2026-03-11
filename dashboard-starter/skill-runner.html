@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Athena | Skill Runner</title>
+  <style>
+    :root {
+      --bg: #0c0f1a;
+      --surface: #111827;
+      --elevated: #1f2937;
+      --border: #374151;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --green: #10b981;
+      --yellow: #f59e0b;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --purple: #8b5cf6;
+      --cyan: #06b6d4;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 1.5rem;
+      min-height: 100vh;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .title svg { width: 24px; height: 24px; }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      width: 280px;
+    }
+
+    .search-box input {
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 0.875rem;
+      outline: none;
+      width: 100%;
+    }
+
+    .search-box input::placeholder { color: var(--muted); }
+
+    .filters {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 0.375rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 9999px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--elevated);
+      color: var(--text);
+      border-color: var(--blue);
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+      text-align: center;
+    }
+
+    .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--blue); }
+    .stat-label { font-size: 0.625rem; color: var(--muted); text-transform: uppercase; margin-top: 0.25rem; }
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .skill-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .skill-card:hover {
+      border-color: var(--blue);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .skill-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .skill-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--elevated);
+      border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .skill-name {
+      font-weight: 600;
+      font-size: 0.9375rem;
+    }
+
+    .skill-desc {
+      font-size: 0.8125rem;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+      line-height: 1.4;
+    }
+
+    .skill-meta {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .skill-tag {
+      font-size: 0.625rem;
+      padding: 0.125rem 0.5rem;
+      border-radius: 9999px;
+      background: var(--elevated);
+      color: var(--muted);
+    }
+
+    .skill-tag.automation { background: rgba(16, 185, 129, 0.2); color: var(--green); }
+    .skill-tag.agent { background: rgba(139, 92, 246, 0.2); color: var(--purple); }
+    .skill-tag.security { background: rgba(239, 68, 68, 0.2); color: var(--red); }
+    .skill-tag.monitoring { background: rgba(6, 182, 212, 0.2); color: var(--cyan); }
+
+    .run-btn {
+      width: 100%;
+      margin-top: 0.75rem;
+      padding: 0.5rem;
+      background: var(--blue);
+      border: none;
+      border-radius: 0.375rem;
+      color: white;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .run-btn:hover { background: #2563eb; }
+    .run-btn:disabled { background: var(--border); cursor: not-allowed; }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .panel-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .log-list {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .log-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8125rem;
+    }
+
+    .log-item:last-child { border-bottom: none; }
+
+    .log-time { color: var(--muted); font-size: 0.6875rem; min-width: 60px; }
+    .log-skill { color: var(--purple); font-weight: 500; }
+    .log-status { 
+      padding: 0.125rem 0.375rem;
+      border-radius: 0.25rem;
+      font-size: 0.625rem;
+      font-weight: 600;
+    }
+    .log-status.running { background: rgba(59, 130, 246, 0.2); color: var(--blue); }
+    .log-status.success { background: rgba(16, 185, 129, 0.2); color: var(--green); }
+    .log-status.error { background: rgba(239, 68, 68, 0.2); color: var(--red); }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: var(--muted);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 0.75rem 1rem;
+      font-size: 0.8125rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 1000;
+    }
+
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { border-left: 3px solid var(--green); }
+    .toast.error { border-left: 3px solid var(--red); }
+    .toast.info { border-left: 3px solid var(--blue); }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .running { animation: pulse 1.5s ease-in-out infinite; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      Skill Runner
+    </div>
+    <div class="search-box">
+      <span>🔍</span>
+      <input type="text" id="search" placeholder="Search skills..." oninput="filterSkills()">
+    </div>
+  </div>
+
+  <div class="filters">
+    <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">All (28)</button>
+    <button class="filter-btn" data-filter="automation" onclick="setFilter('automation')">🤖 Automation</button>
+    <button class="filter-btn" data-filter="agent" onclick="setFilter('agent')">🛠️ Agent</button>
+    <button class="filter-btn" data-filter="security" onclick="setFilter('security')">🔒 Security</button>
+    <button class="filter-btn" data-filter="monitoring" onclick="setFilter('monitoring')">📊 Monitoring</button>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-value" id="total-skills">28</div>
+      <div class="stat-label">Total Skills</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="running-skills">0</div>
+      <div class="stat-label">Running</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="completed-runs">0</div>
+      <div class="stat-label">Completed Today</div>
+    </div>
+  </div>
+
+  <div class="skills-grid" id="skills-grid">
+    <div class="empty-state">Loading skills...</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">📜 Recent Runs</div>
+    <div class="log-list" id="log-list">
+      <div class="log-item" style="color: var(--muted);">No recent runs</div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const SKILLS_PATH = '/root/.openclaw/workspace/skills/';
+    
+    const skillData = [
+      { name: 'beelancer-bidder', desc: 'Auto-bid on Beelancer gigs', category: 'automation', icon: '🐝' },
+      { name: 'beelancer-bid-monitor', desc: 'Monitor active bids and outcomes', category: 'monitoring', icon: '📊' },
+      { name: 'beelancer-manager', desc: 'Manage Beelancer account and settings', category: 'automation', icon: '⚙️' },
+      { name: 'daily-backup', desc: 'Automated daily workspace backup', category: 'automation', icon: '💾' },
+      { name: 'auto-backup-30min', desc: '30-minute interval backups', category: 'automation', icon: '⏰' },
+      { name: 'automation-workflows', desc: 'Design automation workflows', category: 'automation', icon: '🔄' },
+      { name: 'automation-recipes', desc: 'Pre-built automation recipes', category: 'automation', icon: '📋' },
+      { name: 'agent-team-orchestration', desc: 'Orchestrate multi-agent teams', category: 'agent', icon: '🎭' },
+      { name: 'build-agent-dashboard', desc: 'Build agent dashboard UI', category: 'agent', icon: '🎨' },
+      { name: 'onboard-micro-agent', desc: 'Onboard new micro-agents', category: 'agent', icon: '🆕' },
+      { name: 'system-sync', desc: 'Sync system state and config', category: 'agent', icon: '🔃' },
+      { name: 'dashboard-improve', desc: 'Improve existing dashboards', category: 'agent', icon: '📈' },
+      { name: 'felicity-handoff', desc: 'Handoff to Felicity for UI work', category: 'agent', icon: '🤝' },
+      { name: 'shannon', desc: 'AI Pentester - security testing', category: 'security', icon: '🛡️' },
+      { name: 'katie', desc: 'Cybersecurity AI agent', category: 'security', icon: '🔐' },
+      { name: 'chiron', desc: 'QA Testing agent', category: 'agent', icon: '✅' },
+      { name: 'analytics-tracker', desc: 'Track analytics and metrics', category: 'monitoring', icon: '📈' },
+      { name: 'apollo', desc: 'Prospecting and lead generation', category: 'automation', icon: '🎯' },
+      { name: 'hermes', desc: 'Communications and notifications', category: 'agent', icon: '✉️' },
+      { name: 'kratos-crypto', desc: 'Crypto/DeFi operations', category: 'automation', icon: '₿' },
+      { name: 'whisper-groq', desc: 'Whisper transcription via Groq', category: 'agent', icon: '🎤' },
+      { name: 'kitten-tts', desc: 'Text-to-speech via Kittn', category: 'agent', icon: '🔊' },
+      { name: 'mnemosyne', desc: 'Memory and knowledge management', category: 'agent', icon: '🧠' },
+      { name: 'iris', desc: 'Vision and image processing', category: 'agent', icon: '👁️' },
+      { name: 'last30days', desc: 'Research topics - last 30 days', category: 'monitoring', icon: '📅' },
+      { name: 'browser-agent', desc: 'Browser automation agent', category: 'agent', icon: '🌐' },
+    ];
+
+    let currentFilter = 'all';
+    let executionLog = [];
+    let runningCount = 0;
+
+    function renderSkills() {
+      const grid = document.getElementById('skills-grid');
+      const search = document.getElementById('search').value.toLowerCase();
+      
+      let filtered = skillData.filter(s => {
+        const matchesFilter = currentFilter === 'all' || s.category === currentFilter;
+        const matchesSearch = s.name.toLowerCase().includes(search) || s.desc.toLowerCase().includes(search);
+        return matchesFilter && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '<div class="empty-state">No skills found matching your criteria</div>';
+        return;
+      }
+
+      grid.innerHTML = filtered.map(s => `
+        <div class="skill-card" onclick="runSkill('${s.name}')">
+          <div class="skill-header">
+            <div class="skill-icon">${s.icon}</div>
+            <div class="skill-name">${s.name}</div>
+          </div>
+          <div class="skill-desc">${s.desc}</div>
+          <div class="skill-meta">
+            <span class="skill-tag ${s.category}">${s.category}</span>
+          </div>
+          <button class="run-btn" id="btn-${s.name}">▶ Run Skill</button>
+        </div>
+      `).join('');
+    }
+
+    function filterSkills() {
+      renderSkills();
+    }
+
+    function setFilter(filter) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.filter === filter);
+      });
+      renderSkills();
+    }
+
+    async function runSkill(skillName) {
+      const btn = document.getElementById(`btn-${skillName}`);
+      if (!btn) return;
+      
+      btn.disabled = true;
+      btn.textContent = '⏳ Running...';
+      btn.classList.add('running');
+      
+      runningCount++;
+      document.getElementById('running-skills').textContent = runningCount;
+
+      const logId = Date.now();
+      addLog(logId, skillName, 'running', 'Starting...');
+
+      showToast(`Running skill: ${skillName}`, 'info');
+
+      // Simulate skill execution (in real scenario, this would call the skill)
+      setTimeout(() => {
+        const success = Math.random() > 0.1; // 90% success rate simulation
+        runningCount--;
+        document.getElementById('running-skills').textContent = runningCount;
+        
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = '▶ Run Skill';
+          btn.classList.remove('running');
+        }
+
+        if (success) {
+          updateLog(logId, 'success', 'Completed successfully');
+          document.getElementById('completed-runs').textContent = 
+            parseInt(document.getElementById('completed-runs').textContent) + 1;
+          showToast(`Skill ${skillName} completed!`, 'success');
+        } else {
+          updateLog(logId, 'error', 'Failed - check logs');
+          showToast(`Skill ${skillName} failed`, 'error');
+        }
+      }, 2000 + Math.random() * 3000);
+    }
+
+    function addLog(id, skill, status, msg) {
+      const log = { id, skill, status, msg, time: new Date() };
+      executionLog.unshift(log);
+      if (executionLog.length > 20) executionLog.pop();
+      renderLog();
+    }
+
+    function updateLog(id, status, msg) {
+      const log = executionLog.find(l => l.id === id);
+      if (log) {
+        log.status = status;
+        log.msg = msg;
+      }
+      renderLog();
+    }
+
+    function renderLog() {
+      const list = document.getElementById('log-list');
+      if (executionLog.length === 0) {
+        list.innerHTML = '<div class="log-item" style="color: var(--muted);">No recent runs</div>';
+        return;
+      }
+
+      list.innerHTML = executionLog.map(l => `
+        <div class="log-item">
+          <span class="log-time">${l.time.toLocaleTimeString()}</span>
+          <span class="log-skill">${l.skill}</span>
+          <span class="log-status ${l.status}">${l.status}</span>
+          <span style="color: var(--muted);">${l.msg}</span>
+        </div>
+      `).join('');
+    }
+
+    function showToast(msg, type = 'info') {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.className = 'toast ' + type;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // Initialize
+    renderSkills();
+  </script>
+</body>
+</html>

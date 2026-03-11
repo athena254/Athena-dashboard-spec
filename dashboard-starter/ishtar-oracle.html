@@ -1,0 +1,754 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ishtar Oracle • Mission Control</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0b0f17;
+        --panel: #121826;
+        --panel-2: #0f141f;
+        --border: #1e2533;
+        --text: #e5e7eb;
+        --muted: #9ca3af;
+        --accent: #7c3aed;
+        --accent-2: #22d3ee;
+        --success: #22c55e;
+        --warn: #f59e0b;
+        --danger: #ef4444;
+      }
+
+      * {
+        box-sizing: border-box;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      .app {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        background: var(--panel-2);
+        border-right: 1px solid var(--border);
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .brand {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .logo {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+      }
+
+      .brand-title {
+        font-size: 18px;
+        font-weight: 800;
+      }
+
+      .brand-sub {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .nav {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .nav-item {
+        background: transparent;
+        border: 1px solid transparent;
+        color: var(--text);
+        text-align: left;
+        padding: 10px 12px;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+
+      .nav-item.active {
+        background: rgba(124, 58, 237, 0.15);
+        border-color: rgba(124, 58, 237, 0.4);
+      }
+
+      .sidebar-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 16px;
+      }
+
+      .card-title {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+
+      .card-value {
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .card-meta {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 6px;
+      }
+
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .pill {
+        background: rgba(34, 211, 238, 0.1);
+        border: 1px solid rgba(34, 211, 238, 0.3);
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+      }
+
+      .main {
+        padding: 32px;
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+      }
+
+      .eyebrow {
+        font-size: 12px;
+        color: var(--muted);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 6px 0 0;
+        font-size: 28px;
+      }
+
+      .btn {
+        padding: 10px 16px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        cursor: pointer;
+        background: var(--panel);
+        color: var(--text);
+      }
+
+      .btn.primary {
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        border: none;
+        color: #0b0f17;
+        font-weight: 600;
+      }
+
+      .btn.ghost {
+        background: transparent;
+      }
+
+      .grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .metrics {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        margin-bottom: 24px;
+      }
+
+      .metric-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 16px;
+      }
+
+      .metric-label {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .metric-value {
+        font-size: 18px;
+        font-weight: 700;
+        margin: 8px 0;
+      }
+
+      .metric-foot {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .two-col {
+        grid-template-columns: 2fr 1fr;
+        margin-bottom: 24px;
+      }
+
+      .three-col {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 18px;
+      }
+
+      .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+
+      .panel-tag {
+        padding: 4px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .panel-tag.success {
+        border-color: rgba(34, 197, 94, 0.4);
+        color: var(--success);
+      }
+
+      .timeline {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .timeline-item {
+        display: grid;
+        grid-template-columns: 12px 1fr auto;
+        gap: 12px;
+        align-items: start;
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        background: var(--accent-2);
+        border-radius: 50%;
+        margin-top: 6px;
+      }
+
+      .item-title {
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .item-meta,
+      .item-time {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .health-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .health-card {
+        background: rgba(15, 23, 42, 0.7);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px;
+      }
+
+      .health-label {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .health-value {
+        font-weight: 600;
+        margin-top: 6px;
+      }
+
+      .progress-label {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+
+      .progress-bar {
+        height: 8px;
+        background: #0b1220;
+        border-radius: 999px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      }
+
+      .progress-meta {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 8px;
+      }
+
+      .task-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .task-list li {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+      }
+
+      .badge {
+        background: rgba(124, 58, 237, 0.2);
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+      }
+
+      .signal {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .signal-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+      }
+
+      .signal-label {
+        color: var(--muted);
+      }
+
+      .notes p {
+        margin: 0 0 12px;
+        color: var(--muted);
+      }
+
+      .list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .list-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 10px;
+      }
+
+      .list-item:last-child {
+        border-bottom: none;
+      }
+
+      .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+      }
+
+      .status-dot.ok {
+        background: var(--success);
+      }
+
+      .status-dot.warn {
+        background: var(--warn);
+      }
+
+      .status-dot.fail {
+        background: var(--danger);
+      }
+
+      @media (max-width: 1100px) {
+        .app {
+          grid-template-columns: 1fr;
+        }
+        .sidebar {
+          flex-direction: row;
+          flex-wrap: wrap;
+          gap: 16px;
+        }
+        .metrics {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .two-col,
+        .three-col {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 700px) {
+        .topbar {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 12px;
+        }
+        .metrics {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="logo">I</div>
+          <div>
+            <div class="brand-title">Ishtar</div>
+            <div class="brand-sub">Oracle Mission Control</div>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <button class="nav-item active">Overview</button>
+          <button class="nav-item">Research</button>
+          <button class="nav-item">Systems</button>
+          <button class="nav-item">Tasks</button>
+          <button class="nav-item">Logs</button>
+        </nav>
+
+        <div class="sidebar-card">
+          <div class="card-title">Focus</div>
+          <div class="card-value">PAI v3.0 Integration</div>
+          <div class="card-meta">Status: Active · Mode: Autonomous</div>
+        </div>
+
+        <div class="sidebar-card">
+          <div class="card-title">Quick Actions</div>
+          <div class="pill-row">
+            <span class="pill">Snapshot</span>
+            <span class="pill">Report</span>
+            <span class="pill">Deploy</span>
+          </div>
+        </div>
+
+        <div class="sidebar-card">
+          <div class="card-title">Professional Standards</div>
+          <div class="card-value">Production‑ready, audit‑safe</div>
+          <div class="card-meta">Clean UI · Clear telemetry · Minimal noise</div>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <div class="eyebrow">Ishtar Mission Control</div>
+            <h1>Oracle Overview</h1>
+          </div>
+          <div class="top-actions">
+            <button class="btn ghost">Sync</button>
+            <button class="btn primary">New Report</button>
+          </div>
+        </header>
+
+        <section class="grid metrics">
+          <div class="metric-card">
+            <div class="metric-label">Active Focus</div>
+            <div class="metric-value">PAI v3.0 Study</div>
+            <div class="metric-foot">Last update: <span id="lastUpdate">—</span></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Dash Status</div>
+            <div class="metric-value">Stable</div>
+            <div class="metric-foot">No errors in last cycle</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Next Milestone</div>
+            <div class="metric-value">Hooks → Tools</div>
+            <div class="metric-foot">ETA: 2 milestones</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Signal</div>
+            <div class="metric-value">High</div>
+            <div class="metric-foot">Heartbeat: On</div>
+          </div>
+        </section>
+
+        <section class="grid two-col">
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Live Timeline</h2>
+              <span class="panel-tag">Today</span>
+            </div>
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="dot"></div>
+                <div>
+                  <div class="item-title">PAI hook system reviewed</div>
+                  <div class="item-meta">SecurityValidator · AlgorithmTracker · WorkCompletionLearning</div>
+                </div>
+                <div class="item-time">Just now</div>
+              </div>
+              <div class="timeline-item">
+                <div class="dot"></div>
+                <div>
+                  <div class="item-title">Core algorithm loaded</div>
+                  <div class="item-meta">7‑phase flow, ISC gates, verification rehearsal</div>
+                </div>
+                <div class="item-time">Earlier</div>
+              </div>
+              <div class="timeline-item">
+                <div class="dot"></div>
+                <div>
+                  <div class="item-title">PAI mirror synced</div>
+                  <div class="item-meta">external/PAI (586MB)</div>
+                </div>
+                <div class="item-time">Earlier</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h2>System Health</h2>
+              <span class="panel-tag success">Green</span>
+            </div>
+            <div class="health-grid">
+              <div class="health-card">
+                <div class="health-label">Memory</div>
+                <div class="health-value">Stable</div>
+              </div>
+              <div class="health-card">
+                <div class="health-label">Autonomy</div>
+                <div class="health-value">Enabled</div>
+              </div>
+              <div class="health-card">
+                <div class="health-label">Security</div>
+                <div class="health-value">Guarded</div>
+              </div>
+              <div class="health-card">
+                <div class="health-label">Comms</div>
+                <div class="health-value">Online</div>
+              </div>
+            </div>
+            <div class="progress">
+              <div class="progress-label">PAI Integration Progress</div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 34%"></div>
+              </div>
+              <div class="progress-meta">34% complete · Hooks in review</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="grid three-col">
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Tasks</h2>
+              <span class="panel-tag">4 Active</span>
+            </div>
+            <ul class="task-list">
+              <li><span>Complete v3.0 hooks review</span><span class="badge">In Progress</span></li>
+              <li><span>Map PAI tools to Ishtar workflow</span><span class="badge">Queued</span></li>
+              <li><span>Draft mission control spec</span><span class="badge">Queued</span></li>
+              <li><span>Prepare Athena handoff</span><span class="badge">Queued</span></li>
+            </ul>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Signals</h2>
+              <span class="panel-tag">Live</span>
+            </div>
+            <div class="signal">
+              <div class="signal-row">
+                <div class="signal-label">Last Report</div>
+                <div class="signal-value" id="reportStamp">—</div>
+              </div>
+              <div class="signal-row">
+                <div class="signal-label">Next Update</div>
+                <div class="signal-value">30 min cadence</div>
+              </div>
+              <div class="signal-row">
+                <div class="signal-label">Mode</div>
+                <div class="signal-value">Autonomous</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Notes</h2>
+              <span class="panel-tag">Pinned</span>
+            </div>
+            <div class="notes">
+              <p>Oracle cockpit built for Ishtar only. Clean, minimal, actionable.</p>
+              <p>Use this page for quick status + research focus at a glance.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="grid two-col">
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Research Pipeline</h2>
+              <span class="panel-tag">Active</span>
+            </div>
+            <div class="list">
+              <div class="list-item">
+                <div><span class="status-dot ok"></span>PAI Hooks Review</div>
+                <div class="item-time">In progress</div>
+              </div>
+              <div class="list-item">
+                <div><span class="status-dot warn"></span>TELOS Integration Map</div>
+                <div class="item-time">Queued</div>
+              </div>
+              <div class="list-item">
+                <div><span class="status-dot ok"></span>Orchestration Rules Engine</div>
+                <div class="item-time">Drafting</div>
+              </div>
+              <div class="list-item">
+                <div><span class="status-dot warn"></span>Memory System Audit</div>
+                <div class="item-time">Planned</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Compliance Checklist</h2>
+              <span class="panel-tag success">Ready</span>
+            </div>
+            <div class="list">
+              <div class="list-item">
+                <div><span class="status-dot ok"></span>Constraint extraction</div>
+                <div class="item-time">Done</div>
+              </div>
+              <div class="list-item">
+                <div><span class="status-dot ok"></span>Self‑interrogation</div>
+                <div class="item-time">Done</div>
+              </div>
+              <div class="list-item">
+                <div><span class="status-dot ok"></span>Drift prevention scan</div>
+                <div class="item-time">Done</div>
+              </div>
+              <div class="list-item">
+                <div><span class="status-dot ok"></span>Verification rehearsal</div>
+                <div class="item-time">Done</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="grid three-col">
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Artifacts</h2>
+              <span class="panel-tag">Latest</span>
+            </div>
+            <div class="list">
+              <div class="list-item">
+                <div>ishtar-research-log.md</div>
+                <div class="item-time">Updated</div>
+              </div>
+              <div class="list-item">
+                <div>orchestration-implementation-guide.md</div>
+                <div class="item-time">Updated</div>
+              </div>
+              <div class="list-item">
+                <div>PAI Operating Spec</div>
+                <div class="item-time">Active</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Open Risks</h2>
+              <span class="panel-tag">Monitor</span>
+            </div>
+            <div class="list">
+              <div class="list-item">
+                <div><span class="status-dot warn"></span>TELOS hook gap</div>
+                <div class="item-time">Needs mapping</div>
+              </div>
+              <div class="list-item">
+                <div><span class="status-dot warn"></span>Agent‑to‑agent allowlist</div>
+                <div class="item-time">Awaiting config</div>
+              </div>
+              <div class="list-item">
+                <div><span class="status-dot ok"></span>Model routing stability</div>
+                <div class="item-time">Stable</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h2>System Hooks</h2>
+              <span class="panel-tag">Active</span>
+            </div>
+            <div class="list">
+              <div class="list-item">
+                <div><span class="status-dot ok"></span>SecurityValidator</div>
+                <div class="item-time">Running</div>
+              </div>
+              <div class="list-item">
+                <div><span class="status-dot ok"></span>AlgorithmTracker</div>
+                <div class="item-time">Running</div>
+              </div>
+              <div class="list-item">
+                <div><span class="status-dot warn"></span>WorkCompletionLearning</div>
+                <div class="item-time">Review</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      const now = new Date();
+      const stamp = now.toLocaleString();
+      document.getElementById('lastUpdate').textContent = stamp;
+      document.getElementById('reportStamp').textContent = stamp;
+    </script>
+  </body>
+</html>

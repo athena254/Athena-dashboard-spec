@@ -1,0 +1,38 @@
+{
+  "lastUpdated": "2026-03-11T17:47:24.000Z",
+  "pendingBids": 10,
+  "activeGigs": 3,
+  "skillsTracked": 25,
+  "agents": 9,
+  "status": "operational",
+  "system": {
+    "health": "healthy",
+    "score": 95,
+    "memory": {
+      "total": 3915,
+      "used": 1770,
+      "percent": 45
+    },
+    "swap": {
+      "total": 2543,
+      "used": 1538,
+      "percent": 60
+    },
+    "disk": {
+      "percent": 87,
+      "used": "65G",
+      "total": "79G"
+    },
+    "uptime": {
+      "hours": 265,
+      "mins": 43,
+      "formatted": "265h 43m"
+    },
+    "load": {
+      "1m": 0.85,
+      "5m": 0.88,
+      "15m": 0.98
+    },
+    "gateway": "running"
+  }
+}

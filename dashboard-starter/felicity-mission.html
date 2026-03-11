@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Felicity - Code Artisan | Athena Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a24;
+            --bg-card: #15151f;
+            --bg-hover: #1e1e2a;
+            --accent-pink: #ff2d75;
+            --accent-magenta: #d63384;
+            --accent-purple: #a855f7;
+            --accent-cyan: #22d3ee;
+            --text-primary: #f0f0f5;
+            --text-secondary: #a0a0b0;
+            --text-muted: #606070;
+            --border-color: #2a2a3a;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --critical: #dc2626;
+            --info: #3b82f6;
+            --font-main: 'Outfit', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-main); background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; }
+        body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse at 20% 20%, rgba(255, 45, 117, 0.08) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(168, 85, 247, 0.06) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(34, 211, 238, 0.04) 0%, transparent 70%); pointer-events: none; z-index: 0; }
+        .app-container { display: flex; flex-direction: column; min-height: 100vh; position: relative; z-index: 1; }
+        .header { display: flex; align-items: center; justify-content: space-between; padding: 12px 24px; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .back-btn { display: flex; align-items: center; gap: 6px; padding: 8px 14px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-secondary); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+        .back-btn:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--accent-pink); }
+        .agent-profile { display: flex; align-items: center; gap: 12px; }
+        .agent-avatar { width: 42px; height: 42px; background: linear-gradient(135deg, var(--accent-pink), var(--accent-magenta)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 4px 20px rgba(255, 45, 117, 0.3); }
+        .agent-info h1 { font-size: 18px; font-weight: 600; background: linear-gradient(90deg, var(--text-primary), var(--accent-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .agent-role { font-size: 12px; color: var(--text-muted); font-weight: 400; }
+        .status-badge { display: flex; align-items: center; gap: 8px; padding: 6px 14px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 20px; font-size: 12px; font-weight: 500; color: var(--success); }
+        .status-badge.busy { background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3); color: var(--warning); }
+        .status-badge.error { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: var(--error); }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .header-actions { display: flex; gap: 10px; }
+        .header-btn { width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: all 0.2s; }
+        .header-btn:hover { background: var(--bg-hover); color: var(--accent-pink); border-color: var(--accent-pink); }
+        .main-layout { display: flex; flex: 1; }
+        .sidebar { width: 220px; background: var(--bg-secondary); border-right: 1px solid var(--border-color); padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; }
+        .sidebar-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text-muted); padding: 8px 12px 12px; font-weight: 600; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; cursor: pointer; transition: all 0.2s; color: var(--text-secondary); font-size: 14px; font-weight: 500; border: 1px solid transparent; }
+        .nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .nav-item.active { background: linear-gradient(135deg, rgba(255, 45, 117, 0.15), rgba(168, 85, 247, 0.1)); color: var(--accent-pink); border-color: rgba(255, 45, 117, 0.3); }
+        .nav-icon { font-size: 18px; width: 24px; text-align: center; }
+        .main-content { flex: 1; padding: 24px; overflow-y: auto; }
+        .panel { display: none; }
+        .panel.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .panel-header { margin-bottom: 24px; }
+        .panel-header h2 { font-size: 24px; font-weight: 600; margin-bottom: 6px; }
+        .panel-header p { color: var(--text-secondary); font-size: 14px; }
+        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; margin-bottom: 20px; }
+        .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .card-title { font-size: 16px; font-weight: 600; }
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-bottom: 8px; }
+        .form-input, .form-select, .form-textarea { width: 100%; padding: 12px 16px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-primary); font-size: 14px; font-family: var(--font-main); transition: all 0.2s; }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--accent-pink); box-shadow: 0 0 0 3px rgba(255, 45, 117, 0.1); }
+        .form-textarea { min-height: 120px; resize: vertical; font-family: var(--font-mono); }
+        .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; font-family: var(--font-main); }
+        .btn-primary { background: linear-gradient(135deg, var(--accent-pink), var(--accent-magenta)); color: white; box-shadow: 0 4px 20px rgba(255, 45, 117, 0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(255, 45, 117, 0.4); }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { border-color: var(--accent-pink); color: var(--accent-pink); }
+        .btn-sm { padding: 8px 16px; font-size: 13px; }
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; }
+        .code-output { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; margin-top: 20px; }
+        .code-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg-tertiary); border-bottom: 1px solid var(--border-color); }
+        .code-lang { font-size: 12px; font-weight: 600; color: var(--accent-cyan); text-transform: uppercase; }
+        .copy-btn { padding: 6px 12px; background: transparent; border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-secondary); font-size: 12px; cursor: pointer; transition: all 0.2s; }
+        .copy-btn:hover { border-color: var(--accent-pink); color: var(--accent-pink); }
+        .code-content { padding: 16px; font-family: var(--font-mono); font-size: 13px; line-height: 1.6; overflow-x: auto; white-space: pre-wrap; max-height: 400px; overflow-y: auto; }
+        .dashboard-builder { display: grid; grid-template-columns: 260px 1fr 300px; gap: 20px; min-height: 500px; }
+        .widget-sidebar { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; }
+        .widget-sidebar h3 { font-size: 14px; font-weight: 600; margin-bottom: 16px; color: var(--text-secondary); }
+        .widget-item { display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 10px; margin-bottom: 8px; cursor: grab; transition: all 0.2s; font-size: 13px; }
+        .widget-item:hover { border-color: var(--accent-pink); transform: translateX(4px); }
+        .widget-item:active { cursor: grabbing; }
+        .canvas-area { background: var(--bg-card); border: 2px dashed var(--border-color); border-radius: 16px; padding: 20px; min-height: 400px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; align-content: start; }
+        .canvas-area.drag-over { border-color: var(--accent-pink); background: rgba(255, 45, 117, 0.05); }
+        .canvas-widget { background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; min-height: 120px; position: relative; }
+        .canvas-widget .widget-label { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+        .canvas-widget .widget-preview { font-size: 24px; text-align: center; padding: 20px; }
+        .preview-panel { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; }
+        .preview-panel h3 { font-size: 14px; font-weight: 600; margin-bottom: 16px; color: var(--text-secondary); }
+        .preview-content { background: var(--bg-primary); border-radius: 10px; padding: 16px; min-height: 200px; }
+        .issues-table { width: 100%; border-collapse: collapse; }
+        .issues-table th, .issues-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .issues-table th { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; background: var(--bg-tertiary); }
+        .issues-table td { font-size: 14px; }
+        .severity-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        .severity-critical { background: rgba(220, 38, 38, 0.15); color: var(--critical); border: 1px solid rgba(220, 38, 38, 0.3); }
+        .severity-high { background: rgba(239, 68, 68, 0.15); color: var(--error); border: 1px solid rgba(239, 68, 68, 0.3); }
+        .severity-medium { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
+        .severity-low { background: rgba(59, 130, 246, 0.15); color: var(--info); border: 1px solid rgba(59, 130, 246, 0.3); }
+        .tabs { display: flex; gap: 4px; margin-bottom: 20px; background: var(--bg-tertiary); padding: 4px; border-radius: 10px; width: fit-content; }
+        .tab-btn { padding: 10px 20px; background: transparent; border: none; border-radius: 8px; color: var(--text-secondary); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+        .tab-btn.active { background: var(--bg-card); color: var(--accent-pink); }
+        .tab-btn:hover:not(.active) { color: var(--text-primary); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+        .file-browser { display: grid; grid-template-columns: 280px 1fr; gap: 20px; }
+        .file-tree { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; max-height: 500px; overflow-y: auto; }
+        .tree-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s; font-size: 13px; }
+        .tree-item:hover { background: var(--bg-hover); }
+        .tree-item.selected { background: rgba(255, 45, 117, 0.1); color: var(--accent-pink); }
+        .tree-item.folder { font-weight: 500; }
+        .tree-icon { font-size: 16px; }
+        .tree-indent { display: inline-block; }
+        .file-editor { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; }
+        .editor-toolbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg-tertiary); border-bottom: 1px solid var(--border-color); }
+        .editor-tabs { display: flex; gap: 8px; }
+        .editor-tab { padding: 6px 14px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; font-size: 12px; color: var(--text-secondary); cursor: pointer; }
+        .editor-tab.active { border-color: var(--accent-pink); color: var(--accent-pink); }
+        .editor-content { padding: 16px; min-height: 300px; font-family: var(--font-mono); font-size: 13px; line-height: 1.6; }
+        .editor-content textarea { width: 100%; min-height: 300px; background: transparent; border: none; color: var(--text-primary); font-family: var(--font-mono); font-size: 13px; resize: none; }
+        .editor-content textarea:focus { outline: none; }
+        .terminal { background: #0d1117; border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; font-family: var(--font-mono); }
+        .terminal-header { display: flex; align-items: center; gap: 8px; padding: 12px 16px; background: #161b22; border-bottom: 1px solid var(--border-color); }
+        .terminal-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .terminal-dot.red { background: #ff5f56; }
+        .terminal-dot.yellow { background: #ffbd2e; }
+        .terminal-dot.green { background: #27c93f; }
+        .terminal-title { margin-left: 12px; font-size: 13px; color: var(--text-muted); }
+        .terminal-body { padding: 16px; min-height: 300px; max-height: 400px; overflow-y: auto; }
+        .terminal-line { margin-bottom: 8px; font-size: 13px; line-height: 1.5; }
+        .terminal-line.output { color: var(--text-secondary); }
+        .terminal-line.error { color: var(--error); }
+        .terminal-input-line { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+        .terminal-prompt { color: var(--accent-cyan); font-size: 13px; }
+        .terminal-input { flex: 1; background: transparent; border: none; color: var(--text-primary); font-family: var(--font-mono); font-size: 13px; }
+        .terminal-input:focus { outline: none; }
+        .web-fetch-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .fetch-result { background: var(--bg-primary); border-radius: 12px; padding: 16px; max-height: 400px; overflow-y: auto; font-size: 13px; line-height: 1.6; white-space: pre-wrap; }
+        .browser-automation { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .browser-preview { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; min-height: 400px; }
+        .browser-url-bar { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg-tertiary); border-bottom: 1px solid var(--border-color); }
+        .browser-nav-btns { display: flex; gap: 8px; }
+        .browser-nav-btn { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .browser-url-input { flex: 1; padding: 8px 14px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 13px; }
+        .browser-frame { height: 350px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 14px; flex-direction: column; gap: 12px; }
+        .action-recorder { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; }
+        .action-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-tertiary); border-radius: 10px; margin-bottom: 8px; font-size: 13px; }
+        .action-type { padding: 4px 10px; background: rgba(255, 45, 117, 0.15); color: var(--accent-pink); border-radius: 6px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        .schema-builder { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .column-builder { margin-top: 16px; }
+        .column-row { display: grid; grid-template-columns: 1fr 140px 100px 40px; gap: 10px; margin-bottom: 10px; align-items: center; }
+        .column-row .form-input, .column-row .form-select { padding: 10px 12px; font-size: 13px; }
+        .remove-col-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border-color); background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+        .remove-col-btn:hover { border-color: var(--error); color: var(--error); }
+        .component-preview { background: var(--bg-tertiary); border-radius: 12px; padding: 24px; min-height: 150px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; flex-direction: column; gap: 12px; }
+        .component-preview button { padding: 10px 20px; background: var(--accent-pink); color: white; border: none; border-radius: 8px; cursor: pointer; }
+        .component-preview input { padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+        .empty-state { text-align: center; padding: 40px; color: var(--text-muted); }
+        .empty-state-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+        .toast { position: fixed; bottom: 24px; right: 24px; padding: 14px 20px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 12px; font-size: 14px; transform: translateY(100px); opacity: 0; transition: all 0.3s ease; z-index: 1000; }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.success { border-color: var(--success); }
+        .toast.error { border-color: var(--error); }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <div class="header-left">
+                <a href="index.html" class="back-btn">← Back to Master</a>
+                <div class="agent-profile">
+                    <div class="agent-avatar">💻</div>
+                    <div class="agent-info">
+                        <h1>Felicity</h1>
+                        <span class="agent-role">Code Artisan Agent</span>
+                    </div>
+                </div>
+                <div class="status-badge" id="statusBadge">
+                    <span class="status-dot"></span>
+                    <span id="statusText">Online</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="header-btn" onclick="setStatus('online')" title="Set Online">🟢</button>
+                <button class="header-btn" onclick="setStatus('busy')" title="Set Busy">🟡</button>
+                <button class="header-btn" onclick="setStatus('error')" title="Set Error">🔴</button>
+            </div>
+        </header>
+        <div class="main-layout">
+            <nav class="sidebar">
+                <div class="sidebar-title">Capabilities</div>
+                <div class="nav-item active" data-panel="code"><span class="nav-icon">⚡</span><span>Code Generation</span></div>
+                <div class="nav-item" data-panel="dashboard"><span class="nav-icon">📊</span><span>Dashboard Builder</span></div>
+                <div class="nav-item" data-panel="debug"><span class="nav-icon">🔍</span><span>Debug & Analysis</span></div>
+                <div class="nav-item" data-panel="api"><span class="nav-icon">🔌</span><span>API Design</span></div>
+                <div class="nav-item" data-panel="components"><span class="nav-icon">🧩</span><span>Component Library</span></div>
+                <div class="nav-item" data-panel="database"><span class="nav-icon">🗄️</span><span>Database Schema</span></div>
+                <div class="nav-item" data-panel="files"><span class="nav-icon">📁</span><span>File Operations</span></div>
+                <div class="nav-item" data-panel="shell"><span class="nav-icon">💻</span><span>Shell Execution</span></div>
+                <div class="nav-item" data-panel="fetch"><span class="nav-icon">🌐</span><span>Web Fetching</span></div>
+                <div class="nav-item" data-panel="browser"><span class="nav-icon">🖥️</span><span>Browser Automation</span></div>
+            </nav>
+            <main class="main-content">
+                <!-- Code Generation -->
+                <div class="panel active" id="panel-code">
+                    <div class="panel-header">
+                        <h2>⚡ Code Generation</h2>
+                        <p>Generate code snippets, APIs, components, and full applications</p>
+                    </div>
+                    <div class="card">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Language</label>
+                                <select class="form-select" id="codeLanguage">
+                                    <option value="javascript">JavaScript</option>
+                                    <option value="typescript">TypeScript</option>
+                                    <option value="python">Python</option>
+                                    <option value="rust">Rust</option>
+                                    <option value="go">Go</option>
+                                    <option value="java">Java</option>
+                                    <option value="csharp">C#</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Code Type</label>
+                                <select class="form-select" id="codeType">
+                                    <option value="api">API Endpoint</option>
+                                    <option value="component">Component</option>
+                                    <option value="script">Script</option>
+                                    <option value="class">Class</option>
+                                    <option value="function">Function</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-textarea" id="codeDescription" placeholder="Describe what you want to build... e.g., A REST API endpoint for user authentication with JWT tokens"></textarea>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="generateCode()"><span>⚡</span> Generate Code</button>
+                            <button class="btn btn-secondary" onclick="clearCode()">Clear</button>
+                        </div>
+                    </div>
+                    <div class="code-output" id="codeOutput" style="display: none;">
+                        <div class="code-header">
+                            <span class="code-lang" id="outputLang">typescript</span>
+                            <button class="copy-btn" onclick="copyCode()">Copy</button>
+                        </div>
+                        <div class="code-content" id="codeContent"></div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Builder -->
+                <div class="panel" id="panel-dashboard">
+                    <div class="panel-header">
+                        <h2>📊 Dashboard Builder</h2>
+                        <p>Build interactive dashboards with drag-and-drop widgets</p>
+                    </div>
+                    <div class="dashboard-builder">
+                        <div class="widget-sidebar">
+                            <h3>Widgets</h3>
+                            <div class="widget-item" draggable="true" data-widget="chart">📈 Line Chart</div>
+                            <div class="widget-item" draggable="true" data-widget="table">📋 Data Table</div>
+                            <div class="widget-item" draggable="true" data-widget="form">📝 Form</div>
+                            <div class="widget-item" draggable="true" data-widget="metric">📊 Metric Card</div>
+                            <div class="widget-item" draggable="true" data-widget="bar">📶 Bar Chart</div>
+                            <div class="widget-item" draggable="true" data-widget="pie">🥧 Pie Chart</div>
+                        </div>
+                        <div class="canvas-area" id="canvasArea">
+                            <div class="empty-state" id="canvasEmpty">
+                                <div class="empty-state-icon">📦</div>
+                                <p>Drag widgets here to build your dashboard</p>
+                            </div>
+                        </div>
+                        <div class="preview-panel">
+                            <h3>Preview</h3>
+                            <div class="preview-content" id="previewContent">
+                                <p style="color: var(--text-muted); font-size: 13px;">Dashboard preview will appear here</p>
+                            </div>
+                            <div class="btn-group" style="margin-top: 16px;">
+                                <button class="btn btn-primary" onclick="exportDashboard()">Export HTML</button>
+                                <button class="btn btn-secondary" onclick="clearDashboard()">Clear</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Debug & Analysis -->
+                <div class="panel" id="panel-debug">
+                    <div class="panel-header">
+                        <h2>🔍 Debug & Analysis</h2>
+                        <p>Analyze code for bugs, performance issues, and security vulnerabilities</p>
+                    </div>
+                    <div class="card">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Analysis Type</label>
+                                <select class="form-select" id="analysisType">
+                                    <option value="bug">Bug Detection</option>
+                                    <option value="performance">Performance Analysis</option>
+                                    <option value="security">Security Scan</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Or Upload File</label>
+                                <input type="file" class="form-input" id="debugFile">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Paste Code</label>
+                            <textarea class="form-textarea" id="debugCode" placeholder="Paste your code here for analysis..."></textarea>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="analyzeCode()"><span>🔍</span> Analyze Code</button>
+                        </div>
+                    </div>
+                    <div class="card" id="debugResults" style="display: none;">
+                        <div class="card-header">
+                            <span class="card-title">Analysis Results</span>
+                        </div>
+                        <table class="issues-table">
+                            <thead>
+                                <tr><th>Severity</th><th>Issue</th><th>Line</th><th>Description</th></tr>
+                            </thead>
+                            <tbody id="issuesBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- API Design -->
+                <div class="panel" id="panel-api">
+                    <div class="panel-header">
+                        <h2>🔌 API Design</h2>
+                        <p>Design RESTful APIs and generate Swagger documentation</p>
+                    </div>
+                    <div class="card">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Method</label>
+                                <select class="form-select" id="apiMethod">
+                                    <option value="GET">GET</option>
+                                    <option value="POST">POST</option>
+                                    <option value="PUT">PUT</option>
+                                    <option value="DELETE">DELETE</option>
+                                    <option value="PATCH">PATCH</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Endpoint Path</label>
+                                <input type="text" class="form-input" id="apiPath" placeholder="/api/v1/users">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Parameters (JSON format)</label>
+                            <textarea class="form-textarea" id="apiParams" placeholder='{"page": 1, "limit": 10}'></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Request Body (for POST/PUT)</label>
+                            <textarea class="form-textarea" id="apiBody" placeholder='{"name": "John"}'></textarea>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="generateSwagger()">Generate Swagger</button>
+                            <button class="btn btn-secondary" onclick="generateMock()">Generate Mock</button>
+                        </div>
+                    </div>
+                    <div class="tabs">
+                        <button class="tab-btn active" onclick="switchApiTab('swagger')">Swagger YAML</button>
+                        <button class="tab-btn" onclick="switchApiTab('mock')">Mock Server</button>
+                    </div>
+                    <div class="tab-content active" id="api-swagger">
+                        <div class="code-output">
+                            <div class="code-header"><span class="code-lang">openapi</span><button class="copy-btn" onclick="copyApiOutput('swagger')">Copy</button></div>
+                            <div class="code-content" id="swaggerOutput"># Define endpoint to generate</div>
+                        </div>
+                    </div>
+                    <div class="tab-content" id="api-mock">
+                        <div class="code-output">
+                            <div class="code-header"><span class="code-lang">javascript</span><button class="copy-btn" onclick="copyApiOutput('mock')">Copy</button></div>
+                            <div class="code-content" id="mockOutput">// Mock server code</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Component Library -->
+                <div class="panel" id="panel-components">
+                    <div class="panel-header"><h2>🧩 Component Library</h2><p>Generate components with Storybook and tests</p></div>
+                    <div class="card">
+                        <div class="form-row">
+                            <div class="form-group"><label class="form-label">Component Type</label>
+                                <select class="form-select" id="compType"><option value="button">Button</option><option value="input">Input</option><option value="card">Card</option><option value="modal">Modal</option></select>
+                            </div>
+                            <div class="form-group"><label class="form-label">Framework</label>
+                                <select class="form-select" id="compFramework"><option value="react">React</option><option value="vue">Vue</option><option value="svelte">Svelte</option></select>
+                            </div>
+                        </div>
+                        <div class="form-group"><label class="form-label">Component Name</label><input type="text" class="form-input" id="compName" placeholder="MyButton"></div>
+                        <div class="btn-group"><button class="btn btn-primary" onclick="generateComponent()">Generate Component</button></div>
+                    </div>
+                    <div class="component-preview" id="compPreview"><button>Preview</button><p style="color:var(--text-muted);font-size:12px">Preview</p></div>
+                    <div class="tabs">
+                        <button class="tab-btn active" onclick="switchCompTab('code')">Component</button>
+                        <button class="tab-btn" onclick="switchCompTab('storybook')">Storybook</button>
+                        <button class="tab-btn" onclick="switchCompTab('test')">Test</button>
+                    </div>
+                    <div class="tab-content active" id="comp-code"><div class="code-output"><div class="code-header"><span class="code-lang">tsx</span><button class="copy-btn">Copy</button></div><div class="code-content">// Component code</div></div></div>
+                    <div class="tab-content" id="comp-storybook"><div class="code-output"><div class="code-header"><span class="code-lang">jsx</span><button class="copy-btn">Copy</button></div><div class="code-content">// Storybook</div></div></div>
+                    <div class="tab-content" id="comp-test"><div class="code-output"><div class="code-header"><span class="code-lang">tsx</span><button class="copy-btn">Copy</button></div><div class="code-content">// Test</div></div></div>
+                </div>
+
+                <!-- Database Schema -->
+                <div class="panel" id="panel-database">
+                    <div class="panel-header"><h2>🗄️ Database Schema</h2><p>Design schemas and generate migrations</p></div>
+                    <div class="card">
+                        <div class="form-group"><label class="form-label">Table Name</label><input type="text" class="form-input" id="tableName" placeholder="users"></div>
+                        <div class="column-builder" id="columnBuilder">
+                            <div class="column-row"><input type="text" class="form-input" placeholder="column_name"><select class="form-select"><option>String</option><option>Integer</option><option>Boolean</option></select><select class="form-select"><option>Not Null</option><option>Nullable</option></select><button class="remove-col-btn" onclick="this.parentElement.remove()">×</button></div>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="addColumn()">+ Add Column</button>
+                        <div class="btn-group" style="margin-top:16px"><button class="btn btn-primary" onclick="generateSQL()">Generate SQL</button><button class="btn btn-secondary" onclick="generateORM()">Generate ORM</button></div>
+                    </div>
+                    <div class="tabs"><button class="tab-btn active" onclick="switchDbTab('sql')">SQL</button><button class="tab-btn" onclick="switchDbTab('orm')">ORM</button></div>
+                    <div class="tab-content active" id="db-sql"><div class="code-output"><div class="code-header"><span class="code-lang">sql</span><button class="copy-btn">Copy</button></div><div class="code-content">-- SQL</div></div></div>
+                    <div class="tab-content" id="db-orm"><div class="code-output"><div class="code-header"><span class="code-lang">ts</span><button class="copy-btn">Copy</button></div><div class="code-content">// ORM</div></div></div>
+                </div>
+
+                <!-- File Operations -->
+                <div class="panel" id="panel-files">
+                    <div class="panel-header"><h2>📁 File Operations</h2><p>Browse and manage files</p></div>
+                    <div class="file-browser">
+                        <div class="file-tree">
+                            <div class="tree-item folder"><span class="tree-icon">📂</span> src</div>
+                            <div class="tree-item folder" style="padding-left:24px"><span class="tree-icon">📂</span> components</div>
+                            <div class="tree-item" style="padding-left:40px" onclick="selectFile('Button.tsx')"><span class="tree-icon">📄</span> Button.tsx</div>
+                            <div class="tree-item" style="padding-left:40px" onclick="selectFile('Input.tsx')"><span class="tree-icon">📄</span> Input.tsx</div>
+                            <div class="tree-item folder"><span class="tree-icon">📂</span> styles</div>
+                            <div class="tree-item" style="padding-left:24px" onclick="selectFile('main.css')"><span class="tree-icon">📄</span> main.css</div>
+                            <div class="tree-item" onclick="selectFile('package.json')"><span class="tree-icon">📄</span> package.json</div>
+                        </div>
+                        <div class="file-editor">
+                            <div class="editor-toolbar"><span class="editor-tab active" id="fileTab">No file</span><div class="btn-group"><button class="btn btn-secondary btn-sm" onclick="saveFile()">Save</button></div></div>
+                            <div class="editor-content"><textarea id="fileContent" placeholder="Select file..."></textarea></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shell -->
+                <div class="panel" id="panel-shell">
+                    <div class="panel-header"><h2>💻 Shell Execution</h2><p>Run terminal commands</p></div>
+                    <div class="terminal">
+                        <div class="terminal-header"><span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span><span class="terminal-title">felicity@athena:~/workspace</span></div>
+                        <div class="terminal-body" id="terminalBody"><div class="terminal-line output">Welcome to Felicity's Shell</div><div class="terminal-line output">Type commands to execute</div></div>
+                        <div class="terminal-input-line"><span class="terminal-prompt">$</span><input type="text" class="terminal-input" id="terminalInput" placeholder="Command..." onkeypress="if(event.key==='Enter')runCommand()"><button class="btn btn-primary btn-sm" onclick="runCommand()">Run</button></div>
+                    </div>
+                </div>
+
+                <!-- Web Fetch -->
+                <div class="panel" id="panel-fetch">
+                    <div class="panel-header"><h2>🌐 Web Fetching</h2><p>Fetch content from URLs</p></div>
+                    <div class="card">
+                        <div class="form-group"><label class="form-label">URL</label><input type="text" class="form-input" id="fetchUrl" placeholder="https://example.com"></div>
+                        <div class="form-group"><label class="form-label">Mode</label><select class="form-select" id="extractMode"><option>Markdown</option><option>Plain Text</option></select></div>
+                        <div class="btn-group"><button class="btn btn-primary" onclick="fetchUrl()">Fetch</button></div>
+                    </div>
+                    <div class="web-fetch-container">
+                        <div class="card"><div class="card-header"><span class="card-title">Content</span></div><div class="fetch-result" id="fetchContent"><p style="color:var(--text-muted)">Content appears here</p></div></div>
+                        <div class="card"><div class="card-header"><span class="card-title">Metadata</span></div><div id="fetchMetadata"><p>No metadata</p></div></div>
+                    </div>
+                </div>
+
+                <!-- Browser Automation -->
+                <div class="panel" id="panel-browser">
+                    <div class="panel-header"><h2>🖥️ Browser Automation</h2><p>Automate browser actions</p></div>
+                    <div class="browser-automation">
+                        <div class="browser-preview">
+                            <div class="browser-url-bar">
+                                <div class="browser-nav-btns"><button class="browser-nav-btn">←</button><button class="browser-nav-btn">→</button><button class="browser-nav-btn">↻</button></div>
+                                <input type="text" class="browser-url-input" id="browserUrl" placeholder="URL...">
+                                <button class="btn btn-primary btn-sm" onclick="navigateBrowser()">Go</button>
+                            </div>
+                            <div class="browser-frame" id="browserFrame"><span style="font-size:48px">🌐</span><p>Enter URL</p></div>
+                        </div>
+                        <div class="action-recorder">
+                            <div class="card-header"><span class="card-title">Actions</span></div>
+                            <div class="form-group"><label class="form-label">Action</label><select class="form-select" id="actionType"><option>Click</option><option>Type</option><option>Navigate</option><option>Screenshot</option></select></div>
+                            <div class="form-group"><label class="form-label">Target</label><input type="text" class="form-input" id="actionTarget" placeholder="#selector"></div>
+                            <div class="btn-group"><button class="btn btn-primary" onclick="addAction()">Add</button><button class="btn btn-secondary">Record</button><button class="btn btn-secondary">Play</button></div>
+                            <div style="margin-top:16px" id="actionList"><div class="action-item"><span class="action-type">navigate</span><span>https://example.com</span></div></div>
+                        </div>
+                    </div>
+                </div>
+            </main></div></div></div>
+            <div class="toast" id="toast"><span id="toastMessage">Success!</span></div>
+            <script>
+                document.querySelectorAll('.nav-item').forEach(item=>{item.addEventListener('click',()=>{document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));item.classList.add('active');document.getElementById('panel-'+item.dataset.panel).classList.add('active');})});
+                function setStatus(s){const b=document.getElementById('statusBadge'),t=document.getElementById('statusText');b.className='status-badge '+s;t.textContent=s.charAt(0).toUpperCase()+s.slice(1);}
+                function showToast(m,t='success'){const o=document.getElementById('toast'),tm=document.getElementById('toastMessage');tm.textContent=m;o.className='toast '+t+' show';setTimeout(()=>o.classList.remove('show'),3000);}
+                const codeTemplates={typescript:{api:`// API - Authentication
+import {Request,Response,NextFunction}from 'express';
+import jwt from 'jsonwebtoken';
+interface AuthRequest extends Request{user?:{id:string;email:string}}
+export const authenticate=async(req:AuthRequest,res:Response,next:NextFunction):Promise<void=>{try{const token=req.headers.authorization?.split(' ')[1];if(!token){res.status(401).json({error:'No token'});return;}const decoded=jwt.verify(token,process.env.JWT_SECRET!)as{id:string;email:string};req.user=decoded;next();}catch{res.status(401).json({error:'Invalid token'});}};`,component:`// React Button
+import React from 'react';
+interface ButtonProps{children:React.ReactNode;variant?:'primary'|'secondary';onClick?:()=>void;}
+export const Button:React.FC<ButtonProps>=({children,variant='primary',onClick})=><button className={\`btn btn-\${variant}\`} onClick={onClick}>{children}</button>;`,script:`#!/usr/bin/env ts-node
+import*as fs from'fs';
+const processFiles=(input:string)=>{const files=fs.readdirSync(input);console.log(\`Found \${files.length} files\`);};`},python:{api:`# FastAPI Auth
+from fastapi import FastAPI,HTTPException
+from pydantic import BaseModel
+import jwt
+app=FastAPI()
+class Login(BaseModel):email:str;password:str
+@app.post("/api/v1/auth/login")def login(req:Login):token=jwt.encode({"sub":req.email},"secret",algorithm="HS256");return{"token":token};`,component:`# Tkinter Button
+import tkinter as tk
+class Button(tk.Frame):def __init__(self,parent,text="Click",command=None):super().__init__(parent,bg="#ff2d75",cursor="hand2");self.label=tk.Label(self,text=text,bg="#ff2d75",fg="white",padx=20,pady=8);self.label.pack();self.command=command;self.label.bind("<Button-1>",lambda e:command()if command else None);`,script:`#!/usr/bin/env python3
+import argparse,json
+def process(input_path,output=None,verbose=False):data=json.load(open(input_path))if input_path.endswith('.json')else[];print(f"Processed {len(data)} records")if verbose else None;return data;`}};
+                function generateCode(){const lang=document.getElementById('codeLanguage').value,type=document.getElementById('codeType').value;document.getElementById('codeContent').textContent=codeTemplates[lang]?.[type]||'// Generated code';document.getElementById('outputLang').textContent=lang;document.getElementById('codeOutput').style.display='block';showToast('Code generated!');}
+                function clearCode(){document.getElementById('codeDescription').value='';document.getElementById('codeOutput').style.display='none';}
+                function copyCode(){navigator.clipboard.writeText(document.getElementById('codeContent').textContent);showToast('Copied!');}
+                document.querySelectorAll('.widget-item').forEach(w=>{w.addEventListener('dragstart',e=>e.dataTransfer.setData('widget',w.dataset.widget));});
+                const canvasArea=document.getElementById('canvasArea');
+                canvasArea.addEventListener('dragover',e=>{e.preventDefault();canvasArea.classList.add('drag-over');});
+                canvasArea.addEventListener('dragleave',()=>canvasArea.classList.remove('drag-over'));
+                canvasArea.addEventListener('drop',e=>{e.preventDefault();canvasArea.classList.remove('drag-over');const type=e.dataTransfer.getData('widget');const w=document.createElement('div');w.className='canvas-widget';w.innerHTML=\`<div class="widget-label">\${type.toUpperCase()}</div><div class="widget-preview">\${{chart:'📈',table:'📋',form:'📝',metric:'📊',bar:'📶',pie:'🥧'}[type]||'📦'}</div>\`;canvasArea.appendChild(w);document.getElementById('previewContent').innerHTML=\`<p style="color:var(--success)">\${canvasArea.querySelectorAll('.canvas-widget').length} widget(s)</p>\`;});
+                function exportDashboard(){if(!canvasArea.querySelector('.canvas-widget')){showToast('Add widgets first!','error');return;}showToast('Dashboard exported!');}
+                function clearDashboard(){canvasArea.innerHTML='<div class="empty-state" id="canvasEmpty"><div class="empty-state-icon">📦</div><p>Drag widgets</p></div>';document.getElementById('previewContent').innerHTML='<p style="color:var(--text-muted)">Preview</p>';}
+                const mockIssues=[{severity:'critical',issue:'SQL Injection',line:42,desc:'Unparameterized query'},{severity:'high',issue:'Memory Leak',line:128,desc:'Event listener not removed'},{severity:'medium',issue:'Unused Variable',line:55,desc:'Variable unused'},{severity:'low',issue:'Missing Error Handler',line:89,desc:'Promise rejection not handled'}];
+                function analyzeCode(){if(!document.getElementById('debugCode').value.trim()){showToast('Enter code first','error');return;}const tbody=document.getElementById('issuesBody');tbody.innerHTML='';mockIssues.forEach(i=>{tbody.innerHTML+=`<tr><td><span class="severity-badge severity-\${i.severity}">\${i.severity}</span></td><td>\${i.issue}</td><td>\${i.line}</td><td>\${i.desc}</td></tr>`;});document.getElementById('debugResults').style.display='block';showToast('Found '+mockIssues.length+' issues');}
+                function switchApiTab(t){document.querySelectorAll('#panel-api .tab-btn').forEach(b=>b.classList.remove('active'));document.querySelectorAll('#panel-api .tab-content').forEach(c=>c.classList.remove('active'));event.target.classList.add('active');document.getElementById('api-'+t).classList.add('active');}
+                function generateSwagger(){const m=document.getElementById('apiMethod').value,p=document.getElementById('apiPath').value;document.getElementById('swaggerOutput').textContent='openapi:3.0.0\\ninfo:{title:API,version:1.0}\\npaths:\\n  '+p+':\\n    '+m.toLowerCase()+':\\n      responses:\\n        200:description:OK';showToast('Swagger generated!');}
+                function generateMock(){const m=document.getElementById('apiMethod').value,p=document.getElementById('apiPath').value;document.getElementById('mockOutput').textContent='app.'+m.toLowerCase()+'("'+p+'",(req,res)=>res.json({success:true}));';showToast('Mock generated!');}
+                function copyApiOutput(t){navigator.clipboard.writeText(document.getElementById(t+'Output').textContent);showToast('Copied!');}
+                function switchCompTab(t){document.querySelectorAll('#panel-components .tab-btn').forEach(b=>b.classList.remove('active'));document.querySelectorAll('#panel-components .tab-content').forEach(c=>c.classList.remove('active'));event.target.classList.add('active');document.getElementById('comp-'+t).classList.add('active');}
+                function generateComponent(){showToast('Component generated!');}
+                function switchDbTab(t){document.querySelectorAll('#panel-database .tab-btn').forEach(b=>b.classList.remove('active'));document.querySelectorAll('#panel-database .tab-content').forEach(c=>c.classList.remove('active'));event.target.classList.add('active');document.getElementById('db-'+t).classList.add('active');}
+                function addColumn(){const r=document.createElement('div');r.className='column-row';r.innerHTML='<input type="text" class="form-input" placeholder="column_name"><select class="form-select"><option>String</option><option>Integer</option><option>Boolean</option></select><select class="form-select"><option>Not Null</option><option>Nullable</option></select><button class="remove-col-btn" onclick="this.parentElement.remove()">×</button>';document.getElementById('columnBuilder').appendChild(r);}
+                function generateSQL(){document.getElementById('sqlOutput').textContent='CREATE TABLE '+ (document.getElementById('tableName').value||'table_name')+'(id SERIAL PRIMARY KEY,created_at TIMESTAMP DEFAULT NOW());';showToast('SQL generated!');}
+                function generateORM(){document.getElementById('ormOutput').textContent='class User extends Model{static table="users";id!:number;createdAt!:Date;}';showToast('ORM generated!');}
+                function selectFile(n){document.getElementById('fileTab').textContent=n;document.getElementById('fileContent').value='// File: '+n+'\\n// Content here';}
+                function saveFile(){showToast('File saved!');}
+                const cmds={ls:'total 32\\ndrwxr-xr-x  5 user  4096 Feb 27 10:00 .\\ndrwxr-xr-x  5 user  4096 Feb 27 10:00 ..\\n-rw-r--r--  1 user  1024 Feb 27 09:00 package.json\\n-rw-r--r--  1 user  2048 Feb 27 09:00 src\\n-rw-r--r--  1 user   512 Feb 27 09:00 README.md',pwd:'/root/.openclaw/workspace',whoami:'felicity',date:'Fri Feb 27 11:47:00 UTC 2026',echo:'Hello from Felicity!',cat:'cat: missing operand',git:'git version 2.40.0',npm:'npm 10.2.0',node:'v22.22.0',python:'Python 3.12.0'};
+                function runCommand(){const i=document.getElementById('terminalInput'),v=i.value.trim();if(!v)return;const b=document.getElementById('terminalBody');b.innerHTML+=`<div class="terminal-line"><span class="terminal-prompt">$</span> \${v}</div>`;const o=cmds[v]||'Command not found: '+v;b.innerHTML+=`<div class="terminal-line output">\${o}</div>`;b.scrollTop=b.scrollHeight;i.value='';}
+                function fetchUrl(){const u=document.getElementById('fetchUrl').value;if(!u){showToast('Enter URL','error');return;}document.getElementById('fetchContent').innerHTML='<h3>'+u+'</h3><p>Fetched content would appear here...</p><p style="color:var(--text-muted)">Demo mode: Set up MCP server for actual fetching</p>';document.getElementById('fetchMetadata').innerHTML='<p>URL: '+u+'</p><p>Status: Ready</p><p>Mode: '+document.getElementById('extractMode').value+'</p>';showToast('URL ready for fetching!');}
+                function navigateBrowser(){const u=document.getElementById('browserUrl').value;if(!u){showToast('Enter URL','error');return;}document.getElementById('browserFrame').innerHTML='<span style="font-size:48px">🌐</span><p>Navigated to: '+u+'</p><p style="color:var(--text-muted)">Browser automation demo</p>';showToast('Navigated!');}
+                function addAction(){const t=document.getElementById('actionType').value,v=document.getElementById('actionTarget').value;const l=document.getElementById('actionList');l.innerHTML+=`<div class="action-item"><span class="action-type">\${t}</span><span>\${v||'...'}</span></div>`;showToast('Action added!');}
+            </script>
+        </body>
+        </html>

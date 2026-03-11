@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚖️ THEMIS Council Chamber</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Orbitron:wght@400;700&display=swap');
+        
+        :root {
+            --gold: #ffd700;
+            --purple: #9b4dca;
+            --cyan: #00f5ff;
+            --magenta: #ff00ff;
+            --bg-dark: #0a0a12;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Cinzel', serif;
+            background: var(--bg-dark);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(ellipse at 50% 0%, rgba(155, 77, 202, 0.2) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 100%, rgba(255, 215, 0, 0.1) 0%, transparent 50%);
+            z-index: -1;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, var(--gold), var(--purple), var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        
+        @keyframes shimmer {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.3); }
+        }
+        
+        .subtitle {
+            color: var(--gold);
+            font-size: 1rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+        
+        /* Council Chamber */
+        .chamber {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin: 60px 0;
+            flex-wrap: wrap;
+        }
+        
+        .council-seat {
+            width: 180px;
+            height: 220px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1a 100%);
+            border: 2px solid #2a2a4a;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.5s ease;
+            cursor: pointer;
+        }
+        
+        .council-seat::before {
+            content: '';
+            position: absolute;
+            top: -2px; left: -2px; right: -2px; bottom: -2px;
+            border-radius: 18px;
+            background: linear-gradient(45deg, var(--seat-color, var(--purple)), transparent, var(--seat-color, var(--purple)));
+            z-index: -1;
+            opacity: 0.5;
+            animation: borderGlow 2s ease-in-out infinite;
+        }
+        
+        @keyframes borderGlow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+        
+        .council-seat:hover {
+            transform: translateY(-15px) scale(1.05);
+            box-shadow: 0 20px 60px rgba(155, 77, 202, 0.4);
+        }
+        
+        .council-seat.active {
+            border-color: var(--gold);
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+        }
+        
+        .council-seat.deliberating {
+            animation: pulse 1s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(155, 77, 202, 0.3); }
+            50% { box-shadow: 0 0 50px rgba(155, 77, 202, 0.6); }
+        }
+        
+        .council-seat.voted {
+            border-color: var(--cyan);
+        }
+        
+        .seat-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 10px currentColor);
+        }
+        
+        .seat-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            color: var(--seat-color, var(--purple));
+            margin-bottom: 5px;
+        }
+        
+        .seat-model {
+            font-size: 0.7rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .vote-indicator {
+            position: absolute;
+            bottom: 15px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #333;
+            transition: all 0.3s ease;
+        }
+        
+        .vote-indicator.yes { background: var(--gold); box-shadow: 0 0 15px var(--gold); }
+        .vote-indicator.no { background: var(--magenta); box-shadow: 0 0 15px var(--magenta); }
+        .vote-indicator.abstain { background: #666; }
+        
+        /* Seat Colors */
+        .seat-llama { --seat-color: #ff6b6b; }
+        .seat-gemma { --seat-color: #4ecdc4; }
+        .seat-mistral { --seat-color: #ffe66d; }
+        .seat-qwen { --seat-color: #95e1d3; }
+        .seat-deepseek { --seat-color: #a29bfe; }
+        
+        /* Center Pedestal */
+        .pedestal {
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, #2a2a4a 0%, #1a1a2e 70%);
+            border: 3px solid var(--gold);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 60px rgba(255, 215, 0, 0.2);
+            position: relative;
+        }
+        
+        .pedestal-icon {
+            font-size: 4rem;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .pedestal-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            color: var(--gold);
+            margin-top: 10px;
+        }
+        
+        /* Control Panel */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            padding: 15px 35px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border: 2px solid;
+            border-radius: 8px;
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .control-btn.start {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+        
+        .control-btn.start:hover {
+            background: var(--gold);
+            color: var(--bg-dark);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
+        }
+        
+        .control-btn.reset {
+            border-color: var(--magenta);
+            color: var(--magenta);
+        }
+        
+        .control-btn.reset:hover {
+            background: var(--magenta);
+            color: white;
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.4);
+        }
+        
+        /* Vote Results */
+        .results {
+            margin-top: 50px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+        
+        .results.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .verdict {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            color: var(--gold);
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+        
+        .vote-counts {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+        }
+        
+        .vote-count {
+            text-align: center;
+        }
+        
+        .vote-count .number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+        }
+        
+        .vote-count .label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #666;
+        }
+        
+        .vote-count.yes .number { color: var(--gold); }
+        .vote-count.no .number { color: var(--magenta); }
+        
+        /* Log */
+        .log-panel {
+            margin-top: 40px;
+            background: #0f0f1a;
+            border: 1px solid #2a2a4a;
+            border-radius: 12px;
+            padding: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .log-entry {
+            font-family: monospace;
+            font-size: 0.85rem;
+            padding: 8px 0;
+            border-bottom: 1px solid #1a1a2e;
+            color: #888;
+        }
+        
+        .log-entry .time {
+            color: var(--cyan);
+            margin-right: 10px;
+        }
+        
+        .log-entry .event {
+            color: var(--gold);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚖️ THEMIS Council Chamber</h1>
+            <p class="subtitle">Multi-Agent Deliberation System</p>
+        </header>
+        
+        <div class="chamber">
+            <div class="council-seat seat-llama" data-model="llama">
+                🦙
+                <div class="seat-name">Councilor Llama</div>
+                <div class="seat-model">Meta Llama 3.3</div>
+                <div class="vote-indicator"></div>
+            </div>
+            
+            <div class="council-seat seat-gemma" data-model="gemma">
+                💎
+                <div class="seat-name">Councilor Gemma</div>
+                <div class="seat-model">Google Gemma 3</div>
+                <div class="vote-indicator"></div>
+            </div>
+            
+            <div class="council-seat seat-mistral" data-model="mistral">
+                🌪️
+                <div class="seat-name">Councilor Mistral</div>
+                <div class="seat-model">Mistral 7B</div>
+                <div class="vote-indicator"></div>
+            </div>
+            
+            <div class="pedestal">
+                <div class="pedestal-icon">⚖️</div>
+                <div class="pedestal-label">THEMIS</div>
+            </div>
+            
+            <div class="council-seat seat-qwen" data-model="qwen">
+                🐉
+                <div class="seat-name">Councilor Qwen</div>
+                <div class="seat-model">Qwen 2.7B</div>
+                <div class="vote-indicator"></div>
+            </div>
+            
+            <div class="council-seat seat-deepseek" data-model="deepseek">
+                🔮
+                <div class="seat-name">Councilor DeepSeek</div>
+                <div class="seat-model">DeepSeek R1</div>
+                <div class="vote-indicator"></div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="control-btn start" onclick="startDeliberation()">Start Deliberation</button>
+            <button class="control-btn reset" onclick="resetCouncil()">Reset Chamber</button>
+        </div>
+        
+        <div class="results" id="results">
+            <div class="verdict" id="verdict">AWAITING DELIBERATION</div>
+            <div class="vote-counts">
+                <div class="vote-count yes">
+                    <div class="number" id="yes-count">0</div>
+                    <div class="label">In Favor</div>
+                </div>
+                <div class="vote-count no">
+                    <div class="number" id="no-count">0</div>
+                    <div class="label">Opposed</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="log-panel" id="log">
+            <div class="log-entry">
+                <span class="time">[00:00:00]</span>
+                <span class="event">Council chamber initialized</span>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const seats = document.querySelectorAll('.council-seat:not(.pedestal)');
+        const results = document.getElementById('results');
+        const log = document.getElementById('log');
+        let voteYes = 0;
+        let voteNo = 0;
+        
+        function logEvent(message) {
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+            log.innerHTML += `<div class="log-entry"><span class="time">[${time}]</span><span class="event">${message}</span></div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        function startDeliberation() {
+            logEvent('Deliberation initiated');
+            results.classList.remove('visible');
+            voteYes = 0;
+            voteNo = 0;
+            
+            // Reset seats
+            seats.forEach(seat => {
+                seat.classList.remove('active', 'voted');
+                seat.querySelector('.vote-indicator').className = 'vote-indicator';
+            });
+            
+            // Animate each councilor deliberating
+            const models = ['llama', 'gemma', 'mistral', 'qwen', 'deepseek'];
+            
+            models.forEach((model, index) => {
+                setTimeout(() => {
+                    const seat = document.querySelector(`.council-seat[data-model="${model}"]`);
+                    seat.classList.add('deliberating');
+                    logEvent(`Councilor ${model} is analyzing the matter...`);
+                }, index * 800);
+            });
+            
+            // Cast votes after deliberation
+            setTimeout(() => {
+                castVotes();
+            }, 5000);
+        }
+        
+        function castVotes() {
+            const votes = ['yes', 'yes', 'no', 'yes', 'no']; // Sample votes
+            const models = ['llama', 'gemma', 'mistral', 'qwen', 'deepseek'];
+            
+            models.forEach((model, index) => {
+                setTimeout(() => {
+                    const seat = document.querySelector(`.council-seat[data-model="${model}"]`);
+                    const vote = votes[index];
+                    const indicator = seat.querySelector('.vote-indicator');
+                    
+                    seat.classList.remove('deliberating');
+                    seat.classList.add('voted');
+                    indicator.classList.add(vote);
+                    
+                    if (vote === 'yes') {
+                        voteYes++;
+                        logEvent(`Councilor ${model} votes IN FAVOR`);
+                    } else {
+                        voteNo++;
+                        logEvent(`Councilor ${model} votes OPPOSED`);
+                    }
+                    
+                    document.getElementById('yes-count').textContent = voteYes;
+                    document.getElementById('no-count').textContent = voteNo;
+                }, index * 600);
+            });
+            
+            // Show results
+            setTimeout(() => {
+                const verdict = voteYes > voteNo ? 'MOTION CARRIED' : 'MOTION REJECTED';
+                document.getElementById('verdict').textContent = verdict;
+                results.classList.add('visible');
+                logEvent(`Verdict: ${verdict}`);
+            }, 4000);
+        }
+        
+        function resetCouncil() {
+            seats.forEach(seat => {
+                seat.classList.remove('active', 'deliberating', 'voted');
+                seat.querySelector('.vote-indicator').className = 'vote-indicator';
+            });
+            results.classList.remove('visible');
+            voteYes = 0;
+            voteNo = 0;
+            document.getElementById('yes-count').textContent = '0';
+            document.getElementById('no-count').textContent = '0';
+            logEvent('Chamber reset');
+        }
+    </script>
+</body>
+</html>

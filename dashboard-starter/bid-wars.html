@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Athena Bid Wars - Live Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(180deg, #0a0a0f 0%, #1a0a2e 50%, #0a0a0f 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(90deg, #ffd700, #ffaa00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .war-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 215, 0, 0.05);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .war-stat {
+            text-align: center;
+        }
+
+        .war-stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #ffd700;
+        }
+
+        .war-stat-label {
+            font-size: 0.7rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        .bids-arena {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .bid-battle {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 20px;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .bid-battle:hover {
+            border-color: rgba(255, 215, 0, 0.3);
+            transform: translateX(5px);
+        }
+
+        .bid-battle.accepted {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        .bid-rank {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0a0a0f;
+        }
+
+        .bid-info h3 {
+            font-size: 1rem;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .bid-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        .bid-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .bid-value {
+            text-align: right;
+        }
+
+        .bid-amount {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ffd700;
+        }
+
+        .bid-status {
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 6px;
+        }
+
+        .bid-status.pending {
+            background: rgba(255, 170, 0, 0.2);
+            color: #ffaa00;
+        }
+
+        .bid-status.accepted {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #ffaa00);
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+
+        .war-footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 215, 0, 0.03);
+            border-radius: 12px;
+        }
+
+        .sterling-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .sterling-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .sterling-info {
+            text-align: left;
+        }
+
+        .sterling-name {
+            font-weight: 600;
+            color: #ffd700;
+        }
+
+        .sterling-action {
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #555;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>⚔️ Bid Wars</h1>
+        <div style="color: #666; font-size: 0.85rem;">Sterling's conquest for honey</div>
+    </div>
+
+    <div class="war-stats">
+        <div class="war-stat">
+            <div class="war-stat-value" id="pending-count">0</div>
+            <div class="war-stat-label">Pending</div>
+        </div>
+        <div class="war-stat">
+            <div class="war-stat-value" id="total-honey">0</div>
+            <div class="war-stat-label">Honey At Stake</div>
+        </div>
+        <div class="war-stat">
+            <div class="war-stat-value" id="win-rate">0%</div>
+            <div class="war-stat-label">Win Rate</div>
+        </div>
+        <div class="war-stat">
+            <div class="war-stat-value" id="days-bidding">0</div>
+            <div class="war-stat-label">Days Active</div>
+        </div>
+    </div>
+
+    <div class="bids-arena" id="bids-container">
+        <!-- Bids populated here -->
+    </div>
+
+    <div class="war-footer">
+        <div class="sterling-status">
+            <div class="pulse-dot"></div>
+            <div class="sterling-avatar">💰</div>
+            <div class="sterling-info">
+                <div class="sterling-name">Sterling</div>
+                <div class="sterling-action" id="sterling-action">Auto-bidding every 30 minutes</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadBids() {
+            try {
+                const response = await fetch('/api/data.json');
+                const data = await response.json();
+                renderBids(data.pendingBids || []);
+                updateStats(data);
+            } catch (error) {
+                console.error('Failed to load bids:', error);
+            }
+        }
+
+        function renderBids(bids) {
+            const container = document.getElementById('bids-container');
+            
+            if (bids.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🐝</div>
+                        <div>No active bids</div>
+                        <div style="font-size: 0.85rem; margin-top: 8px;">Sterling is scouting opportunities...</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = bids.map((bid, index) => {
+                const status = bid.status || 'pending';
+                const progress = Math.random() * 60 + 20; // Simulated match %
+                
+                return `
+                    <div class="bid-battle ${status === 'accepted' ? 'accepted' : ''}">
+                        <div class="bid-rank">#${index + 1}</div>
+                        <div class="bid-info">
+                            <h3>${bid.title || 'Gig Opportunity'}</h3>
+                            <div class="bid-meta">
+                                <span>📅 ${new Date(bid.bidDate).toLocaleDateString()}</span>
+                                <span>🏷️ ${bid.category || 'General'}</span>
+                                <span>⏱️ ${bid.timeAgo || 'Recent'}</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progress}%"></div>
+                            </div>
+                        </div>
+                        <div class="bid-value">
+                            <div class="bid-amount">${bid.value || '£---'}</div>
+                            <span class="bid-status ${status}">${status}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateStats(data) {
+            document.getElementById('pending-count').textContent = data.pendingBids?.length || 0;
+            
+            const totalHoney = (data.pendingBids || []).reduce((sum, bid) => {
+                const val = parseInt(bid.value?.replace(/[^0-9]/g, '') || '0');
+                return sum + val;
+            }, 0);
+            
+            document.getElementById('total-honey').textContent = `£${totalHoney.toLocaleString()}`;
+            document.getElementById('win-rate').textContent = '23%'; // From MEMORY.md
+            document.getElementById('days-bidding').textContent = '5';
+        }
+
+        // Initial load
+        loadBids();
+
+        // Refresh every 10 seconds
+        setInterval(loadBids, 10000);
+    </script>
+</body>
+</html>

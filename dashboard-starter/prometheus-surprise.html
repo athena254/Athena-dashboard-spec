@@ -1,0 +1,23 @@
+<html>
+<head>
+	<title>Prometheus Surprise</title>
+</head>
+<body>
+	<h1>Welcome to the Prometheus Surprise!</h1>
+	<p>This is a surprise feature for the Athena dashboard.</p>
+	<p>Click the button to generate a daily quest:</p>
+	<button onclick="generateQuest()">Generate Quest</button>
+	<div id="quest"></div>
+	<script>
+		function generateQuest() {
+			var quests = [
+				"Complete a task with 100% accuracy",
+				"Help a user with a difficult problem",
+				"Learn a new skill and apply it to a task"
+			];
+			var randomQuest = quests[Math.floor(Math.random() * quests.length)];
+			document.getElementById("quest").innerHTML = randomQuest;
+		}
+	</script>
+</body>
+</html>

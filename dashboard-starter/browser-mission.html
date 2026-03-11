@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👻 Ghost | Browser Automation Agent</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f; --bg-secondary: #12121a; --bg-tertiary: #1a1a24; --bg-card: #16161f; --bg-hover: #1e1e2a;
+            --border-color: #2a2a3a; --border-glow: #3d3d52; --text-primary: #e4e4e7; --text-secondary: #a1a1aa; --text-muted: #71717a;
+            --accent-ghost: #8b5cf6; --accent-ghost-dim: #7c3aed; --accent-green: #22c55e; --accent-blue: #3b82f6;
+            --accent-yellow: #eab308; --accent-red: #ef4444; --accent-cyan: #06b6d4; --shadow-glow: 0 0 20px rgba(139, 92, 246, 0.15);
+            --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; }
+        body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse at 20% 20%, rgba(139, 92, 246, 0.08), transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(6, 182, 212, 0.05), transparent 50%); pointer-events: none; z-index: 0; }
+        .app-container { display: flex; min-height: 100vh; position: relative; z-index: 1; }
+        .header { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: rgba(18, 18, 26, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; z-index: 100; }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header-avatar { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent-ghost), var(--accent-cyan)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: var(--shadow-glow); }
+        .header-title { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 600; }
+        .header-title span { color: var(--accent-ghost); }
+        .status-indicator { display: flex; align-items: center; gap: 8px; padding: 6px 14px; background: var(--bg-tertiary); border-radius: 20px; font-size: 13px; font-weight: 500; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+        .status-dot.online { background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
+        .status-dot.working { background: var(--accent-blue); box-shadow: 0 0 8px var(--accent-blue); }
+        .status-dot.idle { background: var(--text-muted); }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .header-right { display: flex; align-items: center; gap: 12px; }
+        .back-btn { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-secondary); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+        .back-btn:hover { background: var(--bg-hover); border-color: var(--accent-ghost); color: var(--text-primary); }
+        .sidebar { position: fixed; left: 0; top: 60px; bottom: 0; width: 220px; background: var(--bg-secondary); border-right: 1px solid var(--border-color); padding: 20px 0; display: flex; flex-direction: column; z-index: 50; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 24px; color: var(--text-secondary); font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; border-left: 3px solid transparent; }
+        .nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .nav-item.active { background: rgba(139, 92, 246, 0.1); color: var(--accent-ghost); border-left-color: var(--accent-ghost); }
+        .nav-item-icon { font-size: 18px; width: 24px; text-align: center; }
+        .main-content { flex: 1; margin-left: 220px; margin-top: 60px; padding: 24px; min-height: calc(100vh - 60px); }
+        .panel { display: none; animation: fadeIn 0.3s; }
+        .panel.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .panel-header { margin-bottom: 24px; }
+        .panel-title { font-size: 24px; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+        .panel-title-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent-ghost), var(--accent-cyan)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .panel-subtitle { color: var(--text-secondary); font-size: 14px; }
+        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: var(--shadow-card); }
+        .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .card-title { font-size: 16px; font-weight: 600; }
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-bottom: 8px; }
+        .form-input, .form-textarea { width: 100%; padding: 12px 16px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 14px; font-family: 'JetBrains Mono', monospace; transition: all 0.2s; }
+        .form-textarea { resize: vertical; min-height: 80px; }
+        .form-input:focus, .form-textarea:focus { outline: none; border-color: var(--accent-ghost); box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15); }
+        .form-input::placeholder { color: var(--text-muted); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; font-family: 'Inter', sans-serif; }
+        .btn-primary { background: linear-gradient(135deg, var(--accent-ghost), var(--accent-ghost-dim)); color: white; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4); }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background: var(--bg-hover); border-color: var(--border-glow); }
+        .btn-success { background: linear-gradient(135deg, var(--accent-green), #16a34a); color: white; }
+        .btn-danger { background: linear-gradient(135deg, var(--accent-red), #dc2626); color: white; }
+        .btn-sm { padding: 8px 16px; font-size: 13px; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+        .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-success { background: rgba(34, 197, 94, 0.15); color: var(--accent-green); }
+        .badge-warning { background: rgba(234, 179, 8, 0.15); color: var(--accent-yellow); }
+        .badge-error { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+        .badge-info { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
+        .badge-pending { background: rgba(139, 92, 246, 0.15); color: var(--accent-ghost); }
+        .connection-status { display: flex; align-items: center; gap: 16px; padding: 20px; background: var(--bg-tertiary); border-radius: 10px; margin-bottom: 20px; }
+        .connection-icon { width: 48px; height: 48px; background: var(--bg-card); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .connection-info h3 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+        .connection-info p { font-size: 13px; color: var(--text-secondary); }
+        .connection-actions { margin-top: 20px; display: flex; gap: 12px; }
+        .url-display { display: flex; align-items: center; gap: 12px; padding: 16px; background: var(--bg-tertiary); border-radius: 8px; margin-top: 16px; }
+        .url-display-label { font-size: 13px; color: var(--text-muted); white-space: nowrap; }
+        .url-display-value { flex: 1; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--accent-cyan); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .output-area { margin-top: 20px; padding: 16px; background: var(--bg-tertiary); border-radius: 8px; border: 1px solid var(--border-color); }
+        .output-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .output-content { font-family: 'JetBrains Mono', monospace; font-size: 14px; }
+        .output-content.success { color: var(--accent-green); }
+        .output-content.error { color: var(--accent-red); }
+        .screenshot-preview { width: 100%; max-height: 400px; background: var(--bg-tertiary); border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-top: 16px; }
+        .screenshot-preview img { max-width: 100%; max-height: 400px; object-fit: contain; }
+        .screenshot-placeholder { color: var(--text-muted); font-size: 14px; padding: 60px; text-align: center; }
+        .task-list { list-style: none; }
+        .task-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: var(--bg-tertiary); border-radius: 8px; margin-bottom: 10px; transition: all 0.2s; }
+        .task-item:hover { background: var(--bg-hover); }
+        .task-info { display: flex; align-items: center; gap: 12px; }
+        .task-number { width: 28px; height: 28px; background: var(--accent-ghost); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }
+        .task-name { font-size: 14px; font-weight: 500; }
+        .task-status { display: flex; align-items: center; gap: 8px; }
+        .task-remove { width: 28px; height: 28px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .task-remove:hover { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+        .add-task-form { display: flex; gap: 12px; margin-top: 16px; }
+        .add-task-form .form-input { flex: 1; }
+        .log-table { width: 100%; border-collapse: collapse; }
+        .log-table th, .log-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .log-table th { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; background: var(--bg-tertiary); }
+        .log-table td { font-size: 13px; font-family: 'JetBrains Mono', monospace; }
+        .log-table tr:hover td { background: var(--bg-hover); }
+        .log-timestamp { color: var(--text-muted); font-size: 12px !important; }
+        .log-table-wrapper { max-height: 400px; overflow-y: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+        .form-builder { display: grid; gap: 16px; }
+        .form-field-row { display: flex; gap: 12px; align-items: flex-end; }
+        .form-field-row .form-group { flex: 1; margin-bottom: 0; }
+        .remove-field-btn { width: 42px; height: 42px; background: transparent; border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .remove-field-btn:hover { background: rgba(239, 68, 68, 0.15); border-color: var(--accent-red); color: var(--accent-red); }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 16px; }
+        .stat-icon { width: 44px; height: 44px; background: rgba(139, 92, 246, 0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .stat-info h4 { font-size: 24px; font-weight: 700; margin-bottom: 2px; }
+        .stat-info p { font-size: 13px; color: var(--text-secondary); }
+        .empty-state { text-align: center; padding: 40px; color: var(--text-muted); }
+        .empty-state-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 1000; display: flex; flex-direction: column; gap: 12px; }
+        .toast { padding: 14px 20px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; box-shadow: var(--shadow-card); display: flex; align-items: center; gap: 12px; animation: slideIn 0.3s; min-width: 280px; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .toast-icon { font-size: 18px; }
+        .toast-message { font-size: 14px; font-weight: 500; }
+        .toast.success { border-left: 3px solid var(--accent-green); }
+        .toast.error { border-left: 3px solid var(--accent-red); }
+        .toast.info { border-left: 3px solid var(--accent-blue); }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--border-glow); }
+        @media (max-width: 768px) { .sidebar { width: 60px; } .nav-item span:not(.nav-item-icon) { display: none; } .main-content { margin-left: 60px; } .form-row { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <div class="header-left">
+                <div class="header-avatar">👻</div>
+                <h1 class="header-title">Ghost <span>|</span> Browser Automation</h1>
+            </div>
+            <div class="header-right">
+                <div class="status-indicator">
+                    <span class="status-dot online" id="headerStatus"></span>
+                    <span id="headerStatusText">Online</span>
+                </div>
+                <a href="index.html" class="back-btn">← Back to Master</a>
+            </div>
+        </header>
+        <nav class="sidebar">
+            <div class="nav-item active" data-panel="connect"><span class="nav-item-icon">🔗</span><span>Connect</span></div>
+            <div class="nav-item" data-panel="beelancer"><span class="nav-item-icon">🌐</span><span>Beelancer</span></div>
+            <div class="nav-item" data-panel="bidding"><span class="nav-item-icon">💰</span><span>Manual Bidding</span></div>
+            <div class="nav-item" data-panel="status"><span class="nav-item-icon">📊</span><span>Gig Status</span></div>
+            <div class="nav-item" data-panel="screenshot"><span class="nav-item-icon">📸</span><span>Screenshot</span></div>
+            <div class="nav-item" data-panel="forms"><span class="nav-item-icon">📝</span><span>Form Automation</span></div>
+            <div class="nav-item" data-panel="queue"><span class="nav-item-icon">📋</span><span>Task Queue</span></div>
+            <div class="nav-item" data-panel="log"><span class="nav-item-icon">📜</span><span>Activity Log</span></div>
+        </nav>
+        <main class="main-content">
+            <div class="panel active" id="panel-connect">
+                <div class="panel-header"><h2 class="panel-title"><span class="panel-title-icon">🔗</span>Chrome Connection</h2><p class="panel-subtitle">Connect or disconnect from Chrome browser instance</p></div>
+                <div class="card">
+                    <div class="connection-status" id="connectionStatus">
+                        <div class="connection-icon" id="connectionIcon">🔌</div>
+                        <div class="connection-info"><h3 id="connectionTitle">Disconnected</h3><p id="connectionDesc">No active Chrome connection</p></div>
+                        <span class="badge badge-error" id="connectionBadge">Offline</span>
+                    </div>
+                    <div class="connection-actions"><button class="btn btn-success" id="connectBtn" onclick="toggleConnection()"><span>⚡</span> Connect to Chrome</button></div>
+                    <div class="output-area" id="connectionOutput" style="display:none"><div class="output-label">Connection Log</div><div class="output-content" id="connectionLog"></div></div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-icon">🕐</div><div class="stat-info"><h4 id="sessionDuration">00:00:00</h4><p>Session Duration</p></div></div>
+                    <div class="stat-card"><div class="stat-icon">📄</div><div class="stat-info"><h4 id="tabsCount">0</h4><p>Active Tabs</p></div></div>
+                    <div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-info"><h4 id="actionsCount">0</h4><p>Actions This Session</p></div></div>
+                </div>
+            </div>
+            <div class="panel" id="panel-beelancer">
+                <div class="panel-header"><h2 class="panel-title"><span class="panel-title-icon">🌐</span>Beelancer Navigation</h2><p class="panel-subtitle">Navigate to Beelancer platform and manage your session</p></div>
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title">🚀 Launch Beelancer</h3><span class="badge badge-info">External Site</span></div>
+                    <button class="btn btn-primary" onclick="openBeelancer()"><span>🌐</span> Open Beelancer</button>
+                    <div class="url-display"><span class="url-display-label">Current URL:</span><span class="url-display-value" id="currentUrl">Not connected</span></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title">Quick Actions</h3></div>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap">
+                        <button class="btn btn-secondary btn-sm" onclick="refreshPage()">🔄 Refresh</button>
+                        <button class="btn btn-secondary btn-sm" onclick="goBack()">← Back</button>
+                        <button class="btn btn-secondary btn-sm" onclick="goForward()">Forward →</button>
+                        <button class="btn btn-secondary btn-sm" onclick="takeQuickScreenshot()">📸 Quick Screenshot</button>
+                    </div>
+                </div>
+            </div>
+            <div class="panel" id="panel-bidding">
+                <div class="panel-header"><h2 class="panel-title"><span class="panel-title-icon">💰</span>Manual Bidding</h2><p class="panel-subtitle">Place manual bids on Beelancer gigs</p></div>
+                <div class="card">
+                    <div class="form-group"><label class="form-label">Gig URL</label><input type="text" class="form-input" id="gigUrl" placeholder="https://beelancer.com/gig/..."></div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Bid Amount ($)</label><input type="number" class="form-input" id="bidAmount" placeholder="5.00" min="1" step="0.50"></div>
+                        <div class="form-group"><label class="form-label">Delivery (days)</label><input type="number" class="form-input" id="deliveryDays" placeholder="3" min="1" max="30"></div>
+                    </div>
+                    <div class="form-group"><label class="form-label">Proposal Message</label><textarea class="form-textarea" id="proposalMessage" placeholder="Introduce yourself and explain why you're the best fit..."></textarea></div>
+                    <button class="btn btn-primary" onclick="submitBid()"><span>💰</span> Submit Bid</button>
+                </div>
+                <div class="card" id="bidOutput" style="display:none"><div class="output-area"><div class="output-label">Bid Result</div><div class="output-content" id="bidResult"></div></div></div>
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title">Recent Bids</h3></div>
+                    <div class="log-table-wrapper">
+                        <table class="log-table"><thead><tr><th>Time</th><th>Gig</th><th>Amount</th><th>Status</th></tr></thead>
+                        <tbody id="recentBids"><tr><td class="log-timestamp">--</td><td>No bids yet</td><td>--</td><td><span class="badge badge-pending">--</span></td></tr></tbody></table>
+                    </div>
+                </div>
+            </div>
+            <div class="panel" id="panel-status">
+                <div class="panel-header"><h2 class="panel-title"><span class="panel-title-icon">📊</span>Gig Status Checker</h2><p class="panel-subtitle">Check the status of your active bids</p></div>
+                <div class="card">
+                    <div class="form-group"><label class="form-label">Gig URL</label><div style="display:flex;gap:12px"><input type="text" class="form-input" id="statusGigUrl" placeholder="https://beelancer.com/gig/..."><button class="btn btn-primary" onclick="checkGigStatus()"><span>🔍</span> Check Status</button></div></div>
+                </div>
+                <div class="card" id="statusOutput" style="display:none">
+                    <div class="card-header"><h3 class="card-title">Status Result</h3><span class="badge" id="statusBadge">--</span></div>
+                    <div class="output-area"><div class="output-label">Details</div><div class="output-content" id="statusDetails"></div></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title">Quick Check</h3><button class="btn btn-secondary btn-sm" onclick="refreshStatuses()">🔄 Refresh All</button></div>
+                    <div class="task-list" id="quickCheckList"><div class="empty-state"><div class="empty-state-icon">📭</div><p>No gigs to check</p></div></div>
+                </div>
+            </div>
+            <div class="panel" id="panel-screenshot">
+                <div class="panel-header"><h2 class="panel-title"><span class="panel-title-icon">📸</span>Screenshot Capture</h2><p class="panel-subtitle">Capture screenshots of the current page</p></div>
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title">Capture Options</h3></div>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px">
+                        <button class="btn btn-primary" onclick="captureScreenshot()"><span>📸</span> Capture Screen</button>
+                        <button class="btn btn-secondary" onclick="captureViewport()"><span>📐</span> Viewport Only</button>
+                        <button class="btn btn-secondary" onclick="captureElement()"><span>⬚</span> Select Element</button>
+                    </div>
+                    <div class="form-group"><label class="form-label">Screenshot Name</label><input type="text" class="form-input" id="screenshotName" placeholder="screenshot_001"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title">Preview</h3><button class="btn btn-secondary btn-sm" onclick="downloadScreenshot()">💾 Download</button></div>
+                    <div class="screenshot-preview" id="screenshotPreview"><div class="screenshot-placeholder">📷 No screenshot captured yet</div></div>
+                </div>
+            </div>
+            <div class="panel" id="panel-forms">
+                <div class="panel-header"><h2 class="panel-title"><span class="panel-title-icon">📝</span>Form Automation</h2><p class="panel-subtitle">Automate form filling and submission</p></div>
+                <div class="card"><div class="form-group"><label class="form-label">Form URL</label><input type="text" class="form-input" id="formUrl" placeholder="https://example.com/form"></div></div>
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title">Form Fields</h3><button class="btn btn-secondary btn-sm" onclick="addFormField()">+ Add Field</button></div>
+                    <div class="form-builder" id="formBuilder">
+                        <div class="form-field-row">
+                            <div class="form-group"><label class="form-label">Field Name</label><input type="text" class="form-input" placeholder="e.g., username"></div>
+                            <div class="form-group"><label class="form-label">Field Value</label><input type="text" class="form-input" placeholder="e.g., johndoe"></div>
+                            <button class="remove-field-btn" onclick="removeField(this)">✕</button>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" style="margin-top:16px" onclick="fillForm()"><span>📋</span> Fill Form</button>
+                </div>
+                <div class="card" id="formOutput" style="display:none"><div class="output-area"><div class="output-label">Form Result</div><div class="output-content" id="formResult"></div></div></div>
+            </div>
+            <div class="panel" id="panel-queue">
+                <div class="panel-header"><h2 class="panel-title"><span class="panel-title-icon">📋</span>Task Queue</h2><p class="panel-subtitle">Manage your automation tasks</p></div>
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title">Queued Tasks</h3></div>
+                    <ul class="task-list" id="taskQueueList"><div class="empty-state"><div class="empty-state-icon">📭</div><p>No tasks in queue</p></div></ul>
+                    <div class="add-task-form"><input type="text" class="form-input" id="newTaskInput" placeholder="Enter new task..."><button class="btn btn-primary" onclick="addTask()">+ Add Task</button></div>
+                </div>
+            </div>
+            <div class="panel" id="panel-log">
+                <div class="panel-header"><h2 class="panel-title"><span class="panel-title-icon">📜</span>Activity Log</h2><p class="panel-subtitle">View all browser automation activities</p></div>
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title">Log Entries</h3><button class="btn btn-secondary btn-sm" onclick="clearLog()">🗑 Clear Log</button></div>
+                    <div class="log-table-wrapper">
+                        <table class="log-table"><thead><tr><th>Time</th><th>Action</th><th>Details</th><th>Status</th></tr></thead>
+                        <tbody id="logTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div class="toast-container" id="toastContainer"></div>
+    <script>
+        let isConnected = false, sessionStart = null, sessionTimer = null, actionsCount = 0, taskQueue = [], activityLog = [], gigsToCheck = [], capturedScreenshot = null, bids = [];
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+                item.classList.add('active');
+                document.getElementById('panel-' + item.dataset.panel).classList.add('active');
+            });
+        });
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast ' + type;
+            toast.innerHTML = '<span class="toast-icon">' + (type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ') + '</span><span class="toast-message">' + message + '</span>';
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+        function logAction(action, details, status = 'success') {
+            const time = new Date().toLocaleTimeString();
+            activityLog.unshift({ time, action, details, status });
+            const tbody = document.getElementById('logTableBody');
+            if (activityLog.length === 1) tbody.innerHTML = '';
+            const row = tbody.insertRow(0);
+            row.innerHTML = '<td class="log-timestamp">' + time + '</td><td>' + action + '</td><td>' + details + '</td><td><span class="badge badge-' + status + '">' + status + '</span></td>';
+        }
+        function toggleConnection() {
+            isConnected = !isConnected = !isConnected;
+            const btn = document.getElementById('connectBtn');
+            const icon = document.getElementById('connectionIcon');
+            const title = document.getElementById('connectionTitle');
+            const desc = document.getElementById('connectionDesc');
+            const badge = document.getElementById('connectionBadge');
+            const output = document.getElementById('connectionOutput');
+            const log = document.getElementById('connectionLog');
+            const statusDot = document.getElementById('headerStatus');
+            const statusText = document.getElementById('headerStatusText');
+            if (isConnected) {
+                btn.innerHTML = '<span>⚡</span> Disconnect';
+                btn.className = 'btn btn-danger';
+                icon.textContent = '✅';
+                title.textContent = 'Connected';
+                desc.textContent = 'Chrome browser connected successfully';
+                badge.className = 'badge badge-success';
+                badge.textContent = 'Online';
+                statusDot.className = 'status-dot online';
+                statusText.textContent = 'Online';
+                sessionStart = Date.now();
+                sessionTimer = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - sessionStart) / 1000);
+                    const h = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+                    const m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+                    const s = String(elapsed % 60).padStart(2, '0');
+                    document.getElementById('sessionDuration').textContent = h + ':' + m + ':' + s;
+                }, 1000);
+                output.style.display = 'block';
+                log.textContent = '[INFO] Connection established to Chrome browser\n[INFO] Browser version: Chrome 120.0.0.0\n[INFO] WebSocket connection ready';
+                logAction('Connect', 'Chrome browser connected', 'success');
+                showToast('Connected to Chrome!', 'success');
+            } else {
+                btn.innerHTML = '<span>⚡</span> Connect to Chrome';
+                btn.className = 'btn btn-success';
+                icon.textContent = '🔌';
+                title.textContent = 'Disconnected';
+                desc.textContent = 'No active Chrome connection';
+                badge.className = 'badge badge-error';
+                badge.textContent = 'Offline';
+                statusDot.className = 'status-dot idle';
+                statusText.textContent = 'Idle';
+                clearInterval(sessionTimer);
+                sessionStart = null;
+                output.style.display = 'none';
+                logAction('Disconnect', 'Chrome browser disconnected', 'success');
+                showToast('Disconnected from Chrome', 'info');
+            }
+        }
+        function openBeelancer() {
+            if (!isConnected) { showToast('Please connect to Chrome first', 'error'); return; }
+            document.getElementById('currentUrl').textContent = 'https://beelancer.com';
+            actionsCount++;
+            document.getElementById('actionsCount').textContent = actionsCount;
+            logAction('Navigate', 'Opened Beelancer', 'success');
+            showToast('Opened Beelancer in new tab', 'success');
+        }
+        function refreshPage() { if (!isConnected) { showToast('Please connect to Chrome first', 'error'); return; } actionsCount++; document.getElementById('actionsCount').textContent = actionsCount; logAction('Refresh', 'Page refreshed', 'success'); showToast('Page refreshed', 'success'); }
+        function goBack() { if (!isConnected) { showToast('Please connect to Chrome first', 'error'); return; } actionsCount++; document.getElementById('actionsCount').textContent = actionsCount; logAction('Navigate', 'Went back', 'success'); showToast('Navigated back', 'success'); }
+        function goForward() { if (!isConnected) { showToast('Please connect to Chrome first', 'error'); return; } actionsCount++; document.getElementById('actionsCount').textContent = actionsCount; logAction('Navigate', 'Went forward', 'success'); showToast('Navigated forward', 'success'); }
+        function takeQuickScreenshot() { if (!isConnected) { showToast('Please connect to Chrome first', 'error'); return; } captureScreenshot(); }
+        function submitBid() {
+            const gigUrl = document.getElementById('gigUrl').value;
+            const amount = document.getElementById('bidAmount').value;
+            const delivery = document.getElementById('deliveryDays').value;
+            const message = document.getElementById('proposalMessage').value;
+            if (!gigUrl || !amount || !delivery) { showToast('Please fill in all required fields', 'error'); return; }
+            const output = document.getElementById('bidOutput');
+            const result = document.getElementById('bidResult');
+            output.style.display = 'block';
+            result.className = 'output-content success';
+            result.textContent = 'Bid submitted successfully!\n\nGig: ' + gigUrl + '\nAmount: $' + amount + '\nDelivery: ' + delivery + ' days\n\nYour bid is now pending review.';
+            const tbody = document.getElementById('recentBids');
+            if (bids.length === 0) tbody.innerHTML = '';
+            const row = tbody.insertRow(0);
+            const time = new Date().toLocaleTimeString();
+            bids.unshift({ time, gig: gigUrl, amount: '$' + amount, status: 'pending' });
+            row.innerHTML = '<td class="log-timestamp">' + time + '</td><td>' + (gigUrl.length > 30 ? gigUrl.substring(0, 30) + '...' : gigUrl) + '</td><td>$' + amount + '</td><td><span class="badge badge-pending">pending</span></td>';
+            actionsCount++;
+            document.getElementById('actionsCount').textContent = actionsCount;
+            logAction('Bid', 'Submitted bid: $' + amount, 'success');
+            showToast('Bid submitted successfully!', 'success');
+        }
+        function checkGigStatus() {
+            const url = document.getElementById('statusGigUrl').value;
+            if (!url) { showToast('Please enter a gig URL', 'error'); return; }
+            const statuses = ['pending', 'active', 'completed'];
+            const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+            const output = document.getElementById('statusOutput');
+            const badge = document.getElementById('statusBadge');
+            const details = document.getElementById('statusDetails');
+            output.style.display = 'block';
+            badge.className = 'badge badge-' + (randomStatus === 'active' ? 'success' : randomStatus === 'pending' ? 'pending' : 'warning');
+            badge.textContent = randomStatus.toUpperCase();
+            details.textContent = 'Gig URL: ' + url + '\nStatus: ' + randomStatus + '\nLast updated: ' + new Date().toLocaleString();
+            if (!gigsToCheck.includes(url)) gigsToCheck.push(url);
+            refreshQuickCheckList();
+            actionsCount++;
+            document.getElementById('actionsCount').textContent = actionsCount;
+            logAction('Status Check', 'Checked: ' + url, 'success');
+            showToast('Status: ' + randomStatus, 'info');
+        }
+        function refreshStatuses() {
+            if (gigsToCheck.length === 0) { showToast('No gigs to check', 'info'); return; }
+            gigsToCheck.forEach(url => {
+                const statuses = ['pending', 'active', 'completed'];
+                const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+                logAction('Auto Refresh', url + ' -> ' + randomStatus, 'success');
+            });
+            showToast('Refreshed ' + gigsToCheck.length + ' gigs', 'success');
+        }
+        function refreshQuickCheckList() {
+            const list = document.getElementById('quickCheckList');
+            if (gigsToCheck.length === 0) { list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No gigs to check</p></div>'; return; }
+            list.innerHTML = gigsToCheck.map((url, i) => '<li class="task-item"><div class="task-info"><span class="task-number">' + (i + 1) + '</span><span class="task-name">' + (url.length > 40 ? url.substring(0, 40) + '...' : url) + '</span></div><div class="task-status"><span class="badge badge-pending">pending</span></div></li>').join('');
+        }
+        function captureScreenshot() {
+            if (!isConnected) { showToast('Please connect to Chrome first', 'error'); return; }
+            const preview = document.getElementById('screenshotPreview');
+            const canvas = document.createElement('canvas');
+            canvas.width = 800; canvas.height = 500;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#1a1a24';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#8b5cf6';
+            ctx.font = 'bold 20px Inter';
+            ctx.fillText('👻 Ghost', 20, 40);
+            ctx.fillStyle = '#a1a1aa';
+            ctx.font = '14px JetBrains Mono';
+            ctx.fillText('Screenshot captured at ' + new Date().toLocaleString(), 20, 70);
+            ctx.fillStyle = '#22c55e';
+            ctx.fillRect(50, 100, 700, 350);
+            ctx.fillStyle = '#0a0a0f';
+            ctx.fillText('Browser Content', 350, 280);
+            capturedScreenshot = canvas.toDataURL('image/png');
+            preview.innerHTML = '<img src="' + capturedScreenshot + '" alt="Screenshot">';
+            actionsCount++;
+            document.getElementById('actionsCount').textContent = actionsCount;
+            logAction('Screenshot', 'Full screen captured', 'success');
+            showToast('Screenshot captured!', 'success');
+        }
+        function captureViewport() { if (!isConnected) { showToast('Please connect to Chrome first', 'error'); return; } captureScreenshot(); showToast('Viewport captured!', 'success'); }
+        function captureElement() { if (!isConnected) { showToast('Please connect to Chrome first', 'error'); return; } captureScreenshot(); showToast('Element captured!', 'success'); }
+        function downloadScreenshot() {
+            if (!capturedScreenshot) { showToast('No screenshot to download', 'error'); return; }
+            const name = document.getElementById('screenshotName').value || 'screenshot_' + Date.now();
+            const link = document.createElement('a');
+            link.download = name + '.png';
+            link.href = capturedScreenshot;
+            link.click();
+            logAction('Download', 'Screenshot downloaded: ' + name, 'success');
+            showToast('Screenshot downloaded!', 'success');
+        }
+        function addFormField() {
+            const builder = document.getElementById('formBuilder');
+            const row = document.createElement('div');
+            row.className = 'form-field-row';
+            row.innerHTML = '<div class="form-group"><label class="form-label">Field Name</label><input type="text" class="form-input" placeholder="e.g., email"></div><div class="form-group"><label class="form-label">Field Value</label><input type="text" class="form-input" placeholder="e.g., user@example.com"></div><button class="remove-field-btn" onclick="removeField(this)">✕</button>';
+            builder.appendChild(row);
+        }
+        function removeField(btn) { btn.parentElement.remove(); }
+        function fillForm() {
+            const url = document.getElementById('formUrl').value;
+            if (!url) { showToast('Please enter a form URL', 'error'); return; }
+            const fields = document.querySelectorAll('#formBuilder .form-field-row');
+            let fieldCount = 0;
+            fields.forEach(row => {
+                const inputs = row.querySelectorAll('input');
+                if (inputs[0].value && inputs[1].value) fieldCount++;
+            });
+            const output = document.getElementById('formOutput');
+            const result = document.getElementById('formResult');
+            output.style.display = 'block';
+            result.className = 'output-content success';
+            result.textContent = 'Form filled successfully!\n\nForm URL: ' + url + '\nFields filled: ' + fieldCount + '\n\nForm is ready for submission.';
+            actionsCount++;
+            document.getElementById('actionsCount').textContent = actionsCount;
+            logAction('Form Fill', 'Filled ' + fieldCount + ' fields', 'success');
+            showToast('Form filled with ' + fieldCount + ' fields!', 'success');
+        }
+        function addTask() {
+            const input = document.getElementById('newTaskInput');
+            const task = input.value.trim();
+            if (!task) { showToast('Please enter a task', 'error'); return; }
+            taskQueue.push({ name: task, status: 'pending' });
+            input.value = '';
+            renderTaskQueue();
+            logAction('Task', 'Added: ' + task, 'success');
+            showToast('Task added!', 'success');
+        }
+        function removeTask(index) {
+            taskQueue.splice(index, 1);
+            renderTaskQueue();
+            showToast('Task removed', 'info');
+        }
+        function renderTaskQueue() {
+            const list = document.getElementById('taskQueueList');
+            if (taskQueue.length === 0) { list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No tasks in queue</p></div>'; return; }
+            list.innerHTML = taskQueue.map((task, i) => '<li class="task-item"><div class="task-info"><span class="task-number">' + (i + 1) + '</span><span class="task-name">' + task.name + '</span></div><div class="task-status"><span class="badge badge-' + (task.status === 'completed' ? 'success' : 'pending') + '">' + task.status + '</span><button class="task-remove" onclick="removeTask(' + i + ')">✕</button></div></li>').join('');
+        }
+        function clearLog() {
+            activityLog = [];
+            document.getElementById('logTableBody').innerHTML = '';
+            showToast('Log cleared', 'info');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Athena Code Playground</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-card: #21262d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --accent: #58a6ff;
+            --accent-hover: #79c0ff;
+            --border: #30363d;
+            --success: #3fb950;
+            --bash-color: #f0a743;
+            --js-color: #f7df1e;
+            --python-color: #58a6ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent), #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .search-box::before {
+            content: "🔍";
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        .filter-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        .category-filter {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            padding: 0.5rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+        }
+
+        .category-btn:hover {
+            border-color: var(--accent);
+        }
+
+        .category-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        .snippets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .snippet-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .snippet-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .lang-badge {
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .lang-bash { background: var(--bash-color); color: #000; }
+        .lang-javascript { background: var(--js-color); color: #000; }
+        .lang-python { background: var(--python-color); color: #fff; }
+
+        .category-tag {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            background: var(--bg-secondary);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .card-body {
+            padding: 0;
+        }
+
+        .code-container {
+            position: relative;
+            max-height: 300px;
+            overflow: auto;
+        }
+
+        .code-container pre {
+            margin: 0;
+            border-radius: 0;
+            max-height: 300px;
+        }
+
+        .code-container code {
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.4rem 0.75rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 4px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+            backdrop-filter: blur(4px);
+        }
+
+        .copy-btn:hover {
+            background: var(--success);
+            color: #fff;
+        }
+
+        .copy-btn.copied {
+            background: var(--success);
+            color: #fff;
+        }
+
+        .card-footer {
+            padding: 0.75rem 1.25rem;
+            border-top: 1px solid var(--border);
+            background: var(--bg-secondary);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .stats {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .no-results h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--success);
+            color: #fff;
+            border-radius: 8px;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            .snippets-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 Athena Code Playground</h1>
+            <p class="subtitle">Your personal snippet library for automation, APIs, and utilities</p>
+        </header>
+
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search snippets by name, code, or tags...">
+            </div>
+            <div class="filter-group">
+                <button class="filter-btn active" data-lang="all">All</button>
+                <button class="filter-btn" data-lang="bash">Bash</button>
+                <button class="filter-btn" data-lang="javascript">JavaScript</button>
+                <button class="filter-btn" data-lang="python">Python</button>
+            </div>
+        </div>
+
+        <div class="category-filter">
+            <button class="category-btn active" data-category="all">All Categories</button>
+            <button class="category-btn" data-category="automation">🤖 Automation</button>
+            <button class="category-btn" data-category="api">🔌 API</button>
+            <button class="category-btn" data-category="utilities">🛠️ Utilities</button>
+            <button class="category-btn" data-category="voice">🎤 Voice</button>
+        </div>
+
+        <div class="snippets-grid" id="snippetsGrid">
+            <!-- Snippets will be rendered here -->
+        </div>
+
+        <div class="no-results" id="noResults" style="display: none;">
+            <h3>No snippets found</h3>
+            <p>Try adjusting your search or filters</p>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">✓ Copied to clipboard!</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+
+    <script>
+        const snippets = [
+            {
+                id: 1,
+                title: "Edge TTS Voice Synthesis",
+                language: "bash",
+                category: "voice",
+                description: "Generate speech from text using Microsoft's Edge TTS",
+                code: `# Basic TTS to MP3
+edge-tts --voice "en-US-AriaNeural" --text "Hello, I am Athena!" --write-media output.mp3
+
+# TTS with subtitle file
+edge-tts --voice "en-US-GuyNeural" --text "Welcome to the future." --write-media speech.mp3 --write-subtitles speech.vtt
+
+# List all available voices
+edge-tts --list-voices
+
+# Filter voices by language
+edge-tts --list-voices | grep -i "en-US"
+
+# Create audiobook from text file
+edge-tts --voice "en-GB-SoniaNeural" --text "$(cat book.txt)" --write-media audiobook.mp3`,
+                tags: ["tts", "voice", "speech", "audio"],
+                lastUpdated: "2026-02-23"
+            },
+            {
+                id: 2,
+                title: "Edge TTS Batch Processing",
+                language: "bash",
+                category: "voice",
+                description: "Process multiple text files with different voices",
+                code: `#!/bin/bash
+# Batch TTS processor
+
+VOICES=("en-US-AriaNeural" "en-US-GuyNeural" "en-GB-SoniaNeural")
+INPUT_DIR="./texts"
+OUTPUT_DIR="./audio"
+
+mkdir -p "$OUTPUT_DIR"
+
+for i in "$INPUT_DIR"/*.txt; do
+    filename=$(basename "$i" .txt)
+    voice=${VOICES[$RANDOM % ${#VOICES[@]}]}
+    
+    echo "Processing $filename with $voice..."
+    edge-tts --voice "$voice" --text "$(cat "$i")" --write-media "$OUTPUT_DIR/$filename.mp3"
+done
+
+echo "✓ Batch complete!"`,
+                tags: ["batch", "automation", "tts"],
+                lastUpdated: "2026-02-23"
+            },
+            {
+                id: 3,
+                title: "Beelancer API - Get Status",
+                language: "javascript",
+                category: "api",
+                description: "Check Beelancer service status via API",
+                code: `// Beelancer API Client
+const BEELANCER_API = 'https://api.beelancer.com/v1';
+const API_KEY = process.env.BEELANCER_API_KEY;
+
+async function getServiceStatus(serviceId) {
+    const response = await fetch(\`\${BEELANCER_API}/services/\${serviceId}\`, {
+        headers: {
+            'Authorization': \`Bearer \${API_KEY}\`,
+            'Content-Type': 'application/json'
+        }
+    });
+    
+    if (!response.ok) {
+        throw new Error(\`HTTP error! status: \${response.status}\`);
+    }
+    
+    return await response.json();
+}
+
+// Usage
+getServiceStatus('my-service-123')
+    .then(status => console.log('Service status:', status))
+    .catch(err => console.error('Error:', err));`,
+                tags: ["api", "monitoring", "status"],
+                lastUpdated: "2026-02-23"
+            },
+            {
+                id: 4,
+                title: "Beelancer API - Create Order",
+                language: "javascript",
+                category: "api",
+                description: "Create a new order via Beelancer API",
+                code: `async function createOrder(orderData) {
+    const response = await fetch(\`\${BEELANCER_API}/orders\`, {
+        method: 'POST',
+        headers: {
+            'Authorization': \`Bearer \${API_KEY}\`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            service_id: orderData.serviceId,
+            quantity: orderData.quantity,
+            custom_data: orderData.customData
+        })
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+        console.log(\`Order created: #\${result.order_id}\`);
+    }
+    
+    return result;
+}
+
+// Usage
+createOrder({
+    serviceId: '12345',
+    quantity: 100,
+    customData: { url: 'https://example.com' }
+});`,
+                tags: ["api", "orders", "automation"],
+                lastUpdated: "2026-02-23"
+            },
+            {
+                id: 5,
+                title: "Dashboard Auto-Refresh",
+                language: "javascript",
+                category: "automation",
+                description: "Automatically refresh dashboard widgets",
+                code: `// Dashboard Refresh Manager
+class DashboardRefresher {
+    constructor(refreshInterval = 30000) {
+        this.interval = refreshInterval;
+        this.widgets = new Map();
+        this.timers = new Map();
+    }
+
+    registerWidget(id, refreshFn, options = {}) {
+        this.widgets.set(id, { refreshFn, ...options });
+        this.startWidget(id);
+    }
+
+    startWidget(id) {
+        const widget = this.widgets.get(id);
+        if (!widget) return;
+
+        // Initial refresh
+        this.refreshWidget(id);
+
+        // Set interval
+        const timer = setInterval(() => {
+            this.refreshWidget(id);
+        }, widget.interval || this.interval);
+
+        this.timers.set(id, timer);
+    }
+
+    async refreshWidget(id) {
+        const widget = this.widgets.get(id);
+        try {
+            await widget.refreshFn();
+            console.log(\`✓ Widget \${id} refreshed\`);
+        } catch (err) {
+            console.error(\`✗ Widget \${id} failed:\`, err);
+        }
+    }
+
+    stopWidget(id) {
+        const timer = this.timers.get(id);
+        if (timer) {
+            clearInterval(timer);
+            this.timers.delete(id);
+        }
+    }
+}
+
+// Usage
+const dashboard = new DashboardRefresher();
+dashboard.registerWidget('stats', async () => {
+    const data = await fetch('/api/stats').then(r => r.json());
+    updateStatsUI(data);
+}, { interval: 15000 });`,
+                tags: ["dashboard", "refresh", "ui"],
+                lastUpdated: "2026-02-23"
+            },
+            {
+                id: 6,
+                title: "Git Backup Script",
+                language: "bash",
+                category: "utilities",
+                description: "Backup all git repositories with timestamps",
+                code: `#!/bin/bash
+# Git Repository Backup Script
+
+BACKUP_DIR="/backups/git"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+REPOS_DIR="/workspace"
+
+mkdir -p "$BACKUP_DIR"
+
+echo "🔄 Starting git backup..."
+
+find "$REPOS_DIR" -name ".git" -type d | while read gitdir; do
+    repo_path=$(dirname "$gitdir")
+    repo_name=$(basename "$repo_path")
+    
+    echo "Backing up: $repo_name"
+    
+    # Create bare clone
+    git clone --bare "$repo_path" "$BACKUP_DIR/${repo_name}_${TIMESTAMP}.git" 2>/dev/null
+    
+    if [ $? -eq 0 ]; then
+        echo "  ✓ $repo_name backed up"
+    else
+        echo "  ✗ Failed: $repo_name"
+    fi
+done
+
+# Cleanup old backups (keep last 7 days)
+find "$BACKUP_DIR" -name "*.git" -mtime +7 -exec rm -rf {} \\;
+
+echo "✅ Backup complete!"`,
+                tags: ["git", "backup", "automation"],
+                lastUpdated: "2026-02-23"
+            },
+            {
+                id: 7,
+                title: "Git Auto-Commit & Push",
+                language: "bash",
+                category: "utilities",
+                description: "Automatically commit and push changes",
+                code: `#!/bin/bash
+# Auto-commit script for Athena
+
+MESSAGE="${1:-Auto-update: $(date '+%Y-%m-%d %H:%M')}"
+BRANCH="${2:-main}"
+
+# Check if we're in a git repo
+if ! git rev-parse --git-dir > /dev/null 2>&1; then
+    echo "❌ Not a git repository"
+    exit 1
+fi
+
+# Add all changes
+git add -A
+
+# Check if there are changes
+if git diff --staged --quiet; then
+    echo "✓ No changes to commit"
+    exit 0
+fi
+
+# Commit
+git commit -m "$MESSAGE"
+
+# Push
+git push origin "$BRANCH"
+
+if [ $? -eq 0 ]; then
+    echo "✅ Committed and pushed: $MESSAGE"
+else
+    echo "❌ Push failed"
+    exit 1
+fi`,
+                tags: ["git", "automation", "commit"],
+                lastUpdated: "2026-02-23"
+            },
+            {
+                id: 8,
+                title: "Python API Health Check",
+                language: "python",
+                category: "api",
+                description: "Monitor multiple API endpoints",
+                code: `#!/usr/bin/env python3
+"""API Health Monitor for Athena"""
+
+import requests
+import time
+from datetime import datetime
+from typing import Dict, List
+
+class APIHealthChecker:
+    def __init__(self, timeout: int = 10):
+        self.timeout = timeout
+        self.results: Dict[str, dict] = {}
+    
+    def check_endpoint(self, name: str, url: str, 
+                       expected_status: int = 200) -> dict:
+        """Check a single endpoint"""
+        start_time = time.time()
+        
+        try:
+            response = requests.get(url, timeout=self.timeout)
+            elapsed = (time.time() - start_time) * 1000
+            
+            result = {
+                'status': 'healthy' if response.status_code == expected_status else 'unhealthy',
+                'status_code': response.status_code,
+                'response_time_ms': round(elapsed, 2),
+                'timestamp': datetime.now().isoformat()
+            }
+        except requests.exceptions.RequestException as e:
+            result = {
+                'status': 'error',
+                'error': str(e),
+                'timestamp': datetime.now().isoformat()
+            }
+        
+        self.results[name] = result
+        return result
+    
+    def check_all(self, endpoints: Dict[str, str]) -> Dict[str, dict]:
+        """Check multiple endpoints"""
+        for name, url in endpoints.items():
+            self.check_endpoint(name, url)
+        return self.results
+    
+    def report(self) -> str:
+        """Generate health report"""
+        healthy = sum(1 for r in self.results.values() if r['status'] == 'healthy')
+        total = len(self.results)
+        
+        report = f"\\n📊 API Health Report\\n"
+        report += f"{'='*40}\\n"
+        report += f"Healthy: {healthy}/{total}\\n\\n"
+        
+        for name, result in self.results.items():
+            status_icon = '✓' if result['status'] == 'healthy' else '✗'
+            report += f"{status_icon} {name}: {result['status']}\\n"
+            if 'response_time_ms' in result:
+                report += f"  Response: {result['response_time_ms']}ms\\n"
+        
+        return report
+
+# Usage
+if __name__ == '__main__':
+    checker = APIHealthChecker()
+    endpoints = {
+        'Beelancer API': 'https://api.beelancer.com/health',
+        'Athena Core': 'http://localhost:3000/health'
+    }
+    checker.check_all(endpoints)
+    print(checker.report())`,
+                tags: ["python", "monitoring", "health"],
+                lastUpdated: "2026-02-23"
+            },
+            {
+                id: 9,
+                title: "Python Dashboard Data Fetcher",
+                language: "python",
+                category: "automation",
+                description: "Fetch and aggregate dashboard data",
+                code: `#!/usr/bin/env python3
+"""Dashboard Data Aggregator"""
+
+import asyncio
+import aiohttp
+from datetime import datetime
+
+class DashboardDataFetcher:
+    def __init__(self, base_url: str, api_key: str):
+        self.base_url = base_url
+        self.headers = {'Authorization': f'Bearer {api_key}'}
+    
+    async def fetch_widget_data(self, session: aiohttp.ClientSession, 
+                                 widget_id: str) -> dict:
+        """Fetch data for a single widget"""
+        try:
+            async with session.get(
+                f'{self.base_url}/widgets/{widget_id}',
+                headers=self.headers
+            ) as response:
+                if response.status == 200:
+                    return await response.json()
+        except Exception as e:
+            return {'error': str(e), 'widget': widget_id}
+    
+    async def fetch_all_widgets(self, widget_ids: list) -> dict:
+        """Fetch all widgets concurrently"""
+        async with aiohttp.ClientSession() as session:
+            tasks = [
+                self.fetch_widget_data(session, wid) 
+                for wid in widget_ids
+            ]
+            results = await asyncio.gather(*tasks)
+            return {r.get('widget', i): r for i, r in enumerate(results)}
+    
+    async def refresh_dashboard(self):
+        """Full dashboard refresh"""
+        widgets = ['stats', 'activity', 'alerts', 'performance']
+        data = await self.fetch_all_widgets(widgets)
+        
+        # Update dashboard UI
+        self.update_ui(data)
+        
+        print(f"✓ Dashboard refreshed at {datetime.now()}")
+        return data
+    
+    def update_ui(self, data: dict):
+        """Update dashboard UI with new data"""
+        # Implementation depends on your UI framework
+        pass
+
+# Usage
+async def main():
+    fetcher = DashboardDataFetcher(
+        base_url='http://localhost:3000/api',
+        api_key='your-api-key'
+    )
+    await fetcher.refresh_dashboard()
+
+if __name__ == '__main__':
+    asyncio.run(main())`,
+                tags: ["python", "dashboard", "async"],
+                lastUpdated: "2026-02-23"
+            },
+            {
+                id: 10,
+                title: "System Monitoring Script",
+                language: "bash",
+                category: "utilities",
+                description: "Monitor system resources and log metrics",
+                code: `#!/bin/bash
+# System Resource Monitor
+
+LOG_FILE="/var/log/athena/system-metrics.log"
+THRESHOLD_CPU=80
+THRESHOLD_MEM=90
+
+mkdir -p "$(dirname "$LOG_FILE")"
+
+log_metric() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"
+}
+
+# CPU Usage
+CPU=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}' | cut -d'%' -f1)
+log_metric "CPU: ${CPU}%"
+
+# Memory Usage
+MEM=$(free | grep Mem | awk '{printf("%.0f", $3/$2 * 100)}')
+log_metric "Memory: ${MEM}%"
+
+# Disk Usage
+DISK=$(df -h / | awk 'NR==2 {print $5}' | cut -d'%' -f1)
+log_metric "Disk: ${DISK}%"
+
+# Alerts
+if (( $(echo "$CPU > $THRESHOLD_CPU" | bc -l) )); then
+    log_metric "⚠️ ALERT: High CPU usage!"
+fi
+
+if [ "$MEM" -gt "$THRESHOLD_MEM" ]; then
+    log_metric "⚠️ ALERT: High memory usage!"
+fi
+
+echo "✓ Metrics logged"`,
+                tags: ["monitoring", "system", "alerts"],
+                lastUpdated: "2026-02-23"
+            },
+            {
+                id: 11,
+                title: "WebSocket Dashboard Connection",
+                language: "javascript",
+                category: "api",
+                description: "Real-time dashboard updates via WebSocket",
+                code: `// Real-time Dashboard Connector
+class DashboardWebSocket {
+    constructor(url, options = {}) {
+        this.url = url;
+        this.reconnectInterval = options.reconnectInterval || 5000;
+        this.maxReconnects = options.maxReconnects || 10;
+        this.reconnectCount = 0;
+        this.ws = null;
+        this.handlers = new Map();
+    }
+
+    connect() {
+        this.ws = new WebSocket(this.url);
+
+        this.ws.onopen = () => {
+            console.log('✓ Dashboard connected');
+            this.reconnectCount = 0;
+            this.emit('connected');
+        };
+
+        this.ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            this.emit(data.type, data.payload);
+        };
+
+        this.ws.onclose = () => {
+            console.log('✗ Dashboard disconnected');
+            this.emit('disconnected');
+            this.reconnect();
+        };
+
+        this.ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+            this.emit('error', error);
+        };
+    }
+
+    reconnect() {
+        if (this.reconnectCount < this.maxReconnects) {
+            this.reconnectCount++;
+            console.log(\`Reconnecting... (\${this.reconnectCount}/\${this.maxReconnects})\`);
+            setTimeout(() => this.connect(), this.reconnectInterval);
+        } else {
+            console.error('Max reconnections reached');
+            this.emit('maxReconnectsReached');
+        }
+    }
+
+    on(event, handler) {
+        if (!this.handlers.has(event)) {
+            this.handlers.set(event, []);
+        }
+        this.handlers.get(event).push(handler);
+    }
+
+    emit(event, data) {
+        const handlers = this.handlers.get(event) || [];
+        handlers.forEach(handler => handler(data));
+    }
+
+    send(type, payload) {
+        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+            this.ws.send(JSON.stringify({ type, payload }));
+        }
+    }
+
+    disconnect() {
+        if (this.ws) {
+            this.ws.close();
+        }
+    }
+}
+
+// Usage
+const dashboard = new DashboardWebSocket('ws://localhost:3000/dashboard');
+
+dashboard.on('stats', (data) => {
+    updateStatsWidget(data);
+});
+
+dashboard.on('alert', (data) => {
+    showNotification(data);
+});
+
+dashboard.connect();`,
+                tags: ["websocket", "realtime", "dashboard"],
+                lastUpdated: "2026-02-23"
+            },
+            {
+                id: 12,
+                title: "Environment Setup Script",
+                language: "bash",
+                category: "automation",
+                description: "Quick environment setup for new projects",
+                code: `#!/bin/bash
+# Athena Project Setup Script
+
+set -e
+
+PROJECT_NAME="${1:-athena-project}"
+PYTHON_VERSION="${2:-3.11}"
+
+echo "🚀 Setting up project: $PROJECT_NAME"
+
+# Create project structure
+mkdir -p "$PROJECT_NAME"/{src,tests,config,logs,data}
+cd "$PROJECT_NAME"
+
+# Initialize git
+git init
+git checkout -b main
+
+# Create Python virtual environment
+python${PYTHON_VERSION} -m venv venv
+source venv/bin/activate
+
+# Create requirements.txt
+cat > requirements.txt << EOF
+requests>=2.31.0
+aiohttp>=3.9.0
+python-dotenv>=1.0.0
+EOF
+
+# Create .env template
+cat > .env.example << EOF
+API_KEY=your-api-key-here
+DEBUG=false
+LOG_LEVEL=INFO
+EOF
+
+# Create .gitignore
+cat > .gitignore << EOF
+venv/
+__pycache__/
+*.pyc
+.env
+logs/
+data/
+EOF
+
+# Create main.py
+cat > src/main.py << 'PYEOF'
+#!/usr/bin/env python3
+"""Athena Project Main Entry Point"""
+
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+def main():
+    print("🚀 Athena project initialized!")
+    print(f"Debug mode: {os.getenv('DEBUG', False)}")
+
+if __name__ == '__main__':
+    main()
+PYEOF
+
+echo ""
+echo "✅ Project setup complete!"
+echo ""
+echo "Next steps:"
+echo "  cd $PROJECT_NAME"
+echo "  source venv/bin/activate"
+echo "  cp .env.example .env"
+echo "  # Edit .env with your credentials"
+echo "  python src/main.py"`,
+                tags: ["setup", "automation", "python"],
+                lastUpdated: "2026-02-23"
+            }
+        ];
+
+        let currentLang = 'all';
+        let currentCategory = 'all';
+        let searchQuery = '';
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function renderSnippets() {
+            const grid = document.getElementById('snippetsGrid');
+            const noResults = document.getElementById('noResults');
+            
+            const filtered = snippets.filter(snippet => {
+                const matchesLang = currentLang === 'all' || snippet.language === currentLang;
+                const matchesCategory = currentCategory === 'all' || snippet.category === currentCategory;
+                const matchesSearch = searchQuery === '' || 
+                    snippet.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    snippet.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    snippet.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                    snippet.code.toLowerCase().includes(searchQuery.toLowerCase());
+                
+                return matchesLang && matchesCategory && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.style.display = 'none';
+                noResults.style.display = 'block';
+                return;
+            }
+
+            grid.style.display = 'grid';
+            noResults.style.display = 'none';
+
+            grid.innerHTML = filtered.map(snippet => `
+                <div class="snippet-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>${escapeHtml(snippet.title)}</span>
+                            <span class="lang-badge lang-${snippet.language}">${snippet.language}</span>
+                        </div>
+                        <span class="category-tag">📁 ${snippet.category}</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="code-container">
+                            <button class="copy-btn" onclick="copyCode(this, ${snippet.id})">
+                                📋 Copy
+                            </button>
+                            <pre><code class="language-${snippet.language}">${escapeHtml(snippet.code)}</code></pre>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <span class="stat">📝 ${snippet.description}</span>
+                        </div>
+                        <div class="stats" style="margin-top: 0.5rem;">
+                            <span class="stat">🏷️ ${snippet.tags.join(', ')}</span>
+                            <span class="stat">📅 ${snippet.lastUpdated}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Re-highlight code blocks
+            Prism.highlightAll();
+        }
+
+        function copyCode(button, snippetId) {
+            const snippet = snippets.find(s => s.id === snippetId);
+            if (!snippet) return;
+
+            navigator.clipboard.writeText(snippet.code).then(() => {
+                button.textContent = '✓ Copied!';
+                button.classList.add('copied');
+                
+                showToast();
+                
+                setTimeout(() => {
+                    button.textContent = '📋 Copy';
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                button.textContent = '✗ Failed';
+                setTimeout(() => {
+                    button.textContent = '📋 Copy';
+                }, 2000);
+            });
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // Event Listeners
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            renderSnippets();
+        });
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentLang = btn.dataset.lang;
+                renderSnippets();
+            });
+        });
+
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCategory = btn.dataset.category;
+                renderSnippets();
+            });
+        });
+
+        // Initial render
+        renderSnippets();
+    </script>
+</body>
+</html>

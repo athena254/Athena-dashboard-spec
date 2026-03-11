@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⚡ Athena Command Widget</title>
+  <style>
+    :root {
+      --bg: #0a0e17;
+      --surface: #111827;
+      --elevated: #1f2937;
+      --border: #2d3748;
+      --text: #f7fafc;
+      --text-dim: #9ca3af;
+      --cyan: #22d3ee;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --purple: #a78bfa;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 1rem;
+    }
+
+    .widget {
+      max-width: 320px;
+      margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .widget-header {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .widget-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.25rem 0.5rem;
+      background: rgba(16, 185, 129, 0.15);
+      border-radius: 9999px;
+      font-size: 0.625rem;
+      font-weight: 600;
+      color: var(--green);
+      text-transform: uppercase;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+    }
+
+    .metric {
+      background: var(--surface);
+      padding: 0.5rem;
+      text-align: center;
+    }
+
+    .metric-value {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--cyan);
+    }
+
+    .metric-label {
+      font-size: 0.5625rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-top: 0.125rem;
+    }
+
+    .section {
+      padding: 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+
+    .action-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.625rem 0.25rem;
+      background: var(--elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.5625rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .action-btn:hover {
+      background: #2d3a4f;
+      border-color: var(--cyan);
+      transform: translateY(-1px);
+    }
+
+    .action-btn:active {
+      transform: translateY(0);
+    }
+
+    .action-icon {
+      font-size: 1rem;
+    }
+
+    .agent-list {
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    .agent-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      border-radius: 6px;
+      margin-bottom: 0.25rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .agent-item:hover {
+      background: var(--elevated);
+    }
+
+    .agent-avatar {
+      font-size: 1rem;
+      width: 24px;
+      text-align: center;
+    }
+
+    .agent-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .agent-name {
+      font-size: 0.75rem;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .agent-role {
+      font-size: 0.5625rem;
+      color: var(--text-dim);
+    }
+
+    .agent-status {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .agent-status.active {
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+    }
+
+    .agent-status.idle {
+      background: var(--amber);
+    }
+
+    .activity-feed {
+      max-height: 120px;
+      overflow-y: auto;
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.375rem 0;
+      font-size: 0.6875rem;
+      border-bottom: 1px solid rgba(45, 55, 72, 0.5);
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+
+    .activity-time {
+      color: var(--text-dim);
+      font-size: 0.5625rem;
+      white-space: nowrap;
+    }
+
+    .activity-text {
+      color: var(--text-dim);
+    }
+
+    .activity-text strong {
+      color: var(--text);
+    }
+
+    .widget-footer {
+      padding: 0.5rem 0.75rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.5625rem;
+      color: var(--text-dim);
+    }
+
+    .refresh-btn {
+      background: none;
+      border: none;
+      color: var(--cyan);
+      cursor: pointer;
+      font-size: 0.5625rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .refresh-btn:hover {
+      text-decoration: underline;
+    }
+
+    .command-input {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .command-input input {
+      flex: 1;
+      background: var(--elevated);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+      color: var(--text);
+      font-size: 0.75rem;
+      outline: none;
+    }
+
+    .command-input input:focus {
+      border-color: var(--cyan);
+    }
+
+    .command-input button {
+      background: var(--cyan);
+      color: var(--bg);
+      border: none;
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+      font-weight: 600;
+      font-size: 0.6875rem;
+      cursor: pointer;
+    }
+
+    .command-input button:hover {
+      opacity: 0.9;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--surface);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="widget">
+    <div class="widget-header">
+      <div class="widget-title">
+        <span>⚡</span>
+        <span>Athena Command</span>
+      </div>
+      <div class="status-pill">
+        <span class="status-dot"></span>
+        <span>Online</span>
+      </div>
+    </div>
+
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-value" id="active">-</div>
+        <div class="metric-label">Active</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value" id="bids">-</div>
+        <div class="metric-label">Bids</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value" id="tasks">-</div>
+        <div class="metric-label">Tasks</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value" id="sessions">-</div>
+        <div class="metric-label">Sessions</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Quick Actions</div>
+      <div class="actions">
+        <button class="action-btn" onclick="triggerAction('refresh')">
+          <span class="action-icon">↻</span>
+          <span>Refresh</span>
+        </button>
+        <button class="action-btn" onclick="triggerAction('ping')">
+          <span class="action-icon">📡</span>
+          <span>Ping</span>
+        </button>
+        <button class="action-btn" onclick="triggerAction('status')">
+          <span class="action-icon">📊</span>
+          <span>Status</span>
+        </button>
+        <button class="action-btn" onclick="triggerAction('health')">
+          <span class="action-icon">💚</span>
+          <span>Health</span>
+        </button>
+        <button class="action-btn" onclick="triggerAction('log')">
+          <span class="action-icon">📜</span>
+          <span>Log</span>
+        </button>
+        <button class="action-btn" onclick="triggerAction('backup')">
+          <span class="action-icon">💾</span>
+          <span>Backup</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Agents</div>
+      <div class="agent-list" id="agent-list"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Recent Activity</div>
+      <div class="activity-feed" id="activity-feed">
+        <div class="activity-item">
+          <span class="activity-time">--:--</span>
+          <span class="activity-text">Loading activity...</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="command-input">
+      <input type="text" id="command" placeholder="Type command..." onkeypress="handleCommand(event)">
+      <button onclick="sendCommand()">Run</button>
+    </div>
+
+    <div class="widget-footer">
+      <span id="last-updated">Last update: --</span>
+      <button class="refresh-btn" onclick="refresh()">
+        ↻ Refresh
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let lastActivityId = 0;
+
+    async function refresh() {
+      try {
+        const res = await fetch('api/data.json');
+        const data = await res.json();
+        
+        // Update metrics
+        const active = data.agents.filter(a => a.status === 'active').length;
+        document.getElementById('active').textContent = active;
+        document.getElementById('bids').textContent = data.pendingBids || '-';
+        document.getElementById('tasks').textContent = data.agents.reduce((s, a) => s + a.tasks, 0);
+        document.getElementById('sessions').textContent = data.metrics?.activeSessions || '-';
+        
+        // Update agent list
+        const agentList = document.getElementById('agent-list');
+        agentList.innerHTML = data.agents.slice(0, 8).map(a => `
+          <div class="agent-item" onclick="selectAgent('${a.id}')">
+            <span class="agent-avatar">${a.avatar}</span>
+            <div class="agent-info">
+              <div class="agent-name">${a.name}</div>
+              <div class="agent-role">${a.role}</div>
+            </div>
+            <span class="agent-status ${a.status}"></span>
+          </div>
+        `).join('');
+        
+        // Update activity feed
+        updateActivity(data);
+        
+        document.getElementById('last-updated').textContent = `Last update: ${new Date().toLocaleTimeString()}`;
+      } catch (e) {
+        console.error('Refresh failed:', e);
+      }
+    }
+
+    function updateActivity(data) {
+      const activities = [
+        { agent: 'athena', action: 'orchestrating', target: `${data.metrics?.activeSessions || 0} sessions` },
+        { agent: 'sterling', action: 'monitoring bids', target: `${data.pendingBids || 0} pending` },
+        { agent: 'beelancer', action: 'scouting gigs', target: 'Beelancer active' },
+        { agent: 'chronos', action: 'running', target: 'scheduler' },
+        { agent: 'janus', action: 'handling', target: `${data.agents.find(a => a.id === 'janus')?.tasks || 0} requests` },
+        { agent: 'hermes', action: 'waiting for', target: 'messages' },
+        { agent: 'felicity', action: 'ready for', target: 'UI tasks' }
+      ];
+
+      const feed = document.getElementById('activity-feed');
+      const now = new Date();
+      
+      feed.innerHTML = activities.map((a, i) => {
+        const agent = data.agents.find(ag => ag.id === a.agent);
+        const time = new Date(now - i * 30000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return `
+          <div class="activity-item">
+            <span class="activity-time">${time}</span>
+            <span class="activity-text">
+              <strong>${agent?.avatar || '•'} ${agent?.name || a.agent}</strong> ${a.action} · ${a.target}
+            </span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function triggerAction(action) {
+      const btn = event.target.closest('.action-btn');
+      btn.style.transform = 'scale(0.95)';
+      setTimeout(() => btn.style.transform = '', 100);
+      
+      const input = document.getElementById('command');
+      input.value = action;
+      sendCommand();
+    }
+
+    function handleCommand(e) {
+      if (e.key === 'Enter') {
+        sendCommand();
+      }
+    }
+
+    function sendCommand() {
+      const input = document.getElementById('command');
+      const cmd = input.value.trim();
+      
+      if (!cmd) return;
+      
+      // Simulate command execution
+      const feed = document.getElementById('activity-feed');
+      const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      
+      const activityHtml = `
+        <div class="activity-item">
+          <span class="activity-time">${now}</span>
+          <span class="activity-text">
+            <strong>⚡ You</strong> ran <code>${cmd}</code>
+          </span>
+        </div>
+      `;
+      
+      feed.innerHTML = activityHtml + feed.innerHTML;
+      input.value = '';
+      
+      // Auto-refresh after command
+      setTimeout(refresh, 1500);
+    }
+
+    function selectAgent(agentId) {
+      const input = document.getElementById('command');
+      input.value = `agent ${agentId} status`;
+      input.focus();
+    }
+
+    // Initial load
+    refresh();
+    
+    // Auto-refresh every 30 seconds
+    setInterval(refresh, 30000);
+  </script>
+</body>
+</html>

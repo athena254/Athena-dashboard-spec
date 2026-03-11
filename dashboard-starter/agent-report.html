@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Athena Agent Report — Divine Council</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e4e4e7;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .container { max-width: 1000px; margin: 0 auto; }
+        
+        .header {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
+            border-radius: 24px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #818cf8, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header .subtitle {
+            color: #71717a;
+            font-size: 1.1rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: rgba(39, 39, 42, 0.5);
+            border: 1px solid rgba(63, 63, 70, 0.5);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #818cf8;
+        }
+        
+        .stat-label {
+            color: #71717a;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        .agent-card {
+            background: rgba(24, 24, 27, 0.6);
+            border: 1px solid rgba(63, 63, 70, 0.5);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            page-break-inside: avoid;
+        }
+        
+        .agent-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(63, 63, 70, 0.5);
+        }
+        
+        .agent-emoji {
+            font-size: 2.5rem;
+            width: 60px;
+            height: 60px;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .agent-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #f4f4f5;
+        }
+        
+        .agent-role {
+            color: #818cf8;
+            font-size: 0.875rem;
+        }
+        
+        .agent-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .info-block {
+            background: rgba(39, 39, 42, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+        
+        .info-label {
+            font-size: 0.75rem;
+            color: #71717a;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+        
+        .info-value {
+            color: #e4e4e7;
+            font-weight: 500;
+        }
+        
+        .model-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 8px;
+            padding: 0.25rem 0.75rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: #a5b4fc;
+        }
+        
+        .responsibilities-list {
+            list-style: none;
+            margin-top: 1rem;
+        }
+        
+        .responsibilities-list li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: #a1a1aa;
+        }
+        
+        .responsibilities-list li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #818cf8;
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #f4f4f5;
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid rgba(99, 102, 241, 0.3);
+        }
+        
+        .voice-badge {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399;
+        }
+        
+        .status-active {
+            color: #10b981;
+            font-weight: 600;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: #71717a;
+            font-size: 0.875rem;
+            margin-top: 2rem;
+            border-top: 1px solid rgba(63, 63, 70, 0.5);
+        }
+        
+        @media print {
+            body { background: #fff; color: #000; }
+            .agent-card { break-inside: avoid; page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🦉 Athena Agent Report</h1>
+            <p class="subtitle">Divine Council — Complete System Overview</p>
+            <p style="color: #52525b; margin-top: 0.5rem; font-size: 0.875rem;">Generated: February 23, 2026 • Owner: DisMuriuki</p>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">10</div>
+                <div class="stat-label">Active Agents</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">15+</div>
+                <div class="stat-label">Custom Skills</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">10</div>
+                <div class="stat-label">Pending Bids</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">~3,500</div>
+                <div class="stat-label">Honey Potential</div>
+            </div>
+        </div>
+        
+        <h2 class="section-title">Agent Profiles</h2>
+        
+        <!-- ATHENA -->
+        <div class="agent-card">
+            <div class="agent-header">
+                <div class="agent-emoji">🦉</div>
+                <div>
+                    <div class="agent-name">Athena</div>
+                    <div class="agent-role">Main Orchestrator</div>
+                </div>
+            </div>
+            <div class="agent-grid">
+                <div class="info-block">
+                    <div class="info-label">Model</div>
+                    <div class="info-value"><span class="model-badge">GLM-5-FP8 (unlimited)</span></div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Voice</div>
+                    <div class="info-value"><span class="model-badge voice-badge">Sonia (British F)</span></div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Session</div>
+                    <div class="info-value">Main (Direct Chat)</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Status</div>
+                    <div class="info-value status-active">● Active</div>
+                </div>
+            </div>
+            <ul class="responsibilities-list">
+                <li>User communication & agent coordination</li>
+                <li>System monitoring & strategic decisions</li>
+                <li>Heartbeat checks & daily backups</li>
+                <li>Silent mode enforcement</li>
+            </ul>
+        </div>
+        
+        <!-- STERLING -->
+        <div class="agent-card">
+            <div class="agent-header">
+                <div class="agent-emoji">💰</div>
+                <div>
+                    <div class="agent-name">Sterling</div>
+                    <div class="agent-role">Finance & Auto-Bidding</div>
+                </div>
+            </div>
+            <div class="agent-grid">
+                <div class="info-block">
+                    <div class="info-label">Model</div>
+                    <div class="info-value"><span class="model-badge">GLM-5-FP8 (unlimited)</span></div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Voice</div>
+                    <div class="info-value"><span class="model-badge voice-badge">Thomas (British M)</span></div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Authority</div>
+                    <div class="info-value" style="color: #fbbf24;">⭐ FULL AUTO-BID</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Cron</div>
+                    <div class="info-value">Every 30 min</div>
+                </div>
+            </div>
+            <ul class="responsibilities-list">
+                <li><strong>Autonomous bidding on Beelancer</strong></li>
+                <li>Track pending/accepted gigs</li>
+                <li>Calculate ROI & optimal bid amounts</li>
+                <li>Financial reporting & income projections</li>
+            </ul>
+            <div style="margin-top: 1rem; padding: 1rem; background: rgba(251, 191, 36, 0.1); border-radius: 8px; border: 1px solid rgba(251, 191, 36, 0.3);">
+                <strong style="color: #fbbf24;">Current Portfolio:</strong>
+                <span style="color: #a1a1aa;"> 10 pending bids • ~3,500 honey potential • 0 active gigs</span>
+            </div>
+        </div>
+        
+        <!-- ISHTAR -->
+        <div class="agent-card">
+            <div class="agent-header">
+                <div class="agent-emoji">🔮</div>
+                <div>
+                    <div class="agent-name">Ishtar</div>
+                    <div class="agent-role">Oracle & PAI Architecture</div>
+                </div>
+            </div>
+            <div class="agent-grid">
+                <div class="info-block">
+                    <div class="info-label">Model</div>
+                    <div class="info-value"><span class="model-badge">qwen_nvidia (397B, unlimited)</span></div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Voice</div>
+                    <div class="info-value"><span class="model-badge voice-badge">Ezinne (Nigerian F)</span></div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Channel</div>
+                    <div class="info-value">WhatsApp Bound</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Cycle</div>
+                    <div class="info-value">Day (7AM) / Night (7PM)</div>
+                </div>
+            </div>
+            <ul class="responsibilities-list">
+                <li><strong>PAI Architecture research & development</strong></li>
+                <li>Long-term strategic analysis</li>
+                <li>Knowledge graph development</li>
+                <li>Council deliberation support (THEMIS)</li>
+            </ul>
+        </div>
+        
+        <!-- DELVER -->
+        <div class="agent-card">
+            <div class="agent-header">
+                <div class="agent-emoji">📚</div>
+                <div>
+                    <div class="agent-name">Delver</div>
+                    <div class="agent-role">Research & Analysis</div>
+                </div>
+            </div>
+            <div class="agent-grid">
+                <div class="info-block">
+                    <div class="info-label">Model</div>
+                    <div class="info-value"><span class="model-badge">llama-3.3-70b (30/min)</span></div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Voice</div>
+                    <div class="info-value">Not assigned</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Trigger</div>
+                    <div class="info-value">@Delver</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Rate Limit</div>
+                    <div class="info-value" style="color: #f97316;">30 req/min</div>
+                </div>
+            </div>
+            <ul class="responsibilities-list">
+                <li>Web research via Tavily/SearXNG</li>
+                <li>Competitive analysis</li>
+                <li>Technology scouting</li>
+                <li>Data synthesis & trend monitoring</li>
+            </ul>
+        </div>
+        
+        <!-- SQUIRE -->
+        <div class="agent-card">
+            <div class="agent-header">
+                <div class="agent-emoji">🛠️</div>
+                <div>
+                    <div class="agent-name">Squire</div>
+                    <div class="agent-role">Assistant & Operations</div>
+                </div>
+            </div>
+            <div class="agent-grid">
+                <div class="info-block">
+                    <div class="info-label">Model</div>
+                    <div class="info-value"><span class="model-badge">GLM-5-FP8 (unlimited)</span></div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Voice</div>
+                    <div class="info-value">Not assigned</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Trigger</div>
+                    <div class="info-value">@Squire</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Status</div>
+                    <div class="info-value status-active">● Active</div>
+                </div>
+            </div>
+            <ul class="responsibilities-list">
+                <li>System checks (uptime, weather)</li>
+                <li>Routine maintenance tasks</li>
+                <li>Status reporting</li>
+                <li>Administrative support</li>
+            </ul>
+        </div>
+        
+        <!-- FELICITY -->
+        <div class="agent-card">
+            <div class="agent-header">
+                <div class="agent-emoji">✨</div>
+                <div>
+                    <div class="agent-name">Felicity</div>
+                    <div class="agent-role">Code Artisan</div>
+                </div>
+            </div>
+            <div class="agent-grid">
+                <div class="info-block">
+                    <div class="info-label">Model</div>
+                    <div class="info-value"><span class="model-badge">GLM-5-FP8 (unlimited)</span></div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Voice</div>
+                    <div class="info-value">Not assigned</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Trigger</div>
+                    <div class="info-value">@Felicity</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Recent Work</div>
+                    <div class="info-value">9 dashboard pages</div>
+                </div>
+            </div>
+            <ul class="responsibilities-list">
+                <li>Code generation & refactoring</li>
+                <li>Dashboard development</li>
+                <li>API adapter creation</li>
+                <li>Unit test writing & code reviews</li>
+            </ul>
+        </div>
+        
+        <!-- PROMETHEUS -->
+        <div class="agent-card">
+            <div class="agent-header">
+                <div class="agent-emoji">⚡</div>
+                <div>
+                    <div class="agent-name">Prometheus</div>
+                    <div class="agent-role">Tactical Executor</div>
+                </div>
+            </div>
+            <div class="agent-grid">
+                <div class="info-block">
+                    <div class="info-label">Model</div>
+                    <div class="info-value"><span class="model-badge">qwen-portal (OAuth)</span></div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Voice</div>
+                    <div class="info-value">Not assigned</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Trigger</div>
+                    <div class="info-value">@Prometheus</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Access</div>
+                    <div class="info-value">GitHub, Vercel, Shell</div>
+                </div>
+            </div>
+            <ul class="responsibilities-list">
+                <li>Vercel deployments</li>
+                <li>Git operations (commit, push, branch)</li>
+                <li>System command execution</li>
+                <li>Build processes & infrastructure setup</li>
+            </ul>
+        </div>
+        
+        <!-- CISCO -->
+        <div class="agent-card">
+            <div class="agent-header">
+                <div class="agent-emoji">🛡️</div>
+                <div>
+                    <div class="agent-name">Cisco</div>
+                    <div class="agent-role">BMAD & Security</div>
+                </div>
+            </div>
+            <div class="agent-grid">
+                <div class="info-block">
+                    <div class="info-label">Model</div>
+                    <div class="info-value"><span class="model-badge">GLM-5-FP8 (unlimited)</span></div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Voice</div>
+                    <div class="info-value">Not assigned</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Trigger</div>
+                    <div class="info-value">@Cisco</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Specialty</div>
+                    <div class="info-value">BMAD Method</div>
+                </div>
+            </div>
+            <ul class="responsibilities-list">
+                <li>BMAD project structure</li>
+                <li>Security audits</li>
+                <li>PRD creation</li>
+                <li>Risk assessment & compliance checks</li>
+            </ul>
+        </div>
+        
+        <!-- THEMIS -->
+        <div class="agent-card">
+            <div class="agent-header">
+                <div class="agent-emoji">⚖️</div>
+                <div>
+                    <div class="agent-name">THEMIS</div>
+                    <div class="agent-role">Council Orchestrator</div>
+                </div>
+            </div>
+            <div class="agent-grid">
+                <div class="info-block">
+                    <div class="info-label">Model</div>
+                    <div class="info-value"><span class="model-badge">OpenRouter (6+ rotating)</span></div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Voice</div>
+                    <div class="info-value"><span class="model-badge voice-badge">Maisie (British F)</span></div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Trigger</div>
+                    <div class="info-value">@THEMIS</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Session</div>
+                    <div class="info-value">Isolated Council</div>
+                </div>
+            </div>
+            <ul class="responsibilities-list">
+                <li>Multi-agent deliberation</li>
+                <li>Consensus synthesis</li>
+                <li>Rate-limit management across free models</li>
+                <li>State persistence (JSONL)</li>
+            </ul>
+        </div>
+        
+        <!-- HIMSO -->
+        <div class="agent-card">
+            <div class="agent-header">
+                <div class="agent-emoji">🧠</div>
+                <div>
+                    <div class="agent-name">Himso</div>
+                    <div class="agent-role">Intelligence Synthesizer</div>
+                </div>
+            </div>
+            <div class="agent-grid">
+                <div class="info-block">
+                    <div class="info-label">Model</div>
+                    <div class="info-value"><span class="model-badge">qwen_nvidia (397B, unlimited)</span></div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Voice</div>
+                    <div class="info-value">Not assigned</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Trigger</div>
+                    <div class="info-value">@Himso</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Created</div>
+                    <div class="info-value" style="color: #10b981;">NEW: 2026-02-23</div>
+                </div>
+            </div>
+            <ul class="responsibilities-list">
+                <li>Complex problem analysis</li>
+                <li>Knowledge synthesis across domains</li>
+                <li>Adaptive reasoning</li>
+                <li>Multi-step task planning</li>
+            </ul>
+            <div style="margin-top: 1rem; padding: 1rem; background: rgba(16, 185, 129, 0.1); border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                <strong style="color: #10b981;">Tools:</strong>
+                <span style="color: #a1a1aa;"> Full access — exec, read, write, browser, memory, nodes, canvas, message</span>
+            </div>
+        </div>
+        
+        <h2 class="section-title">Model Infrastructure</h2>
+        
+        <div class="agent-card">
+            <h3 style="color: #818cf8; margin-bottom: 1rem;">Primary Models (Unlimited)</h3>
+            <div class="agent-grid">
+                <div class="info-block">
+                    <div class="info-label">GLM-5-FP8</div>
+                    <div class="info-value">modal-direct</div>
+                    <div style="color: #71717a; font-size: 0.75rem; margin-top: 0.25rem;">Athena, Sterling, Squire, Felicity, Cisco</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">qwen_nvidia</div>
+                    <div class="info-value">NVIDIA (397B)</div>
+                    <div style="color: #71717a; font-size: 0.75rem; margin-top: 0.25rem;">Ishtar, Himso</div>
+                </div>
+            </div>
+            
+            <h3 style="color: #f97316; margin: 1.5rem 0 1rem;">Secondary Models (Rate Limited)</h3>
+            <div class="agent-grid">
+                <div class="info-block">
+                    <div class="info-label">llama-3.3-70b</div>
+                    <div class="info-value">Groq (30/min)</div>
+                    <div style="color: #71717a; font-size: 0.75rem; margin-top: 0.25rem;">Delver</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">qwen</div>
+                    <div class="info-value">qwen-portal (OAuth)</div>
+                    <div style="color: #71717a; font-size: 0.75rem; margin-top: 0.25rem;">Prometheus</div>
+                </div>
+            </div>
+            
+            <h3 style="color: #a855f7; margin: 1.5rem 0 1rem;">Fallback Chain</h3>
+            <div style="color: #a1a1aa; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem;">
+                GLM-5-FP8 → qwen_nvidia → llama → qwen → OpenRouter
+            </div>
+        </div>
+        
+        <h2 class="section-title">Automation & Cron Jobs</h2>
+        
+        <div class="agent-card">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 1px solid rgba(63, 63, 70, 0.5);">
+                        <th style="text-align: left; padding: 0.75rem; color: #71717a; font-weight: 500;">Job</th>
+                        <th style="text-align: left; padding: 0.75rem; color: #71717a; font-weight: 500;">Agent</th>
+                        <th style="text-align: left; padding: 0.75rem; color: #71717a; font-weight: 500;">Schedule</th>
+                        <th style="text-align: center; padding: 0.75rem; color: #71717a; font-weight: 500;">Status</th>
+                    </tr>
+                </thead>
+                <tbody style="font-size: 0.875rem;">
+                    <tr><td style="padding: 0.5rem 0.75rem;">Beelancer Poll</td><td style="padding: 0.5rem 0.75rem;">System</td><td style="padding: 0.5rem 0.75rem;">Every 3 min</td><td style="text-align: center; color: #10b981;">✓</td></tr>
+                    <tr style="background: rgba(251, 191, 36, 0.05);"><td style="padding: 0.5rem 0.75rem; font-weight: 600;">Sterling Auto-Bidder</td><td style="padding: 0.5rem 0.75rem;">Sterling</td><td style="padding: 0.5rem 0.75rem;">Every 30 min</td><td style="text-align: center; color: #10b981;">✓</td></tr>
+                    <tr><td style="padding: 0.5rem 0.75rem;">Daily Backup</td><td style="padding: 0.5rem 0.75rem;">System</td><td style="padding: 0.5rem 0.75rem;">00:00 UTC</td><td style="text-align: center; color: #10b981;">✓</td></tr>
+                    <tr><td style="padding: 0.5rem 0.75rem;">Morning Report</td><td style="padding: 0.5rem 0.75rem;">System</td><td style="padding: 0.5rem 0.75rem;">7 AM EAT</td><td style="text-align: center; color: #10b981;">✓</td></tr>
+                    <tr><td style="padding: 0.5rem 0.75rem;">Evening Report</td><td style="padding: 0.5rem 0.75rem;">System</td><td style="padding: 0.5rem 0.75rem;">8 PM EAT</td><td style="text-align: center; color: #10b981;">✓</td></tr>
+                    <tr><td style="padding: 0.5rem 0.75rem;">Ishtar Cycle</td><td style="padding: 0.5rem 0.75rem;">Ishtar</td><td style="padding: 0.5rem 0.75rem;">7 AM / 7 PM</td><td style="text-align: center; color: #10b981;">✓</td></tr>
+                    <tr><td style="padding: 0.5rem 0.75rem;">Optimization</td><td style="padding: 0.5rem 0.75rem;">System</td><td style="padding: 0.5rem 0.75rem;">Every 3 hrs</td><td style="text-align: center; color: #10b981;">✓</td></tr>
+                    <tr><td style="padding: 0.5rem 0.75rem;">Agent Validation</td><td style="padding: 0.5rem 0.75rem;">System</td><td style="padding: 0.5rem 0.75rem;">Sun/Wed/Sat</td><td style="text-align: center; color: #10b981;">✓</td></tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <h2 class="section-title">Communication Channels</h2>
+        
+        <div class="agent-card">
+            <div class="agent-grid">
+                <div class="info-block">
+                    <div class="info-label">WhatsApp (Primary)</div>
+                    <div class="info-value">+254745893448</div>
+                    <div style="color: #71717a; font-size: 0.75rem; margin-top: 0.25rem;">Bound to Ishtar • Direct DM</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">Telegram (Secondary)</div>
+                    <div class="info-value">@Athena_orchestratorbot</div>
+                    <div style="color: #71717a; font-size: 0.75rem; margin-top: 0.25rem;">Work context • Topic-based</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>🦉 Athena Multi-Agent Orchestration System</p>
+            <p style="margin-top: 0.5rem;">Report Generated: February 23, 2026 • 23:50 UTC</p>
+        </div>
+    </div>
+</body>
+</html>

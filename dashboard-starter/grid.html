@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Athena Live - Grid Layout</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #fff;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, #00d9ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        header p {
+            color: #a0a0a0;
+            font-size: 1.1rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .grid-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .grid-item:hover {
+            transform: translateY(-5px);
+            border-color: #00d9ff;
+            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.2);
+        }
+
+        .grid-item h3 {
+            color: #fff;
+            margin-bottom: 0.75rem;
+            font-size: 1.3rem;
+        }
+
+        .grid-item p {
+            color: #b0b0b0;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .grid-item .status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        .status.active {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .status.pending {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+        }
+
+        .status.inactive {
+            background: rgba(255, 255, 255, 0.1);
+            color: #808080;
+        }
+
+        .grid-item:nth-child(1) { border-top: 3px solid #00d9ff; }
+        .grid-item:nth-child(2) { border-top: 3px solid #00ff88; }
+        .grid-item:nth-child(3) { border-top: 3px solid #ffc107; }
+        .grid-item:nth-child(4) { border-top: 3px solid #ff6b6b; }
+        .grid-item:nth-child(5) { border-top: 3px solid #a855f7; }
+        .grid-item:nth-child(6) { border-top: 3px solid #ec4899; }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            header h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Athena Live</h1>
+            <p>Multi-Agent System Dashboard</p>
+        </header>
+
+        <div class="grid">
+            <div class="grid-item">
+                <h3>Athena</h3>
+                <p>Primary coordinator and orchestrator. Manages agent workflows and system integration.</p>
+                <span class="status active">Active</span>
+            </div>
+
+            <div class="grid-item">
+                <h3>Sterling</h3>
+                <p>Financial operations and auto-bidding specialist. Handles all monetary transactions.</p>
+                <span class="status active">Active</span>
+            </div>
+
+            <div class="grid-item">
+                <h3>Ishtar</h3>
+                <p>PAI Architecture focus. Specialized in pattern recognition and architectural analysis.</p>
+                <span class="status active">Active</span>
+            </div>
+
+            <div class="grid-item">
+                <h3>Delver</h3>
+                <p>Deep research and investigation specialist. Uncovers hidden information and insights.</p>
+                <span class="status pending">Pending</span>
+            </div>
+
+            <div class="grid-item">
+                <h3>Squire</h3>
+                <p>Documentation and knowledge management. Maintains system records and logs.</p>
+                <span class="status active">Active</span>
+            </div>
+
+            <div class="grid-item">
+                <h3>Felicity</h3>
+                <p>Communication and user interaction specialist. Handles external communications.</p>
+                <span class="status inactive">Inactive</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

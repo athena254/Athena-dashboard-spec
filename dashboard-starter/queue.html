@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Athena Orchestration Queue</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #00d9ff, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav a {
+            color: #888;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .nav a:hover, .nav a.active {
+            color: #00d9ff;
+            border-color: rgba(0, 217, 255, 0.3);
+            background: rgba(0, 217, 255, 0.1);
+        }
+
+        /* Queue Summary Stats */
+        .queue-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .stat-card .label {
+            color: #888;
+            font-size: 0.8rem;
+            margin-top: 5px;
+            text-transform: uppercase;
+        }
+
+        .stat-card.pending .value { color: #f59e0b; }
+        .stat-card.in-progress .value { color: #00d9ff; }
+        .stat-card.completed .value { color: #10b981; }
+        .stat-card.failed .value { color: #ef4444; }
+
+        /* Priority Queue Visualization */
+        .priority-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            color: #00d9ff;
+            font-size: 1.2rem;
+        }
+
+        .priority-lanes {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        @media (max-width: 900px) {
+            .priority-lanes {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 500px) {
+            .priority-lanes {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .priority-lane {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .priority-lane.critical {
+            border-top: 3px solid #ef4444;
+        }
+        .priority-lane.high {
+            border-top: 3px solid #f59e0b;
+        }
+        .priority-lane.medium {
+            border-top: 3px solid #00d9ff;
+        }
+        .priority-lane.low {
+            border-top: 3px solid #6366f1;
+        }
+
+        .priority-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .priority-name {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+
+        .priority-count {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+        }
+
+        .task-list {
+            list-style: none;
+            min-height: 100px;
+        }
+
+        .task-item {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .task-item:hover {
+            background: rgba(0, 0, 0, 0.3);
+            transform: translateX(5px);
+        }
+
+        .task-type {
+            color: #a855f7;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .task-desc {
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #666;
+            font-size: 0.7rem;
+        }
+
+        /* Agent Load Section */
+        .agent-load-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .agent-load-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .agent-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .agent-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .agent-name {
+            font-weight: 600;
+        }
+
+        .agent-status-badge {
+            margin-left: auto;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+        }
+
+        .agent-status-badge.idle {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .agent-status-badge.busy {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+
+        .agent-status-badge.offline {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .load-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .load-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .load-fill.low { background: #10b981; }
+        .load-fill.medium { background: #f59e0b; }
+        .load-fill.high { background: #ef4444; }
+
+        .current-task {
+            font-size: 0.75rem;
+            color: #888;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+        }
+
+        .current-task.has-task {
+            border-left: 3px solid #00d9ff;
+        }
+
+        /* Activity Feed */
+        .activity-feed {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .activity-icon.assigned { background: rgba(0, 217, 255, 0.2); }
+        .activity-icon.completed { background: rgba(16, 185, 129, 0.2); }
+        .activity-icon.failed { background: rgba(239, 68, 68, 0.2); }
+        .activity-icon.created { background: rgba(168, 85, 247, 0.2); }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            color: #fff;
+            font-size: 0.9rem;
+            margin-bottom: 3px;
+        }
+
+        .activity-meta {
+            color: #666;
+            font-size: 0.75rem;
+        }
+
+        .activity-time {
+            color: #666;
+            font-size: 0.7rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state .emoji {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .live-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎯 Task Orchestration Queue</h1>
+        <p style="color: #888;">Real-time task distribution across agents</p>
+    </div>
+
+    <div class="nav">
+        <a href="index.html">Dashboard</a>
+        <a href="agents.html">Agents</a>
+        <a href="queue.html" class="active">Queue</a>
+        <a href="bids.html">Bids</a>
+    </div>
+
+    <!-- Queue Summary -->
+    <div class="queue-stats" id="queue-stats">
+        <div class="stat-card pending">
+            <div class="value" id="pending-count">0</div>
+            <div class="label">Pending</div>
+        </div>
+        <div class="stat-card in-progress">
+            <div class="value" id="in-progress-count">0</div>
+            <div class="label">In Progress</div>
+        </div>
+        <div class="stat-card completed">
+            <div class="value" id="completed-count">0</div>
+            <div class="label">Completed</div>
+        </div>
+        <div class="stat-card failed">
+            <div class="value" id="failed-count">0</div>
+            <div class="label">Failed</div>
+        </div>
+    </div>
+
+    <!-- Priority Lanes -->
+    <div class="priority-section">
+        <div class="section-title">
+            <span class="live-indicator"></span>
+            Priority Queue
+        </div>
+        <div class="priority-lanes">
+            <div class="priority-lane critical">
+                <div class="priority-header">
+                    <span class="priority-name" style="color: #ef4444;">🔥 Critical</span>
+                    <span class="priority-count" id="critical-count">0</span>
+                </div>
+                <ul class="task-list" id="critical-tasks"></ul>
+            </div>
+            <div class="priority-lane high">
+                <div class="priority-header">
+                    <span class="priority-name" style="color: #f59e0b;">⚡ High</span>
+                    <span class="priority-count" id="high-count">0</span>
+                </div>
+                <ul class="task-list" id="high-tasks"></ul>
+            </div>
+            <div class="priority-lane medium">
+                <div class="priority-header">
+                    <span class="priority-name" style="color: #00d9ff;">📋 Medium</span>
+                    <span class="priority-count" id="medium-count">0</span>
+                </div>
+                <ul class="task-list" id="medium-tasks"></ul>
+            </div>
+            <div class="priority-lane low">
+                <div class="priority-header">
+                    <span class="priority-name" style="color: #6366f1;">💤 Low</span>
+                    <span class="priority-count" id="low-count">0</span>
+                </div>
+                <ul class="task-list" id="low-tasks"></ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agent Load -->
+    <div class="priority-section">
+        <div class="section-title">
+            👥 Agent Load Distribution
+        </div>
+        <div class="agent-load-grid" id="agent-load-grid"></div>
+    </div>
+
+    <!-- Activity Feed -->
+    <div class="priority-section">
+        <div class="section-title">
+            📊 Recent Activity
+        </div>
+        <div class="activity-feed">
+            <div id="activity-container">
+                <div class="empty-state">
+                    <div class="emoji">📭</div>
+                    <p>No recent activity</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/queue-websocket.js"></script>
+<script>
+        // Agent configurations
+        const agentConfig = {
+            athena: { name: 'Athena', emoji: '🦉', color: '#00d9ff' },
+            sterling: { name: 'Sterling', emoji: '💰', color: '#10b981' },
+            ishtar: { name: 'Ishtar', emoji: '🔬', color: '#a855f7' },
+            delver: { name: 'Delver', emoji: '🔍', color: '#f59e0b' },
+            squire: { name: 'Squire', emoji: '📋', color: '#6366f1' },
+            felicity: { name: 'Felicity', emoji: '🎨', color: '#ec4899' },
+            prometheus: { name: 'Prometheus', emoji: '🔥', color: '#ef4444' },
+            cisco: { name: 'Cisco', emoji: '📡', color: '#14b8a6' },
+            themis: { name: 'THEMIS', emoji: '⚖️', color: '#f97316' },
+            beelancer: { name: 'Beelancer', emoji: '🐝', color: '#fbbf24' },
+            nexus: { name: 'Nexus', emoji: '🔮', color: '#8b5cf6' },
+            scribe: { name: 'Scribe', emoji: '✍️', color: '#06b6d4' },
+            voyager: { name: 'Voyager', emoji: '🚀', color: '#f43f5e' },
+            chronos: { name: 'Chronos', emoji: '⏰', color: '#84cc16' },
+            hermes: { name: 'Hermes', emoji: '⚡', color: '#3b82f6' }
+        };
+
+        // WebSocket connection
+        let wsClient = null;
+        let pollingInterval = null;
+
+        // Connect to WebSocket for real-time updates
+        function initWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.hostname}:8765`;
+            
+            try {
+                wsClient = new QueueWebSocket(wsUrl, {
+                    reconnectInterval: 3000,
+                    maxReconnectAttempts: 5
+                });
+                
+                wsClient.onUpdate = (data) => {
+                    console.log('[Queue] Real-time update received');
+                    updateStats(data);
+                    renderAgentLoad(data);
+                    updateLiveIndicator(true);
+                };
+                
+                wsClient.onConnect = () => {
+                    console.log('[Queue] WebSocket connected');
+                    updateLiveIndicator(true);
+                    // Stop polling when connected
+                    if (pollingInterval) {
+                        clearInterval(pollingInterval);
+                        pollingInterval = null;
+                    }
+                };
+                
+                wsClient.onDisconnect = () => {
+                    console.log('[Queue] WebSocket disconnected');
+                    updateLiveIndicator(false);
+                    // Start polling as fallback
+                    if (!pollingInterval) {
+                        startPolling();
+                    }
+                };
+                
+                wsClient.connect();
+                
+            } catch (error) {
+                console.warn('[Queue] WebSocket unavailable, using polling');
+                startPolling();
+            }
+        }
+
+        // Fallback to polling
+        function startPolling() {
+            pollingInterval = setInterval(updateDashboard, 10000);
+        }
+
+        // Update live indicator
+        function updateLiveIndicator(isLive) {
+            const indicator = document.querySelector('.live-indicator');
+            if (indicator) {
+                indicator.style.background = isLive ? '#10b981' : '#f59e0b';
+            }
+        }
+
+        // Fetch queue stats (polling fallback)
+        async function fetchQueueStats() {
+            try {
+                const response = await fetch('/api/queue-stats.json?t=' + Date.now());
+                return await response.json();
+            } catch (error) {
+                console.error('Failed to fetch queue stats:', error);
+                return null;
+            }
+        }
+
+        // Update queue stats display
+        function updateStats(data) {
+            if (!data) return;
+
+            const summary = data.summary || {};
+            document.getElementById('pending-count').textContent = summary.pending || 0;
+            document.getElementById('in-progress-count').textContent = summary.inProgress || 0;
+            document.getElementById('completed-count').textContent = summary.completed || 0;
+            document.getElementById('failed-count').textContent = summary.failed || 0;
+
+            // Priority counts
+            const byPriority = data.byPriority || {};
+            document.getElementById('critical-count').textContent = byPriority.CRITICAL || 0;
+            document.getElementById('high-count').textContent = byPriority.HIGH || 0;
+            document.getElementById('medium-count').textContent = byPriority.MEDIUM || 0;
+            document.getElementById('low-count').textContent = byPriority.LOW || 0;
+        }
+
+        // Render agent load grid
+        function renderAgentLoad(data) {
+            const container = document.getElementById('agent-load-grid');
+            if (!data || !data.agentLoad) {
+                container.innerHTML = '<div class="empty-state"><p>No agent data available</p></div>';
+                return;
+            }
+
+            const html = Object.entries(data.agentLoad).map(([agentId, agent]) => {
+                const config = agentConfig[agentId] || { name: agentId, emoji: '🤖', color: '#888' };
+                const load = agent.load || 0;
+                const status = agent.status || 'UNKNOWN';
+                const currentTask = agent.currentTask;
+
+                const loadClass = load < 0.3 ? 'low' : load < 0.7 ? 'medium' : 'high';
+                const statusClass = status.toLowerCase();
+
+                return `
+                    <div class="agent-load-card">
+                        <div class="agent-header">
+                            <div class="agent-avatar" style="background: ${config.color}20; color: ${config.color};">
+                                ${config.emoji}
+                            </div>
+                            <span class="agent-name">${config.name}</span>
+                            <span class="agent-status-badge ${statusClass}">${status}</span>
+                        </div>
+                        <div class="load-bar">
+                            <div class="load-fill ${loadClass}" style="width: ${load * 100}%;"></div>
+                        </div>
+                        <div class="current-task ${currentTask ? 'has-task' : ''}">
+                            ${currentTask ? `📝 ${currentTask}` : '✓ No active task'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html || '<div class="empty-state"><p>No agents online</p></div>';
+        }
+
+        // Render activity feed
+        function renderActivity(data) {
+            const container = document.getElementById('activity-container');
+            if (!data || !data.recentActivity || data.recentActivity.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="emoji">📭</div><p>No recent activity</p></div>';
+                return;
+            }
+
+            const eventIcons = {
+                'AUTO_ASSIGNED': '📤',
+                'ASSIGNED': '📤',
+                'COMPLETED': '✅',
+                'FAILED': '❌',
+                'CREATED': '➕',
+                'LEASE_EXPIRED': '⏰'
+            };
+
+            const eventClasses = {
+                'AUTO_ASSIGNED': 'assigned',
+                'ASSIGNED': 'assigned',
+                'COMPLETED': 'completed',
+                'FAILED': 'failed',
+                'CREATED': 'created',
+                'LEASE_EXPIRED': 'failed'
+            };
+
+            const html = data.recentActivity.map(activity => {
+                const icon = eventIcons[activity.event] || '📊';
+                const iconClass = eventClasses[activity.event] || 'created';
+                const timeAgo = formatTimeAgo(activity.at);
+
+                return `
+                    <div class="activity-item">
+                        <div class="activity-icon ${iconClass}">${icon}</div>
+                        <div class="activity-content">
+                            <div class="activity-title">${activity.event.replace(/_/g, ' ')}</div>
+                            <div class="activity-meta">${activity.type || 'Task'} • ${activity.taskId || 'Unknown'}</div>
+                        </div>
+                        <div class="activity-time">${timeAgo}</div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        // Format time ago
+        function formatTimeAgo(dateStr) {
+            if (!dateStr) return '';
+            try {
+                const date = new Date(dateStr);
+                const now = new Date();
+                const diffMs = now - date;
+                const diffMins = Math.floor(diffMs / 60000);
+                const diffHours = Math.floor(diffMs / 3600000);
+
+                if (diffMins < 1) return 'Just now';
+                if (diffMins < 60) return `${diffMins}m ago`;
+                if (diffHours < 24) return `${diffHours}h ago`;
+                return date.toLocaleDateString();
+            } catch {
+                return dateStr;
+            }
+        }
+
+        // Main update function (polling fallback)
+        async function updateDashboard() {
+            const data = await fetchQueueStats();
+            if (data) {
+                updateStats(data);
+                renderAgentLoad(data);
+                renderActivity(data);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Try WebSocket first, fallback to polling
+            initWebSocket();
+            // Initial load
+            updateDashboard();
+        });
+    </script>
+</body>
+</html>

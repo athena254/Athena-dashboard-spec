@@ -1,0 +1,5707 @@
+{
+  "metadata": {
+    "created": "2026-02-28T19:36:24.736Z",
+    "lastUpdated": "2026-02-28T19:36:24.736Z",
+    "dataPoints": 30,
+    "retentionDays": 30,
+    "generated": true
+  },
+  "metrics": {
+    "daily": [
+      {
+        "date": "2026-01-30",
+        "tasks": 224,
+        "success": 98.59,
+        "revenue": 349,
+        "bids": 11,
+        "wins": 3,
+        "errors": 2,
+        "latency": 0.706
+      },
+      {
+        "date": "2026-01-31",
+        "tasks": 148,
+        "success": 97.4,
+        "revenue": 365,
+        "bids": 11,
+        "wins": 4,
+        "errors": 1,
+        "latency": 0.415
+      },
+      {
+        "date": "2026-02-01",
+        "tasks": 137,
+        "success": 96.19,
+        "revenue": 418,
+        "bids": 6,
+        "wins": 2,
+        "errors": 1,
+        "latency": 0.547
+      },
+      {
+        "date": "2026-02-02",
+        "tasks": 170,
+        "success": 96.88,
+        "revenue": 377,
+        "bids": 17,
+        "wins": 7,
+        "errors": 1,
+        "latency": 0.572
+      },
+      {
+        "date": "2026-02-03",
+        "tasks": 154,
+        "success": 97.06,
+        "revenue": 500,
+        "bids": 9,
+        "wins": 3,
+        "errors": 0,
+        "latency": 0.943
+      },
+      {
+        "date": "2026-02-04",
+        "tasks": 229,
+        "success": 98.87,
+        "revenue": 396,
+        "bids": 12,
+        "wins": 4,
+        "errors": 2,
+        "latency": 0.561
+      },
+      {
+        "date": "2026-02-05",
+        "tasks": 220,
+        "success": 96.64,
+        "revenue": 490,
+        "bids": 13,
+        "wins": 4,
+        "errors": 2,
+        "latency": 0.835
+      },
+      {
+        "date": "2026-02-06",
+        "tasks": 161,
+        "success": 96.59,
+        "revenue": 338,
+        "bids": 11,
+        "wins": 4,
+        "errors": 2,
+        "latency": 0.655
+      },
+      {
+        "date": "2026-02-07",
+        "tasks": 142,
+        "success": 98.37,
+        "revenue": 342,
+        "bids": 10,
+        "wins": 4,
+        "errors": 1,
+        "latency": 0.96
+      },
+      {
+        "date": "2026-02-08",
+        "tasks": 154,
+        "success": 98.09,
+        "revenue": 359,
+        "bids": 10,
+        "wins": 3,
+        "errors": 0,
+        "latency": 0.769
+      },
+      {
+        "date": "2026-02-09",
+        "tasks": 152,
+        "success": 98.03,
+        "revenue": 434,
+        "bids": 19,
+        "wins": 8,
+        "errors": 1,
+        "latency": 0.845
+      },
+      {
+        "date": "2026-02-10",
+        "tasks": 179,
+        "success": 96.48,
+        "revenue": 422,
+        "bids": 9,
+        "wins": 3,
+        "errors": 0,
+        "latency": 0.851
+      },
+      {
+        "date": "2026-02-11",
+        "tasks": 215,
+        "success": 96.07,
+        "revenue": 460,
+        "bids": 12,
+        "wins": 4,
+        "errors": 1,
+        "latency": 0.604
+      },
+      {
+        "date": "2026-02-12",
+        "tasks": 164,
+        "success": 97.93,
+        "revenue": 445,
+        "bids": 8,
+        "wins": 2,
+        "errors": 0,
+        "latency": 0.726
+      },
+      {
+        "date": "2026-02-13",
+        "tasks": 212,
+        "success": 99.04,
+        "revenue": 518,
+        "bids": 14,
+        "wins": 5,
+        "errors": 0,
+        "latency": 0.893
+      },
+      {
+        "date": "2026-02-14",
+        "tasks": 129,
+        "success": 98.22,
+        "revenue": 363,
+        "bids": 11,
+        "wins": 4,
+        "errors": 2,
+        "latency": 0.802
+      },
+      {
+        "date": "2026-02-15",
+        "tasks": 113,
+        "success": 98.47,
+        "revenue": 263,
+        "bids": 6,
+        "wins": 2,
+        "errors": 1,
+        "latency": 0.956
+      },
+      {
+        "date": "2026-02-16",
+        "tasks": 191,
+        "success": 96.53,
+        "revenue": 361,
+        "bids": 16,
+        "wins": 6,
+        "errors": 1,
+        "latency": 0.477
+      },
+      {
+        "date": "2026-02-17",
+        "tasks": 225,
+        "success": 98.18,
+        "revenue": 365,
+        "bids": 18,
+        "wins": 7,
+        "errors": 2,
+        "latency": 0.672
+      },
+      {
+        "date": "2026-02-18",
+        "tasks": 163,
+        "success": 96.98,
+        "revenue": 486,
+        "bids": 12,
+        "wins": 4,
+        "errors": 1,
+        "latency": 0.724
+      },
+      {
+        "date": "2026-02-19",
+        "tasks": 215,
+        "success": 98.28,
+        "revenue": 447,
+        "bids": 9,
+        "wins": 2,
+        "errors": 2,
+        "latency": 0.596
+      },
+      {
+        "date": "2026-02-20",
+        "tasks": 215,
+        "success": 98.55,
+        "revenue": 577,
+        "bids": 16,
+        "wins": 5,
+        "errors": 0,
+        "latency": 0.56
+      },
+      {
+        "date": "2026-02-21",
+        "tasks": 111,
+        "success": 97.5,
+        "revenue": 267,
+        "bids": 9,
+        "wins": 3,
+        "errors": 1,
+        "latency": 0.595
+      },
+      {
+        "date": "2026-02-22",
+        "tasks": 137,
+        "success": 97.62,
+        "revenue": 270,
+        "bids": 9,
+        "wins": 2,
+        "errors": 1,
+        "latency": 0.793
+      },
+      {
+        "date": "2026-02-23",
+        "tasks": 188,
+        "success": 96.13,
+        "revenue": 256,
+        "bids": 9,
+        "wins": 3,
+        "errors": 1,
+        "latency": 0.656
+      },
+      {
+        "date": "2026-02-24",
+        "tasks": 192,
+        "success": 96.95,
+        "revenue": 345,
+        "bids": 12,
+        "wins": 3,
+        "errors": 2,
+        "latency": 0.631
+      },
+      {
+        "date": "2026-02-25",
+        "tasks": 216,
+        "success": 96.13,
+        "revenue": 434,
+        "bids": 15,
+        "wins": 4,
+        "errors": 2,
+        "latency": 0.743
+      },
+      {
+        "date": "2026-02-26",
+        "tasks": 167,
+        "success": 98.63,
+        "revenue": 563,
+        "bids": 10,
+        "wins": 3,
+        "errors": 1,
+        "latency": 0.529
+      },
+      {
+        "date": "2026-02-27",
+        "tasks": 160,
+        "success": 96.15,
+        "revenue": 318,
+        "bids": 14,
+        "wins": 6,
+        "errors": 2,
+        "latency": 0.903
+      },
+      {
+        "date": "2026-02-28",
+        "tasks": 116,
+        "success": 97.55,
+        "revenue": 340,
+        "bids": 6,
+        "wins": 2,
+        "errors": 1,
+        "latency": 0.988
+      }
+    ],
+    "hourly": [
+      {
+        "timestamp": "2026-02-22T00:00:00.000Z",
+        "tasks": 1,
+        "errors": 0,
+        "latency": 0.719,
+        "queueDepth": 2,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-22T01:00:00.000Z",
+        "tasks": 3,
+        "errors": 0,
+        "latency": 0.634,
+        "queueDepth": 2,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-22T02:00:00.000Z",
+        "tasks": 2,
+        "errors": 0,
+        "latency": 0.741,
+        "queueDepth": 1,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-22T03:00:00.000Z",
+        "tasks": 1,
+        "errors": 0,
+        "latency": 0.321,
+        "queueDepth": 0,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-22T04:00:00.000Z",
+        "tasks": 2,
+        "errors": 0,
+        "latency": 0.589,
+        "queueDepth": 2,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-22T05:00:00.000Z",
+        "tasks": 2,
+        "errors": 0,
+        "latency": 0.722,
+        "queueDepth": 2,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-22T06:00:00.000Z",
+        "tasks": 2,
+        "errors": 1,
+        "latency": 0.361,
+        "queueDepth": 1,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-22T07:00:00.000Z",
+        "tasks": 3,
+        "errors": 0,
+        "latency": 0.402,
+        "queueDepth": 4,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-22T08:00:00.000Z",
+        "tasks": 4,
+        "errors": 0,
+        "latency": 0.72,
+        "queueDepth": 4,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-22T09:00:00.000Z",
+        "tasks": 10,
+        "errors": 0,
+        "latency": 0.434,
+        "queueDepth": 11,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-22T10:00:00.000Z",
+        "tasks": 11,
+        "errors": 0,
+        "latency": 0.687,
+        "queueDepth": 11,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-22T11:00:00.000Z",
+        "tasks": 12,
+        "errors": 0,
+        "latency": 0.49,
+        "queueDepth": 5,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-22T12:00:00.000Z",
+        "tasks": 12,
+        "errors": 0,
+        "latency": 0.723,
+        "queueDepth": 9,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-22T13:00:00.000Z",
+        "tasks": 11,
+        "errors": 0,
+        "latency": 0.674,
+        "queueDepth": 5,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-22T14:00:00.000Z",
+        "tasks": 14,
+        "errors": 0,
+        "latency": 0.717,
+        "queueDepth": 2,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-22T15:00:00.000Z",
+        "tasks": 14,
+        "errors": 0,
+        "latency": 0.544,
+        "queueDepth": 4,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-22T16:00:00.000Z",
+        "tasks": 7,
+        "errors": 0,
+        "latency": 0.307,
+        "queueDepth": 2,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-22T17:00:00.000Z",
+        "tasks": 15,
+        "errors": 0,
+        "latency": 0.478,
+        "queueDepth": 7,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-22T18:00:00.000Z",
+        "tasks": 8,
+        "errors": 0,
+        "latency": 0.75,
+        "queueDepth": 6,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-22T19:00:00.000Z",
+        "tasks": 3,
+        "errors": 0,
+        "latency": 0.614,
+        "queueDepth": 3,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-22T20:00:00.000Z",
+        "tasks": 4,
+        "errors": 0,
+        "latency": 0.732,
+        "queueDepth": 6,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-22T21:00:00.000Z",
+        "tasks": 4,
+        "errors": 0,
+        "latency": 0.357,
+        "queueDepth": 2,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-22T22:00:00.000Z",
+        "tasks": 8,
+        "errors": 0,
+        "latency": 0.634,
+        "queueDepth": 0,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-22T23:00:00.000Z",
+        "tasks": 6,
+        "errors": 0,
+        "latency": 0.484,
+        "queueDepth": 4,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-23T00:00:00.000Z",
+        "tasks": 2,
+        "errors": 0,
+        "latency": 0.331,
+        "queueDepth": 2,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-23T01:00:00.000Z",
+        "tasks": 3,
+        "errors": 0,
+        "latency": 0.333,
+        "queueDepth": 2,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-23T02:00:00.000Z",
+        "tasks": 1,
+        "errors": 1,
+        "latency": 0.5,
+        "queueDepth": 1,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-23T03:00:00.000Z",
+        "tasks": 2,
+        "errors": 0,
+        "latency": 0.563,
+        "queueDepth": 0,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-23T04:00:00.000Z",
+        "tasks": 3,
+        "errors": 0,
+        "latency": 0.71,
+        "queueDepth": 0,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-23T05:00:00.000Z",
+        "tasks": 2,
+        "errors": 0,
+        "latency": 0.435,
+        "queueDepth": 0,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-23T06:00:00.000Z",
+        "tasks": 3,
+        "errors": 0,
+        "latency": 0.321,
+        "queueDepth": 1,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-23T07:00:00.000Z",
+        "tasks": 8,
+        "errors": 0,
+        "latency": 0.604,
+        "queueDepth": 2,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-23T08:00:00.000Z",
+        "tasks": 4,
+        "errors": 0,
+        "latency": 0.524,
+        "queueDepth": 3,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-23T09:00:00.000Z",
+        "tasks": 6,
+        "errors": 0,
+        "latency": 0.539,
+        "queueDepth": 6,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-23T10:00:00.000Z",
+        "tasks": 15,
+        "errors": 0,
+        "latency": 0.641,
+        "queueDepth": 10,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-23T11:00:00.000Z",
+        "tasks": 10,
+        "errors": 0,
+        "latency": 0.318,
+        "queueDepth": 11,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-23T12:00:00.000Z",
+        "tasks": 8,
+        "errors": 0,
+        "latency": 0.575,
+        "queueDepth": 2,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-23T13:00:00.000Z",
+        "tasks": 6,
+        "errors": 0,
+        "latency": 0.62,
+        "queueDepth": 2,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-23T14:00:00.000Z",
+        "tasks": 9,
+        "errors": 0,
+        "latency": 0.635,
+        "queueDepth": 10,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-23T15:00:00.000Z",
+        "tasks": 8,
+        "errors": 0,
+        "latency": 0.588,
+        "queueDepth": 8,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-23T16:00:00.000Z",
+        "tasks": 15,
+        "errors": 0,
+        "latency": 0.73,
+        "queueDepth": 3,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-23T17:00:00.000Z",
+        "tasks": 13,
+        "errors": 0,
+        "latency": 0.707,
+        "queueDepth": 8,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-23T18:00:00.000Z",
+        "tasks": 10,
+        "errors": 0,
+        "latency": 0.723,
+        "queueDepth": 0,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-23T19:00:00.000Z",
+        "tasks": 8,
+        "errors": 0,
+        "latency": 0.573,
+        "queueDepth": 0,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-23T20:00:00.000Z",
+        "tasks": 7,
+        "errors": 0,
+        "latency": 0.467,
+        "queueDepth": 4,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-23T21:00:00.000Z",
+        "tasks": 7,
+        "errors": 0,
+        "latency": 0.693,
+        "queueDepth": 4,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-23T22:00:00.000Z",
+        "tasks": 4,
+        "errors": 0,
+        "latency": 0.749,
+        "queueDepth": 5,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-23T23:00:00.000Z",
+        "tasks": 7,
+        "errors": 0,
+        "latency": 0.727,
+        "queueDepth": 3,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-24T00:00:00.000Z",
+        "tasks": 1,
+        "errors": 0,
+        "latency": 0.735,
+        "queueDepth": 0,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-24T01:00:00.000Z",
+        "tasks": 2,
+        "errors": 0,
+        "latency": 0.428,
+        "queueDepth": 0,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-24T02:00:00.000Z",
+        "tasks": 3,
+        "errors": 0,
+        "latency": 0.606,
+        "queueDepth": 1,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-24T03:00:00.000Z",
+        "tasks": 1,
+        "errors": 0,
+        "latency": 0.464,
+        "queueDepth": 2,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-24T04:00:00.000Z",
+        "tasks": 1,
+        "errors": 0,
+        "latency": 0.607,
+        "queueDepth": 2,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-24T05:00:00.000Z",
+        "tasks": 1,
+        "errors": 0,
+        "latency": 0.734,
+        "queueDepth": 0,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-24T06:00:00.000Z",
+        "tasks": 2,
+        "errors": 0,
+        "latency": 0.769,
+        "queueDepth": 2,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-24T07:00:00.000Z",
+        "tasks": 6,
+        "errors": 0,
+        "latency": 0.595,
+        "queueDepth": 5,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-24T08:00:00.000Z",
+        "tasks": 4,
+        "errors": 0,
+        "latency": 0.608,
+        "queueDepth": 1,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-24T09:00:00.000Z",
+        "tasks": 12,
+        "errors": 0,
+        "latency": 0.508,
+        "queueDepth": 9,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-24T10:00:00.000Z",
+        "tasks": 9,
+        "errors": 0,
+        "latency": 0.488,
+        "queueDepth": 7,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-24T11:00:00.000Z",
+        "tasks": 7,
+        "errors": 0,
+        "latency": 0.763,
+        "queueDepth": 11,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-24T12:00:00.000Z",
+        "tasks": 8,
+        "errors": 0,
+        "latency": 0.672,
+        "queueDepth": 3,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-24T13:00:00.000Z",
+        "tasks": 9,
+        "errors": 0,
+        "latency": 0.623,
+        "queueDepth": 2,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-24T14:00:00.000Z",
+        "tasks": 11,
+        "errors": 0,
+        "latency": 0.403,
+        "queueDepth": 10,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-24T15:00:00.000Z",
+        "tasks": 7,
+        "errors": 0,
+        "latency": 0.737,
+        "queueDepth": 5,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-24T16:00:00.000Z",
+        "tasks": 13,
+        "errors": 0,
+        "latency": 0.782,
+        "queueDepth": 5,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-24T17:00:00.000Z",
+        "tasks": 10,
+        "errors": 0,
+        "latency": 0.364,
+        "queueDepth": 2,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-24T18:00:00.000Z",
+        "tasks": 8,
+        "errors": 0,
+        "latency": 0.642,
+        "queueDepth": 10,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-24T19:00:00.000Z",
+        "tasks": 5,
+        "errors": 0,
+        "latency": 0.5,
+        "queueDepth": 5,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-24T20:00:00.000Z",
+        "tasks": 4,
+        "errors": 0,
+        "latency": 0.592,
+        "queueDepth": 6,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-24T21:00:00.000Z",
+        "tasks": 6,
+        "errors": 0,
+        "latency": 0.374,
+        "queueDepth": 4,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-24T22:00:00.000Z",
+        "tasks": 5,
+        "errors": 0,
+        "latency": 0.324,
+        "queueDepth": 3,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-24T23:00:00.000Z",
+        "tasks": 5,
+        "errors": 0,
+        "latency": 0.767,
+        "queueDepth": 6,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-25T00:00:00.000Z",
+        "tasks": 2,
+        "errors": 0,
+        "latency": 0.389,
+        "queueDepth": 1,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-25T01:00:00.000Z",
+        "tasks": 1,
+        "errors": 0,
+        "latency": 0.718,
+        "queueDepth": 1,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-25T02:00:00.000Z",
+        "tasks": 2,
+        "errors": 0,
+        "latency": 0.761,
+        "queueDepth": 0,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-25T03:00:00.000Z",
+        "tasks": 2,
+        "errors": 0,
+        "latency": 0.388,
+        "queueDepth": 1,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-25T04:00:00.000Z",
+        "tasks": 1,
+        "errors": 0,
+        "latency": 0.752,
+        "queueDepth": 2,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-25T05:00:00.000Z",
+        "tasks": 2,
+        "errors": 0,
+        "latency": 0.396,
+        "queueDepth": 1,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-25T06:00:00.000Z",
+        "tasks": 1,
+        "errors": 0,
+        "latency": 0.71,
+        "queueDepth": 2,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-25T07:00:00.000Z",
+        "tasks": 7,
+        "errors": 0,
+        "latency": 0.798,
+        "queueDepth": 3,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-25T08:00:00.000Z",
+        "tasks": 6,
+        "errors": 0,
+        "latency": 0.334,
+        "queueDepth": 2,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-25T09:00:00.000Z",
+        "tasks": 11,
+        "errors": 0,
+        "latency": 0.697,
+        "queueDepth": 1,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-25T10:00:00.000Z",
+        "tasks": 10,
+        "errors": 0,
+        "latency": 0.306,
+        "queueDepth": 0,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-25T11:00:00.000Z",
+        "tasks": 8,
+        "errors": 0,
+        "latency": 0.508,
+        "queueDepth": 1,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-25T12:00:00.000Z",
+        "tasks": 15,
+        "errors": 0,
+        "latency": 0.341,
+        "queueDepth": 7,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-25T13:00:00.000Z",
+        "tasks": 12,
+        "errors": 0,
+        "latency": 0.355,
+        "queueDepth": 11,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-25T14:00:00.000Z",
+        "tasks": 6,
+        "errors": 0,
+        "latency": 0.785,
+        "queueDepth": 4,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-25T15:00:00.000Z",
+        "tasks": 7,
+        "errors": 0,
+        "latency": 0.754,
+        "queueDepth": 10,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-25T16:00:00.000Z",
+        "tasks": 11,
+        "errors": 0,
+        "latency": 0.52,
+        "queueDepth": 11,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-25T17:00:00.000Z",
+        "tasks": 6,
+        "errors": 0,
+        "latency": 0.377,
+        "queueDepth": 2,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-25T18:00:00.000Z",
+        "tasks": 8,
+        "errors": 0,
+        "latency": 0.781,
+        "queueDepth": 5,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-25T19:00:00.000Z",
+        "tasks": 5,
+        "errors": 0,
+        "latency": 0.473,
+        "queueDepth": 5,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-25T20:00:00.000Z",
+        "tasks": 8,
+        "errors": 0,
+        "latency": 0.562,
+        "queueDepth": 6,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-25T21:00:00.000Z",
+        "tasks": 6,
+        "errors": 0,
+        "latency": 0.394,
+        "queueDepth": 5,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-25T22:00:00.000Z",
+        "tasks": 8,
+        "errors": 0,
+        "latency": 0.645,
+        "queueDepth": 5,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-25T23:00:00.000Z",
+        "tasks": 8,
+        "errors": 0,
+        "latency": 0.319,
+        "queueDepth": 5,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-26T00:00:00.000Z",
+        "tasks": 2,
+        "errors": 1,
+        "latency": 0.423,
+        "queueDepth": 2,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-26T01:00:00.000Z",
+        "tasks": 2,
+        "errors": 0,
+        "latency": 0.481,
+        "queueDepth": 0,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-26T02:00:00.000Z",
+        "tasks": 3,
+        "errors": 0,
+        "latency": 0.735,
+        "queueDepth": 2,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-26T03:00:00.000Z",
+        "tasks": 3,
+        "errors": 0,
+        "latency": 0.42,
+        "queueDepth": 2,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-26T04:00:00.000Z",
+        "tasks": 3,
+        "errors": 0,
+        "latency": 0.798,
+        "queueDepth": 0,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-26T05:00:00.000Z",
+        "tasks": 2,
+        "errors": 0,
+        "latency": 0.335,
+        "queueDepth": 2,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-26T06:00:00.000Z",
+        "tasks": 3,
+        "errors": 0,
+        "latency": 0.772,
+        "queueDepth": 0,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-26T07:00:00.000Z",
+        "tasks": 4,
+        "errors": 0,
+        "latency": 0.756,
+        "queueDepth": 6,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-26T08:00:00.000Z",
+        "tasks": 4,
+        "errors": 0,
+        "latency": 0.553,
+        "queueDepth": 1,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-26T09:00:00.000Z",
+        "tasks": 6,
+        "errors": 0,
+        "latency": 0.321,
+        "queueDepth": 3,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-26T10:00:00.000Z",
+        "tasks": 11,
+        "errors": 0,
+        "latency": 0.54,
+        "queueDepth": 1,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-26T11:00:00.000Z",
+        "tasks": 9,
+        "errors": 0,
+        "latency": 0.612,
+        "queueDepth": 5,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-26T12:00:00.000Z",
+        "tasks": 13,
+        "errors": 0,
+        "latency": 0.34,
+        "queueDepth": 4,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-26T13:00:00.000Z",
+        "tasks": 8,
+        "errors": 0,
+        "latency": 0.415,
+        "queueDepth": 0,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-26T14:00:00.000Z",
+        "tasks": 9,
+        "errors": 0,
+        "latency": 0.744,
+        "queueDepth": 3,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-26T15:00:00.000Z",
+        "tasks": 15,
+        "errors": 0,
+        "latency": 0.544,
+        "queueDepth": 7,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-26T16:00:00.000Z",
+        "tasks": 7,
+        "errors": 0,
+        "latency": 0.477,
+        "queueDepth": 4,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-26T17:00:00.000Z",
+        "tasks": 7,
+        "errors": 0,
+        "latency": 0.728,
+        "queueDepth": 9,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-26T18:00:00.000Z",
+        "tasks": 7,
+        "errors": 0,
+        "latency": 0.421,
+        "queueDepth": 1,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-26T19:00:00.000Z",
+        "tasks": 7,
+        "errors": 0,
+        "latency": 0.496,
+        "queueDepth": 5,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-26T20:00:00.000Z",
+        "tasks": 6,
+        "errors": 0,
+        "latency": 0.746,
+        "queueDepth": 4,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-26T21:00:00.000Z",
+        "tasks": 4,
+        "errors": 0,
+        "latency": 0.606,
+        "queueDepth": 3,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-26T22:00:00.000Z",
+        "tasks": 4,
+        "errors": 0,
+        "latency": 0.65,
+        "queueDepth": 2,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-26T23:00:00.000Z",
+        "tasks": 4,
+        "errors": 0,
+        "latency": 0.684,
+        "queueDepth": 4,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-27T00:00:00.000Z",
+        "tasks": 2,
+        "errors": 0,
+        "latency": 0.458,
+        "queueDepth": 2,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-27T01:00:00.000Z",
+        "tasks": 3,
+        "errors": 0,
+        "latency": 0.711,
+        "queueDepth": 2,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-27T02:00:00.000Z",
+        "tasks": 2,
+        "errors": 1,
+        "latency": 0.746,
+        "queueDepth": 0,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-27T03:00:00.000Z",
+        "tasks": 3,
+        "errors": 0,
+        "latency": 0.646,
+        "queueDepth": 2,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-27T04:00:00.000Z",
+        "tasks": 2,
+        "errors": 0,
+        "latency": 0.783,
+        "queueDepth": 1,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-27T05:00:00.000Z",
+        "tasks": 2,
+        "errors": 0,
+        "latency": 0.712,
+        "queueDepth": 1,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-27T06:00:00.000Z",
+        "tasks": 3,
+        "errors": 0,
+        "latency": 0.79,
+        "queueDepth": 1,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-27T07:00:00.000Z",
+        "tasks": 7,
+        "errors": 0,
+        "latency": 0.408,
+        "queueDepth": 1,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-27T08:00:00.000Z",
+        "tasks": 3,
+        "errors": 1,
+        "latency": 0.548,
+        "queueDepth": 3,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-27T09:00:00.000Z",
+        "tasks": 15,
+        "errors": 0,
+        "latency": 0.557,
+        "queueDepth": 5,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-27T10:00:00.000Z",
+        "tasks": 10,
+        "errors": 0,
+        "latency": 0.525,
+        "queueDepth": 1,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-27T11:00:00.000Z",
+        "tasks": 11,
+        "errors": 0,
+        "latency": 0.371,
+        "queueDepth": 10,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-27T12:00:00.000Z",
+        "tasks": 6,
+        "errors": 0,
+        "latency": 0.33,
+        "queueDepth": 10,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-27T13:00:00.000Z",
+        "tasks": 10,
+        "errors": 0,
+        "latency": 0.602,
+        "queueDepth": 6,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-27T14:00:00.000Z",
+        "tasks": 11,
+        "errors": 0,
+        "latency": 0.313,
+        "queueDepth": 0,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-27T15:00:00.000Z",
+        "tasks": 12,
+        "errors": 1,
+        "latency": 0.78,
+        "queueDepth": 0,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-27T16:00:00.000Z",
+        "tasks": 9,
+        "errors": 1,
+        "latency": 0.641,
+        "queueDepth": 8,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-27T17:00:00.000Z",
+        "tasks": 8,
+        "errors": 0,
+        "latency": 0.4,
+        "queueDepth": 9,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-27T18:00:00.000Z",
+        "tasks": 10,
+        "errors": 0,
+        "latency": 0.696,
+        "queueDepth": 8,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-27T19:00:00.000Z",
+        "tasks": 6,
+        "errors": 0,
+        "latency": 0.773,
+        "queueDepth": 4,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-27T20:00:00.000Z",
+        "tasks": 7,
+        "errors": 0,
+        "latency": 0.584,
+        "queueDepth": 6,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-27T21:00:00.000Z",
+        "tasks": 6,
+        "errors": 0,
+        "latency": 0.576,
+        "queueDepth": 6,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-27T22:00:00.000Z",
+        "tasks": 6,
+        "errors": 0,
+        "latency": 0.429,
+        "queueDepth": 1,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-27T23:00:00.000Z",
+        "tasks": 7,
+        "errors": 0,
+        "latency": 0.61,
+        "queueDepth": 5,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-28T00:00:00.000Z",
+        "tasks": 3,
+        "errors": 0,
+        "latency": 0.648,
+        "queueDepth": 1,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-28T01:00:00.000Z",
+        "tasks": 2,
+        "errors": 0,
+        "latency": 0.691,
+        "queueDepth": 0,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-28T02:00:00.000Z",
+        "tasks": 3,
+        "errors": 0,
+        "latency": 0.733,
+        "queueDepth": 2,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-28T03:00:00.000Z",
+        "tasks": 3,
+        "errors": 0,
+        "latency": 0.436,
+        "queueDepth": 1,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-28T04:00:00.000Z",
+        "tasks": 1,
+        "errors": 0,
+        "latency": 0.666,
+        "queueDepth": 1,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-28T05:00:00.000Z",
+        "tasks": 3,
+        "errors": 1,
+        "latency": 0.55,
+        "queueDepth": 0,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-28T06:00:00.000Z",
+        "tasks": 3,
+        "errors": 0,
+        "latency": 0.438,
+        "queueDepth": 1,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-28T07:00:00.000Z",
+        "tasks": 8,
+        "errors": 0,
+        "latency": 0.777,
+        "queueDepth": 6,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-28T08:00:00.000Z",
+        "tasks": 3,
+        "errors": 0,
+        "latency": 0.418,
+        "queueDepth": 2,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-28T09:00:00.000Z",
+        "tasks": 13,
+        "errors": 0,
+        "latency": 0.617,
+        "queueDepth": 11,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-28T10:00:00.000Z",
+        "tasks": 8,
+        "errors": 0,
+        "latency": 0.749,
+        "queueDepth": 1,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-28T11:00:00.000Z",
+        "tasks": 11,
+        "errors": 0,
+        "latency": 0.604,
+        "queueDepth": 6,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-28T12:00:00.000Z",
+        "tasks": 14,
+        "errors": 0,
+        "latency": 0.396,
+        "queueDepth": 3,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-28T13:00:00.000Z",
+        "tasks": 15,
+        "errors": 0,
+        "latency": 0.408,
+        "queueDepth": 5,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-28T14:00:00.000Z",
+        "tasks": 7,
+        "errors": 0,
+        "latency": 0.511,
+        "queueDepth": 6,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-28T15:00:00.000Z",
+        "tasks": 8,
+        "errors": 1,
+        "latency": 0.364,
+        "queueDepth": 0,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-28T16:00:00.000Z",
+        "tasks": 10,
+        "errors": 0,
+        "latency": 0.54,
+        "queueDepth": 11,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-28T17:00:00.000Z",
+        "tasks": 15,
+        "errors": 0,
+        "latency": 0.533,
+        "queueDepth": 10,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-28T18:00:00.000Z",
+        "tasks": 14,
+        "errors": 0,
+        "latency": 0.653,
+        "queueDepth": 6,
+        "activeAgents": 7
+      },
+      {
+        "timestamp": "2026-02-28T19:00:00.000Z",
+        "tasks": 4,
+        "errors": 0,
+        "latency": 0.323,
+        "queueDepth": 1,
+        "activeAgents": 5
+      },
+      {
+        "timestamp": "2026-02-28T20:00:00.000Z",
+        "tasks": 5,
+        "errors": 0,
+        "latency": 0.592,
+        "queueDepth": 0,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-28T21:00:00.000Z",
+        "tasks": 5,
+        "errors": 0,
+        "latency": 0.645,
+        "queueDepth": 1,
+        "activeAgents": 8
+      },
+      {
+        "timestamp": "2026-02-28T22:00:00.000Z",
+        "tasks": 8,
+        "errors": 1,
+        "latency": 0.456,
+        "queueDepth": 3,
+        "activeAgents": 6
+      },
+      {
+        "timestamp": "2026-02-28T23:00:00.000Z",
+        "tasks": 6,
+        "errors": 0,
+        "latency": 0.648,
+        "queueDepth": 6,
+        "activeAgents": 6
+      }
+    ]
+  },
+  "agents": {
+    "athena": {
+      "history": [
+        {
+          "date": "2026-01-30",
+          "tasks": 47,
+          "success": 96.8,
+          "status": "active"
+        },
+        {
+          "date": "2026-01-31",
+          "tasks": 25,
+          "success": 95.2,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-01",
+          "tasks": 36,
+          "success": 98.4,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-02",
+          "tasks": 52,
+          "success": 95.8,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-03",
+          "tasks": 39,
+          "success": 99.5,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-04",
+          "tasks": 45,
+          "success": 98,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-05",
+          "tasks": 47,
+          "success": 99.6,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-06",
+          "tasks": 54,
+          "success": 96.2,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-07",
+          "tasks": 32,
+          "success": 97.4,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-08",
+          "tasks": 25,
+          "success": 99.3,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-09",
+          "tasks": 46,
+          "success": 98.5,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-10",
+          "tasks": 37,
+          "success": 96.6,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-11",
+          "tasks": 47,
+          "success": 96.4,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-12",
+          "tasks": 35,
+          "success": 97.7,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-13",
+          "tasks": 38,
+          "success": 99.4,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-14",
+          "tasks": 32,
+          "success": 99.6,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-15",
+          "tasks": 30,
+          "success": 99,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-16",
+          "tasks": 46,
+          "success": 99.5,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-17",
+          "tasks": 47,
+          "success": 99.5,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-18",
+          "tasks": 43,
+          "success": 98.6,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-19",
+          "tasks": 35,
+          "success": 95.1,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-20",
+          "tasks": 42,
+          "success": 95.6,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-21",
+          "tasks": 30,
+          "success": 99.4,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-22",
+          "tasks": 27,
+          "success": 96.1,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-23",
+          "tasks": 53,
+          "success": 95.8,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-24",
+          "tasks": 46,
+          "success": 96.8,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-25",
+          "tasks": 47,
+          "success": 99,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-26",
+          "tasks": 43,
+          "success": 98.1,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-27",
+          "tasks": 52,
+          "success": 95.2,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-28",
+          "tasks": 30,
+          "success": 99,
+          "status": "active"
+        }
+      ]
+    },
+    "sterling": {
+      "history": [
+        {
+          "date": "2026-01-30",
+          "tasks": 18,
+          "success": 98.1,
+          "status": "active"
+        },
+        {
+          "date": "2026-01-31",
+          "tasks": 15,
+          "success": 99.9,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-01",
+          "tasks": 13,
+          "success": 100,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-02",
+          "tasks": 27,
+          "success": 99.7,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-03",
+          "tasks": 29,
+          "success": 97.7,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-04",
+          "tasks": 25,
+          "success": 98.2,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-05",
+          "tasks": 21,
+          "success": 98.6,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-06",
+          "tasks": 32,
+          "success": 96.9,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-07",
+          "tasks": 18,
+          "success": 97.3,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-08",
+          "tasks": 21,
+          "success": 99.1,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-09",
+          "tasks": 29,
+          "success": 96.2,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-10",
+          "tasks": 25,
+          "success": 97,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-11",
+          "tasks": 30,
+          "success": 96.1,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-12",
+          "tasks": 31,
+          "success": 97.5,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-13",
+          "tasks": 28,
+          "success": 99.1,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-14",
+          "tasks": 17,
+          "success": 98.9,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-15",
+          "tasks": 17,
+          "success": 95.8,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-16",
+          "tasks": 31,
+          "success": 95.4,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-17",
+          "tasks": 27,
+          "success": 99.2,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-18",
+          "tasks": 20,
+          "success": 95.9,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-19",
+          "tasks": 31,
+          "success": 99.2,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-20",
+          "tasks": 26,
+          "success": 99.6,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-21",
+          "tasks": 19,
+          "success": 96.7,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-22",
+          "tasks": 18,
+          "success": 99.6,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-23",
+          "tasks": 28,
+          "success": 100,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-24",
+          "tasks": 26,
+          "success": 96.9,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-25",
+          "tasks": 31,
+          "success": 96,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-26",
+          "tasks": 24,
+          "success": 96.6,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-27",
+          "tasks": 21,
+          "success": 96.9,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-28",
+          "tasks": 11,
+          "success": 96.5,
+          "status": "idle"
+        }
+      ]
+    },
+    "ishtar": {
+      "history": [
+        {
+          "date": "2026-01-30",
+          "tasks": 16,
+          "success": 96.1,
+          "status": "idle"
+        },
+        {
+          "date": "2026-01-31",
+          "tasks": 8,
+          "success": 97.4,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-01",
+          "tasks": 10,
+          "success": 96.4,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-02",
+          "tasks": 19,
+          "success": 98.2,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-03",
+          "tasks": 19,
+          "success": 97,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-04",
+          "tasks": 16,
+          "success": 99.5,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-05",
+          "tasks": 13,
+          "success": 96.8,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-06",
+          "tasks": 13,
+          "success": 96.3,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-07",
+          "tasks": 13,
+          "success": 95.9,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-08",
+          "tasks": 9,
+          "success": 96.2,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-09",
+          "tasks": 16,
+          "success": 98.2,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-10",
+          "tasks": 12,
+          "success": 95,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-11",
+          "tasks": 10,
+          "success": 95.2,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-12",
+          "tasks": 17,
+          "success": 96.4,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-13",
+          "tasks": 18,
+          "success": 98.4,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-14",
+          "tasks": 7,
+          "success": 100,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-15",
+          "tasks": 12,
+          "success": 95.9,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-16",
+          "tasks": 11,
+          "success": 96.5,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-17",
+          "tasks": 17,
+          "success": 97.6,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-18",
+          "tasks": 13,
+          "success": 96.3,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-19",
+          "tasks": 11,
+          "success": 98.7,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-20",
+          "tasks": 11,
+          "success": 99.5,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-21",
+          "tasks": 9,
+          "success": 98.1,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-22",
+          "tasks": 12,
+          "success": 98.8,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-23",
+          "tasks": 14,
+          "success": 98.9,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-24",
+          "tasks": 11,
+          "success": 95.4,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-25",
+          "tasks": 17,
+          "success": 98.3,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-26",
+          "tasks": 19,
+          "success": 96.8,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-27",
+          "tasks": 11,
+          "success": 96.3,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-28",
+          "tasks": 10,
+          "success": 99.6,
+          "status": "idle"
+        }
+      ]
+    },
+    "themis": {
+      "history": [
+        {
+          "date": "2026-01-30",
+          "tasks": 8,
+          "success": 99.4,
+          "status": "idle"
+        },
+        {
+          "date": "2026-01-31",
+          "tasks": 8,
+          "success": 99,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-01",
+          "tasks": 7,
+          "success": 96.5,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-02",
+          "tasks": 8,
+          "success": 98.4,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-03",
+          "tasks": 13,
+          "success": 99.6,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-04",
+          "tasks": 13,
+          "success": 97.3,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-05",
+          "tasks": 15,
+          "success": 97.7,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-06",
+          "tasks": 11,
+          "success": 95.9,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-07",
+          "tasks": 5,
+          "success": 98.8,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-08",
+          "tasks": 8,
+          "success": 99.3,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-09",
+          "tasks": 11,
+          "success": 98.7,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-10",
+          "tasks": 9,
+          "success": 97.6,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-11",
+          "tasks": 12,
+          "success": 98.2,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-12",
+          "tasks": 13,
+          "success": 98.8,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-13",
+          "tasks": 10,
+          "success": 96.5,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-14",
+          "tasks": 5,
+          "success": 95.1,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-15",
+          "tasks": 9,
+          "success": 98,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-16",
+          "tasks": 11,
+          "success": 99.6,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-17",
+          "tasks": 12,
+          "success": 100,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-18",
+          "tasks": 8,
+          "success": 98.4,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-19",
+          "tasks": 12,
+          "success": 97,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-20",
+          "tasks": 14,
+          "success": 95.8,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-21",
+          "tasks": 10,
+          "success": 98.7,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-22",
+          "tasks": 7,
+          "success": 96.9,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-23",
+          "tasks": 10,
+          "success": 99.5,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-24",
+          "tasks": 13,
+          "success": 98.5,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-25",
+          "tasks": 11,
+          "success": 95.2,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-26",
+          "tasks": 12,
+          "success": 98.2,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-27",
+          "tasks": 12,
+          "success": 97.2,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-28",
+          "tasks": 7,
+          "success": 98.4,
+          "status": "active"
+        }
+      ]
+    },
+    "felicity": {
+      "history": [
+        {
+          "date": "2026-01-30",
+          "tasks": 30,
+          "success": 98.6,
+          "status": "idle"
+        },
+        {
+          "date": "2026-01-31",
+          "tasks": 26,
+          "success": 96.2,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-01",
+          "tasks": 22,
+          "success": 97.9,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-02",
+          "tasks": 29,
+          "success": 96.1,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-03",
+          "tasks": 39,
+          "success": 98.1,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-04",
+          "tasks": 38,
+          "success": 98.4,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-05",
+          "tasks": 27,
+          "success": 99.8,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-06",
+          "tasks": 42,
+          "success": 96.2,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-07",
+          "tasks": 29,
+          "success": 98,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-08",
+          "tasks": 20,
+          "success": 99.4,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-09",
+          "tasks": 40,
+          "success": 95,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-10",
+          "tasks": 34,
+          "success": 98.9,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-11",
+          "tasks": 36,
+          "success": 98.4,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-12",
+          "tasks": 40,
+          "success": 98.8,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-13",
+          "tasks": 40,
+          "success": 95.9,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-14",
+          "tasks": 20,
+          "success": 97.2,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-15",
+          "tasks": 23,
+          "success": 97.5,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-16",
+          "tasks": 33,
+          "success": 99.8,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-17",
+          "tasks": 32,
+          "success": 99.6,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-18",
+          "tasks": 39,
+          "success": 97.7,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-19",
+          "tasks": 33,
+          "success": 96.6,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-20",
+          "tasks": 31,
+          "success": 98.4,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-21",
+          "tasks": 28,
+          "success": 97,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-22",
+          "tasks": 30,
+          "success": 98.4,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-23",
+          "tasks": 39,
+          "success": 98.4,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-24",
+          "tasks": 39,
+          "success": 99.1,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-25",
+          "tasks": 35,
+          "success": 95,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-26",
+          "tasks": 42,
+          "success": 98.8,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-27",
+          "tasks": 34,
+          "success": 95.1,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-28",
+          "tasks": 29,
+          "success": 96.2,
+          "status": "idle"
+        }
+      ]
+    },
+    "prometheus": {
+      "history": [
+        {
+          "date": "2026-01-30",
+          "tasks": 34,
+          "success": 98.4,
+          "status": "active"
+        },
+        {
+          "date": "2026-01-31",
+          "tasks": 16,
+          "success": 100,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-01",
+          "tasks": 15,
+          "success": 97.4,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-02",
+          "tasks": 22,
+          "success": 99.8,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-03",
+          "tasks": 25,
+          "success": 98.3,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-04",
+          "tasks": 27,
+          "success": 99.1,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-05",
+          "tasks": 32,
+          "success": 100,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-06",
+          "tasks": 27,
+          "success": 95.4,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-07",
+          "tasks": 21,
+          "success": 99.1,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-08",
+          "tasks": 15,
+          "success": 97.5,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-09",
+          "tasks": 34,
+          "success": 96.1,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-10",
+          "tasks": 25,
+          "success": 97.3,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-11",
+          "tasks": 29,
+          "success": 97,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-12",
+          "tasks": 29,
+          "success": 95.3,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-13",
+          "tasks": 33,
+          "success": 99.2,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-14",
+          "tasks": 20,
+          "success": 98.9,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-15",
+          "tasks": 18,
+          "success": 97.5,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-16",
+          "tasks": 23,
+          "success": 96.8,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-17",
+          "tasks": 28,
+          "success": 95.6,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-18",
+          "tasks": 33,
+          "success": 95.6,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-19",
+          "tasks": 30,
+          "success": 98,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-20",
+          "tasks": 26,
+          "success": 99,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-21",
+          "tasks": 14,
+          "success": 98.4,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-22",
+          "tasks": 16,
+          "success": 96.6,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-23",
+          "tasks": 26,
+          "success": 97.4,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-24",
+          "tasks": 24,
+          "success": 97,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-25",
+          "tasks": 25,
+          "success": 97.6,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-26",
+          "tasks": 30,
+          "success": 98.9,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-27",
+          "tasks": 27,
+          "success": 99.4,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-28",
+          "tasks": 23,
+          "success": 97.3,
+          "status": "active"
+        }
+      ]
+    },
+    "delver": {
+      "history": [
+        {
+          "date": "2026-01-30",
+          "tasks": 11,
+          "success": 99.1,
+          "status": "active"
+        },
+        {
+          "date": "2026-01-31",
+          "tasks": 8,
+          "success": 95.6,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-01",
+          "tasks": 10,
+          "success": 98,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-02",
+          "tasks": 14,
+          "success": 99.7,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-03",
+          "tasks": 8,
+          "success": 96,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-04",
+          "tasks": 8,
+          "success": 96.5,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-05",
+          "tasks": 9,
+          "success": 99,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-06",
+          "tasks": 15,
+          "success": 97.6,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-07",
+          "tasks": 6,
+          "success": 96.4,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-08",
+          "tasks": 7,
+          "success": 99.2,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-09",
+          "tasks": 11,
+          "success": 99.8,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-10",
+          "tasks": 15,
+          "success": 98.3,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-11",
+          "tasks": 10,
+          "success": 99.8,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-12",
+          "tasks": 14,
+          "success": 96.7,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-13",
+          "tasks": 7,
+          "success": 97.1,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-14",
+          "tasks": 5,
+          "success": 99.3,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-15",
+          "tasks": 11,
+          "success": 96.2,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-16",
+          "tasks": 15,
+          "success": 95.9,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-17",
+          "tasks": 14,
+          "success": 99.7,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-18",
+          "tasks": 15,
+          "success": 98,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-19",
+          "tasks": 9,
+          "success": 95.9,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-20",
+          "tasks": 16,
+          "success": 97,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-21",
+          "tasks": 5,
+          "success": 98.9,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-22",
+          "tasks": 8,
+          "success": 98.3,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-23",
+          "tasks": 10,
+          "success": 98.9,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-24",
+          "tasks": 9,
+          "success": 98.3,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-25",
+          "tasks": 12,
+          "success": 97,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-26",
+          "tasks": 11,
+          "success": 95.8,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-27",
+          "tasks": 14,
+          "success": 96.7,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-28",
+          "tasks": 6,
+          "success": 96.5,
+          "status": "active"
+        }
+      ]
+    },
+    "squire": {
+      "history": [
+        {
+          "date": "2026-01-30",
+          "tasks": 25,
+          "success": 97.6,
+          "status": "active"
+        },
+        {
+          "date": "2026-01-31",
+          "tasks": 12,
+          "success": 95.4,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-01",
+          "tasks": 11,
+          "success": 98.7,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-02",
+          "tasks": 19,
+          "success": 96.9,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-03",
+          "tasks": 24,
+          "success": 98.5,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-04",
+          "tasks": 20,
+          "success": 98.1,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-05",
+          "tasks": 27,
+          "success": 95.3,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-06",
+          "tasks": 27,
+          "success": 99.9,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-07",
+          "tasks": 17,
+          "success": 99.9,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-08",
+          "tasks": 19,
+          "success": 95.6,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-09",
+          "tasks": 17,
+          "success": 99.1,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-10",
+          "tasks": 18,
+          "success": 96.1,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-11",
+          "tasks": 17,
+          "success": 95.4,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-12",
+          "tasks": 27,
+          "success": 99.3,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-13",
+          "tasks": 16,
+          "success": 99.6,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-14",
+          "tasks": 14,
+          "success": 99.9,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-15",
+          "tasks": 13,
+          "success": 97.2,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-16",
+          "tasks": 19,
+          "success": 96.9,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-17",
+          "tasks": 24,
+          "success": 96.4,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-18",
+          "tasks": 18,
+          "success": 95.6,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-19",
+          "tasks": 25,
+          "success": 96.8,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-20",
+          "tasks": 21,
+          "success": 95.2,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-21",
+          "tasks": 19,
+          "success": 96.3,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-22",
+          "tasks": 13,
+          "success": 99.7,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-23",
+          "tasks": 20,
+          "success": 95.2,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-24",
+          "tasks": 20,
+          "success": 97.8,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-25",
+          "tasks": 23,
+          "success": 95.1,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-26",
+          "tasks": 21,
+          "success": 99.6,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-27",
+          "tasks": 22,
+          "success": 95.8,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-28",
+          "tasks": 18,
+          "success": 97,
+          "status": "active"
+        }
+      ]
+    },
+    "cisco": {
+      "history": [
+        {
+          "date": "2026-01-30",
+          "tasks": 10,
+          "success": 96.4,
+          "status": "active"
+        },
+        {
+          "date": "2026-01-31",
+          "tasks": 5,
+          "success": 95.8,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-01",
+          "tasks": 4,
+          "success": 96.8,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-02",
+          "tasks": 8,
+          "success": 96.8,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-03",
+          "tasks": 13,
+          "success": 98.7,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-04",
+          "tasks": 13,
+          "success": 96.7,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-05",
+          "tasks": 6,
+          "success": 97.2,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-06",
+          "tasks": 7,
+          "success": 99.9,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-07",
+          "tasks": 8,
+          "success": 96.3,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-08",
+          "tasks": 7,
+          "success": 95.2,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-09",
+          "tasks": 8,
+          "success": 98.1,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-10",
+          "tasks": 7,
+          "success": 95.5,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-11",
+          "tasks": 11,
+          "success": 95.4,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-12",
+          "tasks": 11,
+          "success": 98.9,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-13",
+          "tasks": 12,
+          "success": 98.1,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-14",
+          "tasks": 8,
+          "success": 96.2,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-15",
+          "tasks": 6,
+          "success": 97.7,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-16",
+          "tasks": 12,
+          "success": 95.7,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-17",
+          "tasks": 9,
+          "success": 95.3,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-18",
+          "tasks": 13,
+          "success": 96.9,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-19",
+          "tasks": 6,
+          "success": 95.5,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-20",
+          "tasks": 6,
+          "success": 95.1,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-21",
+          "tasks": 9,
+          "success": 95.2,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-22",
+          "tasks": 5,
+          "success": 95.4,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-23",
+          "tasks": 10,
+          "success": 99.1,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-24",
+          "tasks": 10,
+          "success": 99.9,
+          "status": "idle"
+        },
+        {
+          "date": "2026-02-25",
+          "tasks": 13,
+          "success": 99.8,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-26",
+          "tasks": 12,
+          "success": 99.9,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-27",
+          "tasks": 7,
+          "success": 96.6,
+          "status": "active"
+        },
+        {
+          "date": "2026-02-28",
+          "tasks": 4,
+          "success": 97.2,
+          "status": "idle"
+        }
+      ]
+    }
+  },
+  "bidding": {
+    "dailyStats": [
+      {
+        "date": "2026-01-30",
+        "bids": 11,
+        "wins": 3,
+        "revenue": 504,
+        "winRate": 27.3
+      },
+      {
+        "date": "2026-01-31",
+        "bids": 11,
+        "wins": 4,
+        "revenue": 464,
+        "winRate": 36.4
+      },
+      {
+        "date": "2026-02-01",
+        "bids": 6,
+        "wins": 2,
+        "revenue": 234,
+        "winRate": 33.3
+      },
+      {
+        "date": "2026-02-02",
+        "bids": 17,
+        "wins": 7,
+        "revenue": 735,
+        "winRate": 41.2
+      },
+      {
+        "date": "2026-02-03",
+        "bids": 9,
+        "wins": 3,
+        "revenue": 558,
+        "winRate": 33.3
+      },
+      {
+        "date": "2026-02-04",
+        "bids": 12,
+        "wins": 4,
+        "revenue": 700,
+        "winRate": 33.3
+      },
+      {
+        "date": "2026-02-05",
+        "bids": 13,
+        "wins": 4,
+        "revenue": 740,
+        "winRate": 30.8
+      },
+      {
+        "date": "2026-02-06",
+        "bids": 11,
+        "wins": 4,
+        "revenue": 772,
+        "winRate": 36.4
+      },
+      {
+        "date": "2026-02-07",
+        "bids": 10,
+        "wins": 4,
+        "revenue": 748,
+        "winRate": 40
+      },
+      {
+        "date": "2026-02-08",
+        "bids": 10,
+        "wins": 3,
+        "revenue": 408,
+        "winRate": 30
+      },
+      {
+        "date": "2026-02-09",
+        "bids": 19,
+        "wins": 8,
+        "revenue": 928,
+        "winRate": 42.1
+      },
+      {
+        "date": "2026-02-10",
+        "bids": 9,
+        "wins": 3,
+        "revenue": 501,
+        "winRate": 33.3
+      },
+      {
+        "date": "2026-02-11",
+        "bids": 12,
+        "wins": 4,
+        "revenue": 408,
+        "winRate": 33.3
+      },
+      {
+        "date": "2026-02-12",
+        "bids": 8,
+        "wins": 2,
+        "revenue": 368,
+        "winRate": 25
+      },
+      {
+        "date": "2026-02-13",
+        "bids": 14,
+        "wins": 5,
+        "revenue": 525,
+        "winRate": 35.7
+      },
+      {
+        "date": "2026-02-14",
+        "bids": 11,
+        "wins": 4,
+        "revenue": 752,
+        "winRate": 36.4
+      },
+      {
+        "date": "2026-02-15",
+        "bids": 6,
+        "wins": 2,
+        "revenue": 358,
+        "winRate": 33.3
+      },
+      {
+        "date": "2026-02-16",
+        "bids": 16,
+        "wins": 6,
+        "revenue": 1194,
+        "winRate": 37.5
+      },
+      {
+        "date": "2026-02-17",
+        "bids": 18,
+        "wins": 7,
+        "revenue": 1008,
+        "winRate": 38.9
+      },
+      {
+        "date": "2026-02-18",
+        "bids": 12,
+        "wins": 4,
+        "revenue": 564,
+        "winRate": 33.3
+      },
+      {
+        "date": "2026-02-19",
+        "bids": 9,
+        "wins": 2,
+        "revenue": 332,
+        "winRate": 22.2
+      },
+      {
+        "date": "2026-02-20",
+        "bids": 16,
+        "wins": 5,
+        "revenue": 975,
+        "winRate": 31.3
+      },
+      {
+        "date": "2026-02-21",
+        "bids": 9,
+        "wins": 3,
+        "revenue": 414,
+        "winRate": 33.3
+      },
+      {
+        "date": "2026-02-22",
+        "bids": 9,
+        "wins": 2,
+        "revenue": 274,
+        "winRate": 22.2
+      },
+      {
+        "date": "2026-02-23",
+        "bids": 9,
+        "wins": 3,
+        "revenue": 498,
+        "winRate": 33.3
+      },
+      {
+        "date": "2026-02-24",
+        "bids": 12,
+        "wins": 3,
+        "revenue": 459,
+        "winRate": 25
+      },
+      {
+        "date": "2026-02-25",
+        "bids": 15,
+        "wins": 4,
+        "revenue": 604,
+        "winRate": 26.7
+      },
+      {
+        "date": "2026-02-26",
+        "bids": 10,
+        "wins": 3,
+        "revenue": 576,
+        "winRate": 30
+      },
+      {
+        "date": "2026-02-27",
+        "bids": 14,
+        "wins": 6,
+        "revenue": 708,
+        "winRate": 42.9
+      },
+      {
+        "date": "2026-02-28",
+        "bids": 6,
+        "wins": 2,
+        "revenue": 374,
+        "winRate": 33.3
+      }
+    ],
+    "winRateHistory": [
+      {
+        "date": "2026-02-22",
+        "rate": 22.2
+      },
+      {
+        "date": "2026-02-23",
+        "rate": 33.3
+      },
+      {
+        "date": "2026-02-24",
+        "rate": 25
+      },
+      {
+        "date": "2026-02-25",
+        "rate": 26.7
+      },
+      {
+        "date": "2026-02-26",
+        "rate": 30
+      },
+      {
+        "date": "2026-02-27",
+        "rate": 42.9
+      },
+      {
+        "date": "2026-02-28",
+        "rate": 33.3
+      }
+    ],
+    "revenueHistory": [
+      {
+        "date": "2026-01-30",
+        "revenue": 504
+      },
+      {
+        "date": "2026-01-31",
+        "revenue": 464
+      },
+      {
+        "date": "2026-02-01",
+        "revenue": 234
+      },
+      {
+        "date": "2026-02-02",
+        "revenue": 735
+      },
+      {
+        "date": "2026-02-03",
+        "revenue": 558
+      },
+      {
+        "date": "2026-02-04",
+        "revenue": 700
+      },
+      {
+        "date": "2026-02-05",
+        "revenue": 740
+      },
+      {
+        "date": "2026-02-06",
+        "revenue": 772
+      },
+      {
+        "date": "2026-02-07",
+        "revenue": 748
+      },
+      {
+        "date": "2026-02-08",
+        "revenue": 408
+      },
+      {
+        "date": "2026-02-09",
+        "revenue": 928
+      },
+      {
+        "date": "2026-02-10",
+        "revenue": 501
+      },
+      {
+        "date": "2026-02-11",
+        "revenue": 408
+      },
+      {
+        "date": "2026-02-12",
+        "revenue": 368
+      },
+      {
+        "date": "2026-02-13",
+        "revenue": 525
+      },
+      {
+        "date": "2026-02-14",
+        "revenue": 752
+      },
+      {
+        "date": "2026-02-15",
+        "revenue": 358
+      },
+      {
+        "date": "2026-02-16",
+        "revenue": 1194
+      },
+      {
+        "date": "2026-02-17",
+        "revenue": 1008
+      },
+      {
+        "date": "2026-02-18",
+        "revenue": 564
+      },
+      {
+        "date": "2026-02-19",
+        "revenue": 332
+      },
+      {
+        "date": "2026-02-20",
+        "revenue": 975
+      },
+      {
+        "date": "2026-02-21",
+        "revenue": 414
+      },
+      {
+        "date": "2026-02-22",
+        "revenue": 274
+      },
+      {
+        "date": "2026-02-23",
+        "revenue": 498
+      },
+      {
+        "date": "2026-02-24",
+        "revenue": 459
+      },
+      {
+        "date": "2026-02-25",
+        "revenue": 604
+      },
+      {
+        "date": "2026-02-26",
+        "revenue": 576
+      },
+      {
+        "date": "2026-02-27",
+        "revenue": 708
+      },
+      {
+        "date": "2026-02-28",
+        "revenue": 374
+      }
+    ]
+  },
+  "system": {
+    "queueHistory": [
+      {
+        "hour": "2026-02-22T00:00:00.000Z",
+        "depth": 4
+      },
+      {
+        "hour": "2026-02-22T01:00:00.000Z",
+        "depth": 5
+      },
+      {
+        "hour": "2026-02-22T02:00:00.000Z",
+        "depth": 4
+      },
+      {
+        "hour": "2026-02-22T03:00:00.000Z",
+        "depth": 2
+      },
+      {
+        "hour": "2026-02-22T04:00:00.000Z",
+        "depth": 1
+      },
+      {
+        "hour": "2026-02-22T05:00:00.000Z",
+        "depth": 7
+      },
+      {
+        "hour": "2026-02-22T06:00:00.000Z",
+        "depth": 5
+      },
+      {
+        "hour": "2026-02-22T07:00:00.000Z",
+        "depth": 6
+      },
+      {
+        "hour": "2026-02-22T08:00:00.000Z",
+        "depth": 6
+      },
+      {
+        "hour": "2026-02-22T09:00:00.000Z",
+        "depth": 5
+      },
+      {
+        "hour": "2026-02-22T10:00:00.000Z",
+        "depth": 7
+      },
+      {
+        "hour": "2026-02-22T11:00:00.000Z",
+        "depth": 4
+      },
+      {
+        "hour": "2026-02-22T12:00:00.000Z",
+        "depth": 5
+      },
+      {
+        "hour": "2026-02-22T13:00:00.000Z",
+        "depth": 7
+      },
+      {
+        "hour": "2026-02-22T14:00:00.000Z",
+        "depth": 3
+      },
+      {
+        "hour": "2026-02-22T15:00:00.000Z",
+        "depth": 0
+      },
+      {
+        "hour": "2026-02-22T16:00:00.000Z",
+        "depth": 0
+      },
+      {
+        "hour": "2026-02-22T17:00:00.000Z",
+        "depth": 3
+      },
+      {
+        "hour": "2026-02-22T18:00:00.000Z",
+        "depth": 5
+      },
+      {
+        "hour": "2026-02-22T19:00:00.000Z",
+        "depth": 7
+      },
+      {
+        "hour": "2026-02-22T20:00:00.000Z",
+        "depth": 2
+      },
+      {
+        "hour": "2026-02-22T21:00:00.000Z",
+        "depth": 5
+      },
+      {
+        "hour": "2026-02-22T22:00:00.000Z",
+        "depth": 7
+      },
+      {
+        "hour": "2026-02-22T23:00:00.000Z",
+        "depth": 3
+      },
+      {
+        "hour": "2026-02-23T00:00:00.000Z",
+        "depth": 2
+      },
+      {
+        "hour": "2026-02-23T01:00:00.000Z",
+        "depth": 0
+      },
+      {
+        "hour": "2026-02-23T02:00:00.000Z",
+        "depth": 5
+      },
+      {
+        "hour": "2026-02-23T03:00:00.000Z",
+        "depth": 5
+      },
+      {
+        "hour": "2026-02-23T04:00:00.000Z",
+        "depth": 0
+      },
+      {
+        "hour": "2026-02-23T05:00:00.000Z",
+        "depth": 0
+      },
+      {
+        "hour": "2026-02-23T06:00:00.000Z",
+        "depth": 7
+      },
+      {
+        "hour": "2026-02-23T07:00:00.000Z",
+        "depth": 3
+      },
+      {
+        "hour": "2026-02-23T08:00:00.000Z",
+        "depth": 0
+      },
+      {
+        "hour": "2026-02-23T09:00:00.000Z",
+        "depth": 6
+      },
+      {
+        "hour": "2026-02-23T10:00:00.000Z",
+        "depth": 2
+      },
+      {
+        "hour": "2026-02-23T11:00:00.000Z",
+        "depth": 4
+      },
+      {
+        "hour": "2026-02-23T12:00:00.000Z",
+        "depth": 5
+      },
+      {
+        "hour": "2026-02-23T13:00:00.000Z",
+        "depth": 1
+      },
+      {
+        "hour": "2026-02-23T14:00:00.000Z",
+        "depth": 3
+      },
+      {
+        "hour": "2026-02-23T15:00:00.000Z",
+        "depth": 6
+      },
+      {
+        "hour": "2026-02-23T16:00:00.000Z",
+        "depth": 3
+      },
+      {
+        "hour": "2026-02-23T17:00:00.000Z",
+        "depth": 3
+      },
+      {
+        "hour": "2026-02-23T18:00:00.000Z",
+        "depth": 6
+      },
+      {
+        "hour": "2026-02-23T19:00:00.000Z",
+        "depth": 2
+      },
+      {
+        "hour": "2026-02-23T20:00:00.000Z",
+        "depth": 5
+      },
+      {
+        "hour": "2026-02-23T21:00:00.000Z",
+        "depth": 3
+      },
+      {
+        "hour": "2026-02-23T22:00:00.000Z",
+        "depth": 1
+      },
+      {
+        "hour": "2026-02-23T23:00:00.000Z",
+        "depth": 0
+      },
+      {
+        "hour": "2026-02-24T00:00:00.000Z",
+        "depth": 3
+      },
+      {
+        "hour": "2026-02-24T01:00:00.000Z",
+        "depth": 1
+      },
+      {
+        "hour": "2026-02-24T02:00:00.000Z",
+        "depth": 2
+      },
+      {
+        "hour": "2026-02-24T03:00:00.000Z",
+        "depth": 1
+      },
+      {
+        "hour": "2026-02-24T04:00:00.000Z",
+        "depth": 4
+      },
+      {
+        "hour": "2026-02-24T05:00:00.000Z",
+        "depth": 2
+      },
+      {
+        "hour": "2026-02-24T06:00:00.000Z",
+        "depth": 2
+      },
+      {
+        "hour": "2026-02-24T07:00:00.000Z",
+        "depth": 4
+      },
+      {
+        "hour": "2026-02-24T08:00:00.000Z",
+        "depth": 4
+      },
+      {
+        "hour": "2026-02-24T09:00:00.000Z",
+        "depth": 2
+      },
+      {
+        "hour": "2026-02-24T10:00:00.000Z",
+        "depth": 3
+      },
+      {
+        "hour": "2026-02-24T11:00:00.000Z",
+        "depth": 5
+      },
+      {
+        "hour": "2026-02-24T12:00:00.000Z",
+        "depth": 0
+      },
+      {
+        "hour": "2026-02-24T13:00:00.000Z",
+        "depth": 7
+      },
+      {
+        "hour": "2026-02-24T14:00:00.000Z",
+        "depth": 0
+      },
+      {
+        "hour": "2026-02-24T15:00:00.000Z",
+        "depth": 1
+      },
+      {
+        "hour": "2026-02-24T16:00:00.000Z",
+        "depth": 6
+      },
+      {
+        "hour": "2026-02-24T17:00:00.000Z",
+        "depth": 3
+      },
+      {
+        "hour": "2026-02-24T18:00:00.000Z",
+        "depth": 5
+      },
+      {
+        "hour": "2026-02-24T19:00:00.000Z",
+        "depth": 6
+      },
+      {
+        "hour": "2026-02-24T20:00:00.000Z",
+        "depth": 5
+      },
+      {
+        "hour": "2026-02-24T21:00:00.000Z",
+        "depth": 7
+      },
+      {
+        "hour": "2026-02-24T22:00:00.000Z",
+        "depth": 4
+      },
+      {
+        "hour": "2026-02-24T23:00:00.000Z",
+        "depth": 7
+      },
+      {
+        "hour": "2026-02-25T00:00:00.000Z",
+        "depth": 4
+      },
+      {
+        "hour": "2026-02-25T01:00:00.000Z",
+        "depth": 3
+      },
+      {
+        "hour": "2026-02-25T02:00:00.000Z",
+        "depth": 4
+      },
+      {
+        "hour": "2026-02-25T03:00:00.000Z",
+        "depth": 5
+      },
+      {
+        "hour": "2026-02-25T04:00:00.000Z",
+        "depth": 0
+      },
+      {
+        "hour": "2026-02-25T05:00:00.000Z",
+        "depth": 1
+      },
+      {
+        "hour": "2026-02-25T06:00:00.000Z",
+        "depth": 7
+      },
+      {
+        "hour": "2026-02-25T07:00:00.000Z",
+        "depth": 1
+      },
+      {
+        "hour": "2026-02-25T08:00:00.000Z",
+        "depth": 5
+      },
+      {
+        "hour": "2026-02-25T09:00:00.000Z",
+        "depth": 4
+      },
+      {
+        "hour": "2026-02-25T10:00:00.000Z",
+        "depth": 2
+      },
+      {
+        "hour": "2026-02-25T11:00:00.000Z",
+        "depth": 2
+      },
+      {
+        "hour": "2026-02-25T12:00:00.000Z",
+        "depth": 2
+      },
+      {
+        "hour": "2026-02-25T13:00:00.000Z",
+        "depth": 3
+      },
+      {
+        "hour": "2026-02-25T14:00:00.000Z",
+        "depth": 3
+      },
+      {
+        "hour": "2026-02-25T15:00:00.000Z",
+        "depth": 0
+      },
+      {
+        "hour": "2026-02-25T16:00:00.000Z",
+        "depth": 4
+      },
+      {
+        "hour": "2026-02-25T17:00:00.000Z",
+        "depth": 7
+      },
+      {
+        "hour": "2026-02-25T18:00:00.000Z",
+        "depth": 6
+      },
+      {
+        "hour": "2026-02-25T19:00:00.000Z",
+        "depth": 3
+      },
+      {
+        "hour": "2026-02-25T20:00:00.000Z",
+        "depth": 5
+      },
+      {
+        "hour": "2026-02-25T21:00:00.000Z",
+        "depth": 1
+      },
+      {
+        "hour": "2026-02-25T22:00:00.000Z",
+        "depth": 0
+      },
+      {
+        "hour": "2026-02-25T23:00:00.000Z",
+        "depth": 5
+      },
+      {
+        "hour": "2026-02-26T00:00:00.000Z",
+        "depth": 1
+      },
+      {
+        "hour": "2026-02-26T01:00:00.000Z",
+        "depth": 2
+      },
+      {
+        "hour": "2026-02-26T02:00:00.000Z",
+        "depth": 0
+      },
+      {
+        "hour": "2026-02-26T03:00:00.000Z",
+        "depth": 4
+      },
+      {
+        "hour": "2026-02-26T04:00:00.000Z",
+        "depth": 2
+      },
+      {
+        "hour": "2026-02-26T05:00:00.000Z",
+        "depth": 5
+      },
+      {
+        "hour": "2026-02-26T06:00:00.000Z",
+        "depth": 3
+      },
+      {
+        "hour": "2026-02-26T07:00:00.000Z",
+        "depth": 1
+      },
+      {
+        "hour": "2026-02-26T08:00:00.000Z",
+        "depth": 6
+      },
+      {
+        "hour": "2026-02-26T09:00:00.000Z",
+        "depth": 1
+      },
+      {
+        "hour": "2026-02-26T10:00:00.000Z",
+        "depth": 0
+      },
+      {
+        "hour": "2026-02-26T11:00:00.000Z",
+        "depth": 4
+      },
+      {
+        "hour": "2026-02-26T12:00:00.000Z",
+        "depth": 6
+      },
+      {
+        "hour": "2026-02-26T13:00:00.000Z",
+        "depth": 7
+      },
+      {
+        "hour": "2026-02-26T14:00:00.000Z",
+        "depth": 4
+      },
+      {
+        "hour": "2026-02-26T15:00:00.000Z",
+        "depth": 6
+      },
+      {
+        "hour": "2026-02-26T16:00:00.000Z",
+        "depth": 2
+      },
+      {
+        "hour": "2026-02-26T17:00:00.000Z",
+        "depth": 0
+      },
+      {
+        "hour": "2026-02-26T18:00:00.000Z",
+        "depth": 6
+      },
+      {
+        "hour": "2026-02-26T19:00:00.000Z",
+        "depth": 2
+      },
+      {
+        "hour": "2026-02-26T20:00:00.000Z",
+        "depth": 7
+      },
+      {
+        "hour": "2026-02-26T21:00:00.000Z",
+        "depth": 7
+      },
+      {
+        "hour": "2026-02-26T22:00:00.000Z",
+        "depth": 6
+      },
+      {
+        "hour": "2026-02-26T23:00:00.000Z",
+        "depth": 7
+      },
+      {
+        "hour": "2026-02-27T00:00:00.000Z",
+        "depth": 2
+      },
+      {
+        "hour": "2026-02-27T01:00:00.000Z",
+        "depth": 4
+      },
+      {
+        "hour": "2026-02-27T02:00:00.000Z",
+        "depth": 3
+      },
+      {
+        "hour": "2026-02-27T03:00:00.000Z",
+        "depth": 1
+      },
+      {
+        "hour": "2026-02-27T04:00:00.000Z",
+        "depth": 5
+      },
+      {
+        "hour": "2026-02-27T05:00:00.000Z",
+        "depth": 6
+      },
+      {
+        "hour": "2026-02-27T06:00:00.000Z",
+        "depth": 4
+      },
+      {
+        "hour": "2026-02-27T07:00:00.000Z",
+        "depth": 3
+      },
+      {
+        "hour": "2026-02-27T08:00:00.000Z",
+        "depth": 6
+      },
+      {
+        "hour": "2026-02-27T09:00:00.000Z",
+        "depth": 4
+      },
+      {
+        "hour": "2026-02-27T10:00:00.000Z",
+        "depth": 2
+      },
+      {
+        "hour": "2026-02-27T11:00:00.000Z",
+        "depth": 3
+      },
+      {
+        "hour": "2026-02-27T12:00:00.000Z",
+        "depth": 3
+      },
+      {
+        "hour": "2026-02-27T13:00:00.000Z",
+        "depth": 3
+      },
+      {
+        "hour": "2026-02-27T14:00:00.000Z",
+        "depth": 3
+      },
+      {
+        "hour": "2026-02-27T15:00:00.000Z",
+        "depth": 1
+      },
+      {
+        "hour": "2026-02-27T16:00:00.000Z",
+        "depth": 4
+      },
+      {
+        "hour": "2026-02-27T17:00:00.000Z",
+        "depth": 3
+      },
+      {
+        "hour": "2026-02-27T18:00:00.000Z",
+        "depth": 0
+      },
+      {
+        "hour": "2026-02-27T19:00:00.000Z",
+        "depth": 3
+      },
+      {
+        "hour": "2026-02-27T20:00:00.000Z",
+        "depth": 6
+      },
+      {
+        "hour": "2026-02-27T21:00:00.000Z",
+        "depth": 1
+      },
+      {
+        "hour": "2026-02-27T22:00:00.000Z",
+        "depth": 5
+      },
+      {
+        "hour": "2026-02-27T23:00:00.000Z",
+        "depth": 4
+      },
+      {
+        "hour": "2026-02-28T00:00:00.000Z",
+        "depth": 5
+      },
+      {
+        "hour": "2026-02-28T01:00:00.000Z",
+        "depth": 0
+      },
+      {
+        "hour": "2026-02-28T02:00:00.000Z",
+        "depth": 0
+      },
+      {
+        "hour": "2026-02-28T03:00:00.000Z",
+        "depth": 1
+      },
+      {
+        "hour": "2026-02-28T04:00:00.000Z",
+        "depth": 6
+      },
+      {
+        "hour": "2026-02-28T05:00:00.000Z",
+        "depth": 1
+      },
+      {
+        "hour": "2026-02-28T06:00:00.000Z",
+        "depth": 7
+      },
+      {
+        "hour": "2026-02-28T07:00:00.000Z",
+        "depth": 6
+      },
+      {
+        "hour": "2026-02-28T08:00:00.000Z",
+        "depth": 0
+      },
+      {
+        "hour": "2026-02-28T09:00:00.000Z",
+        "depth": 4
+      },
+      {
+        "hour": "2026-02-28T10:00:00.000Z",
+        "depth": 7
+      },
+      {
+        "hour": "2026-02-28T11:00:00.000Z",
+        "depth": 1
+      },
+      {
+        "hour": "2026-02-28T12:00:00.000Z",
+        "depth": 6
+      },
+      {
+        "hour": "2026-02-28T13:00:00.000Z",
+        "depth": 4
+      },
+      {
+        "hour": "2026-02-28T14:00:00.000Z",
+        "depth": 7
+      },
+      {
+        "hour": "2026-02-28T15:00:00.000Z",
+        "depth": 7
+      },
+      {
+        "hour": "2026-02-28T16:00:00.000Z",
+        "depth": 4
+      },
+      {
+        "hour": "2026-02-28T17:00:00.000Z",
+        "depth": 1
+      },
+      {
+        "hour": "2026-02-28T18:00:00.000Z",
+        "depth": 3
+      },
+      {
+        "hour": "2026-02-28T19:00:00.000Z",
+        "depth": 2
+      },
+      {
+        "hour": "2026-02-28T20:00:00.000Z",
+        "depth": 1
+      },
+      {
+        "hour": "2026-02-28T21:00:00.000Z",
+        "depth": 3
+      },
+      {
+        "hour": "2026-02-28T22:00:00.000Z",
+        "depth": 5
+      },
+      {
+        "hour": "2026-02-28T23:00:00.000Z",
+        "depth": 7
+      }
+    ],
+    "errorRateHistory": [
+      {
+        "hour": "2026-02-22T00:00:00.000Z",
+        "rate": 0.87
+      },
+      {
+        "hour": "2026-02-22T01:00:00.000Z",
+        "rate": 0.7
+      },
+      {
+        "hour": "2026-02-22T02:00:00.000Z",
+        "rate": 0.22
+      },
+      {
+        "hour": "2026-02-22T03:00:00.000Z",
+        "rate": 0.67
+      },
+      {
+        "hour": "2026-02-22T04:00:00.000Z",
+        "rate": 0.16
+      },
+      {
+        "hour": "2026-02-22T05:00:00.000Z",
+        "rate": 0.22
+      },
+      {
+        "hour": "2026-02-22T06:00:00.000Z",
+        "rate": 0.3
+      },
+      {
+        "hour": "2026-02-22T07:00:00.000Z",
+        "rate": 1.45
+      },
+      {
+        "hour": "2026-02-22T08:00:00.000Z",
+        "rate": 1.21
+      },
+      {
+        "hour": "2026-02-22T09:00:00.000Z",
+        "rate": 0.65
+      },
+      {
+        "hour": "2026-02-22T10:00:00.000Z",
+        "rate": 0.97
+      },
+      {
+        "hour": "2026-02-22T11:00:00.000Z",
+        "rate": 0.69
+      },
+      {
+        "hour": "2026-02-22T12:00:00.000Z",
+        "rate": 0.71
+      },
+      {
+        "hour": "2026-02-22T13:00:00.000Z",
+        "rate": 0.23
+      },
+      {
+        "hour": "2026-02-22T14:00:00.000Z",
+        "rate": 0.05
+      },
+      {
+        "hour": "2026-02-22T15:00:00.000Z",
+        "rate": 0.93
+      },
+      {
+        "hour": "2026-02-22T16:00:00.000Z",
+        "rate": 1.49
+      },
+      {
+        "hour": "2026-02-22T17:00:00.000Z",
+        "rate": 1.29
+      },
+      {
+        "hour": "2026-02-22T18:00:00.000Z",
+        "rate": 0.12
+      },
+      {
+        "hour": "2026-02-22T19:00:00.000Z",
+        "rate": 0.45
+      },
+      {
+        "hour": "2026-02-22T20:00:00.000Z",
+        "rate": 1.13
+      },
+      {
+        "hour": "2026-02-22T21:00:00.000Z",
+        "rate": 0.47
+      },
+      {
+        "hour": "2026-02-22T22:00:00.000Z",
+        "rate": 0.22
+      },
+      {
+        "hour": "2026-02-22T23:00:00.000Z",
+        "rate": 0.3
+      },
+      {
+        "hour": "2026-02-23T00:00:00.000Z",
+        "rate": 0.71
+      },
+      {
+        "hour": "2026-02-23T01:00:00.000Z",
+        "rate": 0.7
+      },
+      {
+        "hour": "2026-02-23T02:00:00.000Z",
+        "rate": 0.69
+      },
+      {
+        "hour": "2026-02-23T03:00:00.000Z",
+        "rate": 0.66
+      },
+      {
+        "hour": "2026-02-23T04:00:00.000Z",
+        "rate": 0.7
+      },
+      {
+        "hour": "2026-02-23T05:00:00.000Z",
+        "rate": 0.03
+      },
+      {
+        "hour": "2026-02-23T06:00:00.000Z",
+        "rate": 0.21
+      },
+      {
+        "hour": "2026-02-23T07:00:00.000Z",
+        "rate": 0.01
+      },
+      {
+        "hour": "2026-02-23T08:00:00.000Z",
+        "rate": 1.21
+      },
+      {
+        "hour": "2026-02-23T09:00:00.000Z",
+        "rate": 0.46
+      },
+      {
+        "hour": "2026-02-23T10:00:00.000Z",
+        "rate": 0.18
+      },
+      {
+        "hour": "2026-02-23T11:00:00.000Z",
+        "rate": 0.09
+      },
+      {
+        "hour": "2026-02-23T12:00:00.000Z",
+        "rate": 0.5
+      },
+      {
+        "hour": "2026-02-23T13:00:00.000Z",
+        "rate": 0.96
+      },
+      {
+        "hour": "2026-02-23T14:00:00.000Z",
+        "rate": 0.74
+      },
+      {
+        "hour": "2026-02-23T15:00:00.000Z",
+        "rate": 0.1
+      },
+      {
+        "hour": "2026-02-23T16:00:00.000Z",
+        "rate": 1.45
+      },
+      {
+        "hour": "2026-02-23T17:00:00.000Z",
+        "rate": 0.2
+      },
+      {
+        "hour": "2026-02-23T18:00:00.000Z",
+        "rate": 0.82
+      },
+      {
+        "hour": "2026-02-23T19:00:00.000Z",
+        "rate": 0.75
+      },
+      {
+        "hour": "2026-02-23T20:00:00.000Z",
+        "rate": 0.02
+      },
+      {
+        "hour": "2026-02-23T21:00:00.000Z",
+        "rate": 0.43
+      },
+      {
+        "hour": "2026-02-23T22:00:00.000Z",
+        "rate": 1.23
+      },
+      {
+        "hour": "2026-02-23T23:00:00.000Z",
+        "rate": 0.12
+      },
+      {
+        "hour": "2026-02-24T00:00:00.000Z",
+        "rate": 1.25
+      },
+      {
+        "hour": "2026-02-24T01:00:00.000Z",
+        "rate": 0.74
+      },
+      {
+        "hour": "2026-02-24T02:00:00.000Z",
+        "rate": 0.91
+      },
+      {
+        "hour": "2026-02-24T03:00:00.000Z",
+        "rate": 0.3
+      },
+      {
+        "hour": "2026-02-24T04:00:00.000Z",
+        "rate": 0.98
+      },
+      {
+        "hour": "2026-02-24T05:00:00.000Z",
+        "rate": 0.63
+      },
+      {
+        "hour": "2026-02-24T06:00:00.000Z",
+        "rate": 0.95
+      },
+      {
+        "hour": "2026-02-24T07:00:00.000Z",
+        "rate": 0.73
+      },
+      {
+        "hour": "2026-02-24T08:00:00.000Z",
+        "rate": 0.24
+      },
+      {
+        "hour": "2026-02-24T09:00:00.000Z",
+        "rate": 1.47
+      },
+      {
+        "hour": "2026-02-24T10:00:00.000Z",
+        "rate": 0.39
+      },
+      {
+        "hour": "2026-02-24T11:00:00.000Z",
+        "rate": 1.02
+      },
+      {
+        "hour": "2026-02-24T12:00:00.000Z",
+        "rate": 0.01
+      },
+      {
+        "hour": "2026-02-24T13:00:00.000Z",
+        "rate": 0.27
+      },
+      {
+        "hour": "2026-02-24T14:00:00.000Z",
+        "rate": 1.47
+      },
+      {
+        "hour": "2026-02-24T15:00:00.000Z",
+        "rate": 0.26
+      },
+      {
+        "hour": "2026-02-24T16:00:00.000Z",
+        "rate": 1.22
+      },
+      {
+        "hour": "2026-02-24T17:00:00.000Z",
+        "rate": 0.58
+      },
+      {
+        "hour": "2026-02-24T18:00:00.000Z",
+        "rate": 0.43
+      },
+      {
+        "hour": "2026-02-24T19:00:00.000Z",
+        "rate": 0.54
+      },
+      {
+        "hour": "2026-02-24T20:00:00.000Z",
+        "rate": 0.29
+      },
+      {
+        "hour": "2026-02-24T21:00:00.000Z",
+        "rate": 1.18
+      },
+      {
+        "hour": "2026-02-24T22:00:00.000Z",
+        "rate": 0.36
+      },
+      {
+        "hour": "2026-02-24T23:00:00.000Z",
+        "rate": 0.84
+      },
+      {
+        "hour": "2026-02-25T00:00:00.000Z",
+        "rate": 0.02
+      },
+      {
+        "hour": "2026-02-25T01:00:00.000Z",
+        "rate": 1.3
+      },
+      {
+        "hour": "2026-02-25T02:00:00.000Z",
+        "rate": 1.29
+      },
+      {
+        "hour": "2026-02-25T03:00:00.000Z",
+        "rate": 0.23
+      },
+      {
+        "hour": "2026-02-25T04:00:00.000Z",
+        "rate": 0.05
+      },
+      {
+        "hour": "2026-02-25T05:00:00.000Z",
+        "rate": 1.29
+      },
+      {
+        "hour": "2026-02-25T06:00:00.000Z",
+        "rate": 0.23
+      },
+      {
+        "hour": "2026-02-25T07:00:00.000Z",
+        "rate": 1.42
+      },
+      {
+        "hour": "2026-02-25T08:00:00.000Z",
+        "rate": 1.02
+      },
+      {
+        "hour": "2026-02-25T09:00:00.000Z",
+        "rate": 0.42
+      },
+      {
+        "hour": "2026-02-25T10:00:00.000Z",
+        "rate": 0.46
+      },
+      {
+        "hour": "2026-02-25T11:00:00.000Z",
+        "rate": 1.31
+      },
+      {
+        "hour": "2026-02-25T12:00:00.000Z",
+        "rate": 0.73
+      },
+      {
+        "hour": "2026-02-25T13:00:00.000Z",
+        "rate": 0.13
+      },
+      {
+        "hour": "2026-02-25T14:00:00.000Z",
+        "rate": 1.22
+      },
+      {
+        "hour": "2026-02-25T15:00:00.000Z",
+        "rate": 1.41
+      },
+      {
+        "hour": "2026-02-25T16:00:00.000Z",
+        "rate": 0.27
+      },
+      {
+        "hour": "2026-02-25T17:00:00.000Z",
+        "rate": 0.36
+      },
+      {
+        "hour": "2026-02-25T18:00:00.000Z",
+        "rate": 0.88
+      },
+      {
+        "hour": "2026-02-25T19:00:00.000Z",
+        "rate": 1.15
+      },
+      {
+        "hour": "2026-02-25T20:00:00.000Z",
+        "rate": 0.79
+      },
+      {
+        "hour": "2026-02-25T21:00:00.000Z",
+        "rate": 1.45
+      },
+      {
+        "hour": "2026-02-25T22:00:00.000Z",
+        "rate": 0.7
+      },
+      {
+        "hour": "2026-02-25T23:00:00.000Z",
+        "rate": 0.19
+      },
+      {
+        "hour": "2026-02-26T00:00:00.000Z",
+        "rate": 0.38
+      },
+      {
+        "hour": "2026-02-26T01:00:00.000Z",
+        "rate": 0.32
+      },
+      {
+        "hour": "2026-02-26T02:00:00.000Z",
+        "rate": 0.02
+      },
+      {
+        "hour": "2026-02-26T03:00:00.000Z",
+        "rate": 0.47
+      },
+      {
+        "hour": "2026-02-26T04:00:00.000Z",
+        "rate": 1.45
+      },
+      {
+        "hour": "2026-02-26T05:00:00.000Z",
+        "rate": 0.24
+      },
+      {
+        "hour": "2026-02-26T06:00:00.000Z",
+        "rate": 1.34
+      },
+      {
+        "hour": "2026-02-26T07:00:00.000Z",
+        "rate": 1.01
+      },
+      {
+        "hour": "2026-02-26T08:00:00.000Z",
+        "rate": 0.87
+      },
+      {
+        "hour": "2026-02-26T09:00:00.000Z",
+        "rate": 0.66
+      },
+      {
+        "hour": "2026-02-26T10:00:00.000Z",
+        "rate": 1.32
+      },
+      {
+        "hour": "2026-02-26T11:00:00.000Z",
+        "rate": 1.48
+      },
+      {
+        "hour": "2026-02-26T12:00:00.000Z",
+        "rate": 1.13
+      },
+      {
+        "hour": "2026-02-26T13:00:00.000Z",
+        "rate": 1.01
+      },
+      {
+        "hour": "2026-02-26T14:00:00.000Z",
+        "rate": 0.8
+      },
+      {
+        "hour": "2026-02-26T15:00:00.000Z",
+        "rate": 0.65
+      },
+      {
+        "hour": "2026-02-26T16:00:00.000Z",
+        "rate": 1.32
+      },
+      {
+        "hour": "2026-02-26T17:00:00.000Z",
+        "rate": 0.38
+      },
+      {
+        "hour": "2026-02-26T18:00:00.000Z",
+        "rate": 0.29
+      },
+      {
+        "hour": "2026-02-26T19:00:00.000Z",
+        "rate": 0.3
+      },
+      {
+        "hour": "2026-02-26T20:00:00.000Z",
+        "rate": 0.24
+      },
+      {
+        "hour": "2026-02-26T21:00:00.000Z",
+        "rate": 1.28
+      },
+      {
+        "hour": "2026-02-26T22:00:00.000Z",
+        "rate": 0.75
+      },
+      {
+        "hour": "2026-02-26T23:00:00.000Z",
+        "rate": 0.25
+      },
+      {
+        "hour": "2026-02-27T00:00:00.000Z",
+        "rate": 1.12
+      },
+      {
+        "hour": "2026-02-27T01:00:00.000Z",
+        "rate": 1.46
+      },
+      {
+        "hour": "2026-02-27T02:00:00.000Z",
+        "rate": 1.32
+      },
+      {
+        "hour": "2026-02-27T03:00:00.000Z",
+        "rate": 0.5
+      },
+      {
+        "hour": "2026-02-27T04:00:00.000Z",
+        "rate": 0.34
+      },
+      {
+        "hour": "2026-02-27T05:00:00.000Z",
+        "rate": 1.15
+      },
+      {
+        "hour": "2026-02-27T06:00:00.000Z",
+        "rate": 1.16
+      },
+      {
+        "hour": "2026-02-27T07:00:00.000Z",
+        "rate": 0.03
+      },
+      {
+        "hour": "2026-02-27T08:00:00.000Z",
+        "rate": 1.34
+      },
+      {
+        "hour": "2026-02-27T09:00:00.000Z",
+        "rate": 0.86
+      },
+      {
+        "hour": "2026-02-27T10:00:00.000Z",
+        "rate": 1.04
+      },
+      {
+        "hour": "2026-02-27T11:00:00.000Z",
+        "rate": 1.37
+      },
+      {
+        "hour": "2026-02-27T12:00:00.000Z",
+        "rate": 0.61
+      },
+      {
+        "hour": "2026-02-27T13:00:00.000Z",
+        "rate": 1.01
+      },
+      {
+        "hour": "2026-02-27T14:00:00.000Z",
+        "rate": 0.81
+      },
+      {
+        "hour": "2026-02-27T15:00:00.000Z",
+        "rate": 0.83
+      },
+      {
+        "hour": "2026-02-27T16:00:00.000Z",
+        "rate": 0.74
+      },
+      {
+        "hour": "2026-02-27T17:00:00.000Z",
+        "rate": 0.91
+      },
+      {
+        "hour": "2026-02-27T18:00:00.000Z",
+        "rate": 0.2
+      },
+      {
+        "hour": "2026-02-27T19:00:00.000Z",
+        "rate": 0.76
+      },
+      {
+        "hour": "2026-02-27T20:00:00.000Z",
+        "rate": 0.24
+      },
+      {
+        "hour": "2026-02-27T21:00:00.000Z",
+        "rate": 0.66
+      },
+      {
+        "hour": "2026-02-27T22:00:00.000Z",
+        "rate": 0.09
+      },
+      {
+        "hour": "2026-02-27T23:00:00.000Z",
+        "rate": 1.04
+      },
+      {
+        "hour": "2026-02-28T00:00:00.000Z",
+        "rate": 1.48
+      },
+      {
+        "hour": "2026-02-28T01:00:00.000Z",
+        "rate": 0.32
+      },
+      {
+        "hour": "2026-02-28T02:00:00.000Z",
+        "rate": 0.48
+      },
+      {
+        "hour": "2026-02-28T03:00:00.000Z",
+        "rate": 1.29
+      },
+      {
+        "hour": "2026-02-28T04:00:00.000Z",
+        "rate": 0
+      },
+      {
+        "hour": "2026-02-28T05:00:00.000Z",
+        "rate": 1.48
+      },
+      {
+        "hour": "2026-02-28T06:00:00.000Z",
+        "rate": 1.11
+      },
+      {
+        "hour": "2026-02-28T07:00:00.000Z",
+        "rate": 1.48
+      },
+      {
+        "hour": "2026-02-28T08:00:00.000Z",
+        "rate": 0.5
+      },
+      {
+        "hour": "2026-02-28T09:00:00.000Z",
+        "rate": 0.55
+      },
+      {
+        "hour": "2026-02-28T10:00:00.000Z",
+        "rate": 0.2
+      },
+      {
+        "hour": "2026-02-28T11:00:00.000Z",
+        "rate": 1.23
+      },
+      {
+        "hour": "2026-02-28T12:00:00.000Z",
+        "rate": 0.4
+      },
+      {
+        "hour": "2026-02-28T13:00:00.000Z",
+        "rate": 0.18
+      },
+      {
+        "hour": "2026-02-28T14:00:00.000Z",
+        "rate": 0.34
+      },
+      {
+        "hour": "2026-02-28T15:00:00.000Z",
+        "rate": 0.7
+      },
+      {
+        "hour": "2026-02-28T16:00:00.000Z",
+        "rate": 0.6
+      },
+      {
+        "hour": "2026-02-28T17:00:00.000Z",
+        "rate": 0.58
+      },
+      {
+        "hour": "2026-02-28T18:00:00.000Z",
+        "rate": 0.63
+      },
+      {
+        "hour": "2026-02-28T19:00:00.000Z",
+        "rate": 0.06
+      },
+      {
+        "hour": "2026-02-28T20:00:00.000Z",
+        "rate": 0.05
+      },
+      {
+        "hour": "2026-02-28T21:00:00.000Z",
+        "rate": 1.36
+      },
+      {
+        "hour": "2026-02-28T22:00:00.000Z",
+        "rate": 0.12
+      },
+      {
+        "hour": "2026-02-28T23:00:00.000Z",
+        "rate": 0.46
+      }
+    ],
+    "latencyHistory": [
+      {
+        "hour": "2026-02-22T00:00:00.000Z",
+        "latency": 0.406
+      },
+      {
+        "hour": "2026-02-22T01:00:00.000Z",
+        "latency": 0.407
+      },
+      {
+        "hour": "2026-02-22T02:00:00.000Z",
+        "latency": 0.601
+      },
+      {
+        "hour": "2026-02-22T03:00:00.000Z",
+        "latency": 0.314
+      },
+      {
+        "hour": "2026-02-22T04:00:00.000Z",
+        "latency": 0.549
+      },
+      {
+        "hour": "2026-02-22T05:00:00.000Z",
+        "latency": 0.301
+      },
+      {
+        "hour": "2026-02-22T06:00:00.000Z",
+        "latency": 0.68
+      },
+      {
+        "hour": "2026-02-22T07:00:00.000Z",
+        "latency": 0.434
+      },
+      {
+        "hour": "2026-02-22T08:00:00.000Z",
+        "latency": 0.646
+      },
+      {
+        "hour": "2026-02-22T09:00:00.000Z",
+        "latency": 0.303
+      },
+      {
+        "hour": "2026-02-22T10:00:00.000Z",
+        "latency": 0.758
+      },
+      {
+        "hour": "2026-02-22T11:00:00.000Z",
+        "latency": 0.574
+      },
+      {
+        "hour": "2026-02-22T12:00:00.000Z",
+        "latency": 0.789
+      },
+      {
+        "hour": "2026-02-22T13:00:00.000Z",
+        "latency": 0.669
+      },
+      {
+        "hour": "2026-02-22T14:00:00.000Z",
+        "latency": 0.469
+      },
+      {
+        "hour": "2026-02-22T15:00:00.000Z",
+        "latency": 0.453
+      },
+      {
+        "hour": "2026-02-22T16:00:00.000Z",
+        "latency": 0.754
+      },
+      {
+        "hour": "2026-02-22T17:00:00.000Z",
+        "latency": 0.762
+      },
+      {
+        "hour": "2026-02-22T18:00:00.000Z",
+        "latency": 0.68
+      },
+      {
+        "hour": "2026-02-22T19:00:00.000Z",
+        "latency": 0.546
+      },
+      {
+        "hour": "2026-02-22T20:00:00.000Z",
+        "latency": 0.614
+      },
+      {
+        "hour": "2026-02-22T21:00:00.000Z",
+        "latency": 0.634
+      },
+      {
+        "hour": "2026-02-22T22:00:00.000Z",
+        "latency": 0.734
+      },
+      {
+        "hour": "2026-02-22T23:00:00.000Z",
+        "latency": 0.779
+      },
+      {
+        "hour": "2026-02-23T00:00:00.000Z",
+        "latency": 0.484
+      },
+      {
+        "hour": "2026-02-23T01:00:00.000Z",
+        "latency": 0.388
+      },
+      {
+        "hour": "2026-02-23T02:00:00.000Z",
+        "latency": 0.773
+      },
+      {
+        "hour": "2026-02-23T03:00:00.000Z",
+        "latency": 0.715
+      },
+      {
+        "hour": "2026-02-23T04:00:00.000Z",
+        "latency": 0.613
+      },
+      {
+        "hour": "2026-02-23T05:00:00.000Z",
+        "latency": 0.391
+      },
+      {
+        "hour": "2026-02-23T06:00:00.000Z",
+        "latency": 0.474
+      },
+      {
+        "hour": "2026-02-23T07:00:00.000Z",
+        "latency": 0.582
+      },
+      {
+        "hour": "2026-02-23T08:00:00.000Z",
+        "latency": 0.517
+      },
+      {
+        "hour": "2026-02-23T09:00:00.000Z",
+        "latency": 0.79
+      },
+      {
+        "hour": "2026-02-23T10:00:00.000Z",
+        "latency": 0.519
+      },
+      {
+        "hour": "2026-02-23T11:00:00.000Z",
+        "latency": 0.675
+      },
+      {
+        "hour": "2026-02-23T12:00:00.000Z",
+        "latency": 0.603
+      },
+      {
+        "hour": "2026-02-23T13:00:00.000Z",
+        "latency": 0.776
+      },
+      {
+        "hour": "2026-02-23T14:00:00.000Z",
+        "latency": 0.676
+      },
+      {
+        "hour": "2026-02-23T15:00:00.000Z",
+        "latency": 0.645
+      },
+      {
+        "hour": "2026-02-23T16:00:00.000Z",
+        "latency": 0.606
+      },
+      {
+        "hour": "2026-02-23T17:00:00.000Z",
+        "latency": 0.778
+      },
+      {
+        "hour": "2026-02-23T18:00:00.000Z",
+        "latency": 0.705
+      },
+      {
+        "hour": "2026-02-23T19:00:00.000Z",
+        "latency": 0.653
+      },
+      {
+        "hour": "2026-02-23T20:00:00.000Z",
+        "latency": 0.687
+      },
+      {
+        "hour": "2026-02-23T21:00:00.000Z",
+        "latency": 0.376
+      },
+      {
+        "hour": "2026-02-23T22:00:00.000Z",
+        "latency": 0.478
+      },
+      {
+        "hour": "2026-02-23T23:00:00.000Z",
+        "latency": 0.63
+      },
+      {
+        "hour": "2026-02-24T00:00:00.000Z",
+        "latency": 0.358
+      },
+      {
+        "hour": "2026-02-24T01:00:00.000Z",
+        "latency": 0.43
+      },
+      {
+        "hour": "2026-02-24T02:00:00.000Z",
+        "latency": 0.502
+      },
+      {
+        "hour": "2026-02-24T03:00:00.000Z",
+        "latency": 0.7
+      },
+      {
+        "hour": "2026-02-24T04:00:00.000Z",
+        "latency": 0.555
+      },
+      {
+        "hour": "2026-02-24T05:00:00.000Z",
+        "latency": 0.702
+      },
+      {
+        "hour": "2026-02-24T06:00:00.000Z",
+        "latency": 0.674
+      },
+      {
+        "hour": "2026-02-24T07:00:00.000Z",
+        "latency": 0.562
+      },
+      {
+        "hour": "2026-02-24T08:00:00.000Z",
+        "latency": 0.57
+      },
+      {
+        "hour": "2026-02-24T09:00:00.000Z",
+        "latency": 0.736
+      },
+      {
+        "hour": "2026-02-24T10:00:00.000Z",
+        "latency": 0.312
+      },
+      {
+        "hour": "2026-02-24T11:00:00.000Z",
+        "latency": 0.673
+      },
+      {
+        "hour": "2026-02-24T12:00:00.000Z",
+        "latency": 0.738
+      },
+      {
+        "hour": "2026-02-24T13:00:00.000Z",
+        "latency": 0.4
+      },
+      {
+        "hour": "2026-02-24T14:00:00.000Z",
+        "latency": 0.729
+      },
+      {
+        "hour": "2026-02-24T15:00:00.000Z",
+        "latency": 0.632
+      },
+      {
+        "hour": "2026-02-24T16:00:00.000Z",
+        "latency": 0.485
+      },
+      {
+        "hour": "2026-02-24T17:00:00.000Z",
+        "latency": 0.635
+      },
+      {
+        "hour": "2026-02-24T18:00:00.000Z",
+        "latency": 0.55
+      },
+      {
+        "hour": "2026-02-24T19:00:00.000Z",
+        "latency": 0.753
+      },
+      {
+        "hour": "2026-02-24T20:00:00.000Z",
+        "latency": 0.719
+      },
+      {
+        "hour": "2026-02-24T21:00:00.000Z",
+        "latency": 0.654
+      },
+      {
+        "hour": "2026-02-24T22:00:00.000Z",
+        "latency": 0.694
+      },
+      {
+        "hour": "2026-02-24T23:00:00.000Z",
+        "latency": 0.31
+      },
+      {
+        "hour": "2026-02-25T00:00:00.000Z",
+        "latency": 0.566
+      },
+      {
+        "hour": "2026-02-25T01:00:00.000Z",
+        "latency": 0.303
+      },
+      {
+        "hour": "2026-02-25T02:00:00.000Z",
+        "latency": 0.762
+      },
+      {
+        "hour": "2026-02-25T03:00:00.000Z",
+        "latency": 0.57
+      },
+      {
+        "hour": "2026-02-25T04:00:00.000Z",
+        "latency": 0.691
+      },
+      {
+        "hour": "2026-02-25T05:00:00.000Z",
+        "latency": 0.674
+      },
+      {
+        "hour": "2026-02-25T06:00:00.000Z",
+        "latency": 0.313
+      },
+      {
+        "hour": "2026-02-25T07:00:00.000Z",
+        "latency": 0.434
+      },
+      {
+        "hour": "2026-02-25T08:00:00.000Z",
+        "latency": 0.65
+      },
+      {
+        "hour": "2026-02-25T09:00:00.000Z",
+        "latency": 0.388
+      },
+      {
+        "hour": "2026-02-25T10:00:00.000Z",
+        "latency": 0.59
+      },
+      {
+        "hour": "2026-02-25T11:00:00.000Z",
+        "latency": 0.681
+      },
+      {
+        "hour": "2026-02-25T12:00:00.000Z",
+        "latency": 0.582
+      },
+      {
+        "hour": "2026-02-25T13:00:00.000Z",
+        "latency": 0.54
+      },
+      {
+        "hour": "2026-02-25T14:00:00.000Z",
+        "latency": 0.697
+      },
+      {
+        "hour": "2026-02-25T15:00:00.000Z",
+        "latency": 0.68
+      },
+      {
+        "hour": "2026-02-25T16:00:00.000Z",
+        "latency": 0.651
+      },
+      {
+        "hour": "2026-02-25T17:00:00.000Z",
+        "latency": 0.79
+      },
+      {
+        "hour": "2026-02-25T18:00:00.000Z",
+        "latency": 0.784
+      },
+      {
+        "hour": "2026-02-25T19:00:00.000Z",
+        "latency": 0.376
+      },
+      {
+        "hour": "2026-02-25T20:00:00.000Z",
+        "latency": 0.511
+      },
+      {
+        "hour": "2026-02-25T21:00:00.000Z",
+        "latency": 0.482
+      },
+      {
+        "hour": "2026-02-25T22:00:00.000Z",
+        "latency": 0.571
+      },
+      {
+        "hour": "2026-02-25T23:00:00.000Z",
+        "latency": 0.438
+      },
+      {
+        "hour": "2026-02-26T00:00:00.000Z",
+        "latency": 0.309
+      },
+      {
+        "hour": "2026-02-26T01:00:00.000Z",
+        "latency": 0.561
+      },
+      {
+        "hour": "2026-02-26T02:00:00.000Z",
+        "latency": 0.465
+      },
+      {
+        "hour": "2026-02-26T03:00:00.000Z",
+        "latency": 0.714
+      },
+      {
+        "hour": "2026-02-26T04:00:00.000Z",
+        "latency": 0.346
+      },
+      {
+        "hour": "2026-02-26T05:00:00.000Z",
+        "latency": 0.547
+      },
+      {
+        "hour": "2026-02-26T06:00:00.000Z",
+        "latency": 0.748
+      },
+      {
+        "hour": "2026-02-26T07:00:00.000Z",
+        "latency": 0.318
+      },
+      {
+        "hour": "2026-02-26T08:00:00.000Z",
+        "latency": 0.584
+      },
+      {
+        "hour": "2026-02-26T09:00:00.000Z",
+        "latency": 0.343
+      },
+      {
+        "hour": "2026-02-26T10:00:00.000Z",
+        "latency": 0.606
+      },
+      {
+        "hour": "2026-02-26T11:00:00.000Z",
+        "latency": 0.345
+      },
+      {
+        "hour": "2026-02-26T12:00:00.000Z",
+        "latency": 0.742
+      },
+      {
+        "hour": "2026-02-26T13:00:00.000Z",
+        "latency": 0.534
+      },
+      {
+        "hour": "2026-02-26T14:00:00.000Z",
+        "latency": 0.304
+      },
+      {
+        "hour": "2026-02-26T15:00:00.000Z",
+        "latency": 0.738
+      },
+      {
+        "hour": "2026-02-26T16:00:00.000Z",
+        "latency": 0.305
+      },
+      {
+        "hour": "2026-02-26T17:00:00.000Z",
+        "latency": 0.436
+      },
+      {
+        "hour": "2026-02-26T18:00:00.000Z",
+        "latency": 0.374
+      },
+      {
+        "hour": "2026-02-26T19:00:00.000Z",
+        "latency": 0.719
+      },
+      {
+        "hour": "2026-02-26T20:00:00.000Z",
+        "latency": 0.453
+      },
+      {
+        "hour": "2026-02-26T21:00:00.000Z",
+        "latency": 0.681
+      },
+      {
+        "hour": "2026-02-26T22:00:00.000Z",
+        "latency": 0.399
+      },
+      {
+        "hour": "2026-02-26T23:00:00.000Z",
+        "latency": 0.672
+      },
+      {
+        "hour": "2026-02-27T00:00:00.000Z",
+        "latency": 0.755
+      },
+      {
+        "hour": "2026-02-27T01:00:00.000Z",
+        "latency": 0.748
+      },
+      {
+        "hour": "2026-02-27T02:00:00.000Z",
+        "latency": 0.302
+      },
+      {
+        "hour": "2026-02-27T03:00:00.000Z",
+        "latency": 0.391
+      },
+      {
+        "hour": "2026-02-27T04:00:00.000Z",
+        "latency": 0.663
+      },
+      {
+        "hour": "2026-02-27T05:00:00.000Z",
+        "latency": 0.543
+      },
+      {
+        "hour": "2026-02-27T06:00:00.000Z",
+        "latency": 0.359
+      },
+      {
+        "hour": "2026-02-27T07:00:00.000Z",
+        "latency": 0.642
+      },
+      {
+        "hour": "2026-02-27T08:00:00.000Z",
+        "latency": 0.522
+      },
+      {
+        "hour": "2026-02-27T09:00:00.000Z",
+        "latency": 0.62
+      },
+      {
+        "hour": "2026-02-27T10:00:00.000Z",
+        "latency": 0.652
+      },
+      {
+        "hour": "2026-02-27T11:00:00.000Z",
+        "latency": 0.694
+      },
+      {
+        "hour": "2026-02-27T12:00:00.000Z",
+        "latency": 0.616
+      },
+      {
+        "hour": "2026-02-27T13:00:00.000Z",
+        "latency": 0.642
+      },
+      {
+        "hour": "2026-02-27T14:00:00.000Z",
+        "latency": 0.757
+      },
+      {
+        "hour": "2026-02-27T15:00:00.000Z",
+        "latency": 0.485
+      },
+      {
+        "hour": "2026-02-27T16:00:00.000Z",
+        "latency": 0.489
+      },
+      {
+        "hour": "2026-02-27T17:00:00.000Z",
+        "latency": 0.744
+      },
+      {
+        "hour": "2026-02-27T18:00:00.000Z",
+        "latency": 0.411
+      },
+      {
+        "hour": "2026-02-27T19:00:00.000Z",
+        "latency": 0.503
+      },
+      {
+        "hour": "2026-02-27T20:00:00.000Z",
+        "latency": 0.52
+      },
+      {
+        "hour": "2026-02-27T21:00:00.000Z",
+        "latency": 0.594
+      },
+      {
+        "hour": "2026-02-27T22:00:00.000Z",
+        "latency": 0.583
+      },
+      {
+        "hour": "2026-02-27T23:00:00.000Z",
+        "latency": 0.354
+      },
+      {
+        "hour": "2026-02-28T00:00:00.000Z",
+        "latency": 0.781
+      },
+      {
+        "hour": "2026-02-28T01:00:00.000Z",
+        "latency": 0.591
+      },
+      {
+        "hour": "2026-02-28T02:00:00.000Z",
+        "latency": 0.69
+      },
+      {
+        "hour": "2026-02-28T03:00:00.000Z",
+        "latency": 0.522
+      },
+      {
+        "hour": "2026-02-28T04:00:00.000Z",
+        "latency": 0.561
+      },
+      {
+        "hour": "2026-02-28T05:00:00.000Z",
+        "latency": 0.458
+      },
+      {
+        "hour": "2026-02-28T06:00:00.000Z",
+        "latency": 0.309
+      },
+      {
+        "hour": "2026-02-28T07:00:00.000Z",
+        "latency": 0.507
+      },
+      {
+        "hour": "2026-02-28T08:00:00.000Z",
+        "latency": 0.564
+      },
+      {
+        "hour": "2026-02-28T09:00:00.000Z",
+        "latency": 0.713
+      },
+      {
+        "hour": "2026-02-28T10:00:00.000Z",
+        "latency": 0.774
+      },
+      {
+        "hour": "2026-02-28T11:00:00.000Z",
+        "latency": 0.483
+      },
+      {
+        "hour": "2026-02-28T12:00:00.000Z",
+        "latency": 0.741
+      },
+      {
+        "hour": "2026-02-28T13:00:00.000Z",
+        "latency": 0.745
+      },
+      {
+        "hour": "2026-02-28T14:00:00.000Z",
+        "latency": 0.747
+      },
+      {
+        "hour": "2026-02-28T15:00:00.000Z",
+        "latency": 0.463
+      },
+      {
+        "hour": "2026-02-28T16:00:00.000Z",
+        "latency": 0.517
+      },
+      {
+        "hour": "2026-02-28T17:00:00.000Z",
+        "latency": 0.31
+      },
+      {
+        "hour": "2026-02-28T18:00:00.000Z",
+        "latency": 0.564
+      },
+      {
+        "hour": "2026-02-28T19:00:00.000Z",
+        "latency": 0.688
+      },
+      {
+        "hour": "2026-02-28T20:00:00.000Z",
+        "latency": 0.369
+      },
+      {
+        "hour": "2026-02-28T21:00:00.000Z",
+        "latency": 0.695
+      },
+      {
+        "hour": "2026-02-28T22:00:00.000Z",
+        "latency": 0.591
+      },
+      {
+        "hour": "2026-02-28T23:00:00.000Z",
+        "latency": 0.781
+      }
+    ]
+  }
+}

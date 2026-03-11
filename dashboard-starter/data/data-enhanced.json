@@ -1,0 +1,38 @@
+{
+  "lastUpdated": "2026-03-02T20:20:00Z",
+  "pendingBids": 10,
+  "activeGigs": 3,
+  "skillsTracked": 25,
+  "agents": 9,
+  "status": "operational",
+  "system": {
+    "health": "degraded",
+    "score": 80,
+    "memory": { "total": 3915, "used": 2254, "percent": 58 },
+    "swap": { "total": 495, "used": 495, "percent": 100 },
+    "disk": { "percent": 78, "used": "58G", "total": "79G" },
+    "uptime": { "hours": 52, "mins": 18, "formatted": "52h 18m" },
+    "load": { "1m": 0.66, "5m": 0.53, "15m": 0.44 },
+    "gateway": "running"
+  },
+  "microagents": [
+    { "id": "strix", "name": "Strix", "status": "active", "tasks": 3, "uptime": "52h" },
+    { "id": "scout", "name": "Scout", "status": "idle", "tasks": 0, "uptime": "52h" },
+    { "id": "nexus", "name": "Nexus", "status": "active", "tasks": 1, "uptime": "2h" }
+  ],
+  "subagents": [
+    { "name": "Athena", "role": "Queen", "status": "active", "tasks": 0 },
+    { "name": "Sterling", "role": "Finance", "status": "active", "tasks": 12 },
+    { "name": "Ishtar", "role": "PAI", "status": "active", "tasks": 0 },
+    { "name": "Prometheus", "role": "Research", "status": "active", "tasks": 2 },
+    { "name": "Felicity", "role": "Coder", "status": "idle", "tasks": 0 },
+    { "name": "Squire", "role": "Butler", "status": "idle", "tasks": 0 },
+    { "name": "Delver", "role": "Explorer", "status": "idle", "tasks": 0 },
+    { "name": "Cisco", "role": "Network", "status": "active", "tasks": 1 },
+    { "name": "Themis", "role": "Security", "status": "idle", "tasks": 0 }
+  ],
+  "applications": [
+    { "name": "Athena Live", "url": "https://athena-live.vercel.app", "status": "active" },
+    { "name": "NEXUS", "url": "https://agent-command-center-omega.vercel.app", "status": "active" }
+  ]
+}

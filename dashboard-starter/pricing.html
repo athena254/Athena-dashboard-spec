@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing Plans</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .pricing-container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .pricing-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .pricing-header h1 {
+            color: #fff;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .pricing-header p {
+            color: #a0a0a0;
+            font-size: 1.1rem;
+        }
+
+        .pricing-table {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .pricing-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .pricing-card.featured {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+
+        .pricing-card.featured::before {
+            content: 'MOST POPULAR';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffd700;
+            color: #1a1a2e;
+            padding: 5px 20px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .plan-name {
+            color: #fff;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        .plan-price {
+            color: #fff;
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .plan-price span {
+            font-size: 1rem;
+            color: #a0a0a0;
+        }
+
+        .plan-price .featured-price {
+            color: #ffd700;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin: 30px 0;
+            color: #a0a0a0;
+        }
+
+        .plan-features li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .plan-features li:last-child {
+            border-bottom: none;
+        }
+
+        .plan-features li::before {
+            content: '✓';
+            color: #4ade80;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .plan-button {
+            display: inline-block;
+            padding: 15px 40px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+        }
+
+        .plan-button.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+
+        .plan-button.primary:hover {
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .plan-button.secondary {
+            background: transparent;
+            color: #fff;
+            border: 2px solid #667eea;
+        }
+
+        .plan-button.secondary:hover {
+            background: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .pricing-header h1 {
+                font-size: 2rem;
+            }
+            
+            .plan-price {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="pricing-container">
+        <div class="pricing-header">
+            <h1>Choose Your Plan</h1>
+            <p>Select the perfect plan for your needs</p>
+        </div>
+
+        <div class="pricing-table">
+            <!-- Starter Plan -->
+            <div class="pricing-card">
+                <h2 class="plan-name">Starter</h2>
+                <div class="plan-price">$9<span>/month</span></div>
+                <ul class="plan-features">
+                    <li>5 Projects</li>
+                    <li>10GB Storage</li>
+                    <li>Basic Support</li>
+                    <li>API Access</li>
+                    <li>Monthly Reports</li>
+                </ul>
+                <a href="#" class="plan-button secondary">Get Started</a>
+            </div>
+
+            <!-- Professional Plan -->
+            <div class="pricing-card featured">
+                <h2 class="plan-name">Professional</h2>
+                <div class="plan-price"><span class="featured-price">$29</span><span>/month</span></div>
+                <ul class="plan-features">
+                    <li>Unlimited Projects</li>
+                    <li>100GB Storage</li>
+                    <li>Priority Support</li>
+                    <li>Advanced API Access</li>
+                    <li>Weekly Reports</li>
+                    <li>Team Collaboration</li>
+                    <li>Custom Integrations</li>
+                </ul>
+                <a href="#" class="plan-button primary">Get Started</a>
+            </div>
+
+            <!-- Enterprise Plan -->
+            <div class="pricing-card">
+                <h2 class="plan-name">Enterprise</h2>
+                <div class="plan-price">$99<span>/month</span></div>
+                <ul class="plan-features">
+                    <li>Everything in Pro</li>
+                    <li>Unlimited Storage</li>
+                    <li>24/7 Phone Support</li>
+                    <li>Dedicated Manager</li>
+                    <li>Custom Solutions</li>
+                    <li>SLA Guarantee</li>
+                    <li>On-premise Option</li>
+                </ul>
+                <a href="#" class="plan-button secondary">Contact Sales</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

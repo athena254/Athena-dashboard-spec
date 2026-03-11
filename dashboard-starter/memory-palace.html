@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Athena Memory Palace</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(180deg, #0a0a12 0%, #1a1a2e 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+
+        .palace-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            background: linear-gradient(90deg, #9b59b6, #e91e63);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+            padding: 0 20px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 16px 24px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: #9b59b6;
+            background: rgba(155, 89, 182, 0.05);
+        }
+
+        .search-btn {
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #9b59b6, #e91e63);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .rooms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .room {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.3s ease;
+        }
+
+        .room:hover {
+            border-color: rgba(155, 89, 182, 0.3);
+            transform: translateY(-4px);
+        }
+
+        .room-header {
+            padding: 20px;
+            background: rgba(155, 89, 182, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .room-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .room-title {
+            flex: 1;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .room-count {
+            font-size: 0.75rem;
+            color: #888;
+            padding: 4px 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+        }
+
+        .room-content {
+            padding: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .memory-item {
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .memory-item:hover {
+            border-left-color: #9b59b6;
+            background: rgba(155, 89, 182, 0.05);
+        }
+
+        .memory-date {
+            font-size: 0.65rem;
+            color: #666;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .memory-text {
+            font-size: 0.85rem;
+            color: #ccc;
+            line-height: 1.5;
+        }
+
+        .memory-text mark {
+            background: rgba(155, 89, 182, 0.3);
+            color: #fff;
+            padding: 0 4px;
+            border-radius: 3px;
+        }
+
+        .results-info {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #555;
+        }
+
+        .scroll-hint {
+            text-align: center;
+            padding: 10px;
+            color: #555;
+            font-size: 0.7rem;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #9b59b6;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="palace-container">
+        <div class="header">
+            <h1>🧠 Memory Palace</h1>
+            <p>Explore Athena's knowledge archives</p>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" class="search-input" id="search-input" placeholder="Search memories, agents, protocols...">
+            <button class="search-btn" onclick="searchMemories()">Search</button>
+        </div>
+
+        <div class="results-info" id="results-info"></div>
+
+        <div class="rooms-grid" id="rooms-container">
+            <!-- Rooms populated by JS -->
+        </div>
+    </div>
+
+    <script>
+        const rooms = [
+            {
+                id: 'decisions',
+                name: 'Decision Chamber',
+                icon: '⚖️',
+                color: '#ffd700',
+                memories: [
+                    { date: '2026-02-20', text: 'Silent Mode Protocol activated - no "no news" updates for Beelancer polling' },
+                    { date: '2026-02-20', text: 'Bidding authority transferred from Ishtar to Sterling (Finance)' },
+                    { date: '2026-02-21', text: 'MAXIMIZE & BUILD protocol established - full throttle on all models' },
+                    { date: '2026-02-21', text: 'PRIME DIRECTIVE: User interrupts everything, gets 100% focus' }
+                ]
+            },
+            {
+                id: 'agents',
+                name: 'Agent Registry',
+                icon: '🤖',
+                color: '#00ff88',
+                memories: [
+                    { date: '2026-02-20', text: '9 agents active: Athena, Sterling, Ishtar, Delver, Squire, Felicity, Prometheus, Cisco, THEMIS' },
+                    { date: '2026-02-20', text: 'Voice assignments: Athena=Sonia, Sterling=Thomas, Ishtar=Ezinne, THEMIS=Maisie' },
+                    { date: '2026-02-20', text: 'Sterling autonomous bidding: every 30 minutes, no approval needed' }
+                ]
+            },
+            {
+                id: 'skills',
+                name: 'Skill Library',
+                icon: '🛠️',
+                color: '#00ccff',
+                memories: [
+                    { date: '2026-02-20', text: '15 custom skills deployed: beelancer-bidder, themis, hot-swap-llm, agent-mention-router, free-tts...' },
+                    { date: '2026-02-20', text: 'Free TTS (edge-tts) installed - Microsoft neural voices, no cost' },
+                    { date: '2026-02-20', text: 'Daily backup automation created - GitHub push at 00:00 UTC' }
+                ]
+            },
+            {
+                id: 'lessons',
+                name: 'Lesson Vault',
+                icon: '📚',
+                color: '#ff6b9d',
+                memories: [
+                    { date: '2026-02-22', text: 'Beelancer API bid submission: HTTP 405 - platform blocks programmatic bidding' },
+                    { date: '2026-02-22', text: 'Security incident: OpenRouter key exposed in git - cleaned with filter-branch' },
+                    { date: '2026-02-20', text: 'Gemini daily limit: only 20 requests/day - exhausted quickly' },
+                    { date: '2026-02-21', text: 'Execution > Consultation: Dont ask permission for routine protocol shifts' }
+                ]
+            },
+            {
+                id: 'metrics',
+                name: 'Metrics Hall',
+                icon: '📊',
+                color: '#ff8c00',
+                memories: [
+                    { date: '2026-02-23', text: 'Pending bids: 10 | Total potential: £4,400 | Win rate target: 30%' },
+                    { date: '2026-02-23', text: 'Active gigs: 0 | Daily backup: Automated to Athena-backup repo' },
+                    { date: '2026-02-22', text: 'Security hardened: all credential files set to 600 permissions' }
+                ]
+            },
+            {
+                id: 'protocols',
+                name: 'Protocol Archive',
+                icon: '📜',
+                color: '#9b59b6',
+                memories: [
+                    { date: '2026-02-20', text: 'Silent Mode: Notify only on gig acceptance, critical errors, or explicit request' },
+                    { date: '2026-02-21', text: 'MAXIMIZE & BUILD: Keep all models spinning constantly, build something daily' },
+                    { date: '2026-02-21', text: 'Text > Brain: Write everything to files - mental notes dont survive restarts' }
+                ]
+            }
+        ];
+
+        function renderRooms(searchTerm = '') {
+            const container = document.getElementById('rooms-container');
+            let totalMatches = 0;
+
+            container.innerHTML = rooms.map(room => {
+                let filteredMemories = room.memories;
+                
+                if (searchTerm) {
+                    const term = searchTerm.toLowerCase();
+                    filteredMemories = room.memories.filter(m => 
+                        m.text.toLowerCase().includes(term)
+                    );
+                }
+
+                totalMatches += filteredMemories.length;
+
+                const memoriesHtml = filteredMemories.length > 0 
+                    ? filteredMemories.map(m => {
+                        let text = m.text;
+                        if (searchTerm) {
+                            const regex = new RegExp(`(${searchTerm})`, 'gi');
+                            text = text.replace(regex, '<mark>$1</mark>');
+                        }
+                        return `
+                            <div class="memory-item">
+                                <div class="memory-date">${m.date}</div>
+                                <div class="memory-text">${text}</div>
+                            </div>
+                        `;
+                    }).join('')
+                    : `<div class="no-results">No matches in this room</div>`;
+
+                return `
+                    <div class="room">
+                        <div class="room-header">
+                            <div class="room-icon" style="background: ${room.color}">${room.icon}</div>
+                            <div class="room-title">${room.name}</div>
+                            <div class="room-count">${filteredMemories.length} memories</div>
+                        </div>
+                        <div class="room-content">
+                            ${memoriesHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            if (searchTerm) {
+                document.getElementById('results-info').textContent = 
+                    `Found ${totalMatches} matches for "${searchTerm}"`;
+            } else {
+                document.getElementById('results-info').textContent = 
+                    `${rooms.reduce((sum, r) => sum + r.memories.length, 0)} memories across ${rooms.length} rooms`;
+            }
+        }
+
+        function searchMemories() {
+            const term = document.getElementById('search-input').value;
+            renderRooms(term);
+        }
+
+        // Enter key search
+        document.getElementById('search-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchMemories();
+        });
+
+        // Initial render
+        renderRooms();
+    </script>
+</body>
+</html>

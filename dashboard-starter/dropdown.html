@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dropdown - Athena Live</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #1a1a2e;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .dropdown-container {
+      position: relative;
+      width: 280px;
+    }
+
+    .dropdown-label {
+      font-size: 0.875rem;
+      color: #a0a0b0;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .dropdown-trigger {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: #16213e;
+      border: 1px solid #2a2a4a;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+
+    .dropdown-trigger:hover {
+      border-color: #00ff88;
+      background: #1a2744;
+    }
+
+    .dropdown-trigger.active {
+      border-color: #00ff88;
+      background: #1a2744;
+    }
+
+    .dropdown-trigger .arrow {
+      transition: transform 0.2s ease;
+    }
+
+    .dropdown-trigger.active .arrow {
+      transform: rotate(180deg);
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 0.5rem);
+      left: 0;
+      width: 100%;
+      background: #16213e;
+      border: 1px solid #2a2a4a;
+      border-radius: 8px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.2s ease;
+      z-index: 100;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+
+    .dropdown-menu.open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .dropdown-item {
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 1px solid #2a2a4a;
+    }
+
+    .dropdown-item:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown-item:hover {
+      background: #1a2744;
+    }
+
+    .dropdown-item.selected {
+      background: #00ff88;
+      color: #000;
+    }
+
+    .dropdown-item .checkmark {
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+
+    .dropdown-item.selected .checkmark {
+      opacity: 1;
+    }
+
+    .dropdown-item .icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    .dropdown-arrow {
+      width: 12px;
+      height: 12px;
+      border-right: 2px solid #a0a0b0;
+      border-bottom: 2px solid #a0a0b0;
+      transform: rotate(45deg);
+      transition: border-color 0.2s ease;
+    }
+
+    .dropdown-trigger:hover .dropdown-arrow,
+    .dropdown-trigger.active .dropdown-arrow {
+      border-color: #00ff88;
+    }
+
+    /* Scrollbar styling */
+    .dropdown-menu::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .dropdown-menu::-webkit-scrollbar-track {
+      background: #16213e;
+      border-radius: 3px;
+    }
+
+    .dropdown-menu::-webkit-scrollbar-thumb {
+      background: #2a2a4a;
+      border-radius: 3px;
+    }
+
+    .dropdown-menu::-webkit-scrollbar-thumb:hover {
+      background: #3a3a5a;
+    }
+  </style>
+</head>
+<body>
+  <div class="dropdown-container">
+    <label class="dropdown-label" for="main-dropdown">Select Option</label>
+    <button class="dropdown-trigger" id="dropdown-trigger" aria-haspopup="listbox" aria-expanded="false">
+      <span id="dropdown-value">Choose an option</span>
+      <div class="dropdown-arrow"></div>
+    </button>
+    <div class="dropdown-menu" id="dropdown-menu" role="listbox">
+      <div class="dropdown-item" data-value="dashboard" role="option">
+        <span class="checkmark">✓</span>
+        <span>Dashboard</span>
+      </div>
+      <div class="dropdown-item" data-value="settings" role="option">
+        <span class="checkmark">✓</span>
+        <span>Settings</span>
+      </div>
+      <div class="dropdown-item" data-value="profile" role="option">
+        <span class="checkmark">✓</span>
+        <span>Profile</span>
+      </div>
+      <div class="dropdown-item" data-value="notifications" role="option">
+        <span class="checkmark">✓</span>
+        <span>Notifications</span>
+      </div>
+      <div class="dropdown-item" data-value="help" role="option">
+        <span class="checkmark">✓</span>
+        <span>Help & Support</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const trigger = document.getElementById('dropdown-trigger');
+      const menu = document.getElementById('dropdown-menu');
+      const valueDisplay = document.getElementById('dropdown-value');
+      const items = menu.querySelectorAll('.dropdown-item');
+      let selectedValue = '';
+
+      function toggleDropdown() {
+        const isOpen = menu.classList.contains('open');
+        if (isOpen) {
+          closeDropdown();
+        } else {
+          openDropdown();
+        }
+      }
+
+      function openDropdown() {
+        menu.classList.add('open');
+        trigger.classList.add('active');
+        trigger.setAttribute('aria-expanded', 'true');
+      }
+
+      function closeDropdown() {
+        menu.classList.remove('open');
+        trigger.classList.remove('active');
+        trigger.setAttribute('aria-expanded', 'false');
+      }
+
+      function selectItem(item) {
+        items.forEach(i => i.classList.remove('selected'));
+        item.classList.add('selected');
+        selectedValue = item.dataset.value;
+        valueDisplay.textContent = item.textContent.trim().replace('✓', '').trim();
+        closeDropdown();
+        
+        // Dispatch custom event for external listeners
+        trigger.dispatchEvent(new CustomEvent('dropdown-change', {
+          detail: { value: selectedValue, label: valueDisplay.textContent }
+        }));
+      }
+
+      // Toggle dropdown on trigger click
+      trigger.addEventListener('click', toggleDropdown);
+
+      // Handle item selection
+      items.forEach(item => {
+        item.addEventListener('click', () => selectItem(item));
+      });
+
+      // Close on outside click
+      document.addEventListener('click', (e) => {
+        if (!trigger.contains(e.target) && !menu.contains(e.target)) {
+          closeDropdown();
+        }
+      });
+
+      // Close on escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeDropdown();
+        }
+      });
+
+      // Keyboard navigation
+      trigger.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          if (!menu.classList.contains('open')) {
+            openDropdown();
+          }
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

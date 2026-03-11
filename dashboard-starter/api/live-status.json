@@ -1,0 +1,196 @@
+{
+  "timestamp": "2026-02-28T01:24:59.712Z",
+  "source": "openclaw gateway",
+  "health": "Gateway Health\nOK (407ms)\nTelegram: ok (@Athena_orchestratorbot) (249ms)\nWhatsApp: linked (auth age 6m)",
+  "status": "operational",
+  "channels": [
+    "Telegram: configured",
+    "  - default (token:config)",
+    "WhatsApp: linked +254778816429 auth 6m ago",
+    "  - default (dm:allowlist, allow:+254745893448)"
+  ],
+  "heartbeat": {
+    "defaultAgentId": "main",
+    "agents": [
+      {
+        "agentId": "main",
+        "enabled": true,
+        "every": "30m",
+        "everyMs": 1800000
+      },
+      {
+        "agentId": "butler",
+        "enabled": true,
+        "every": "30m",
+        "everyMs": 1800000
+      },
+      {
+        "agentId": "cisco",
+        "enabled": true,
+        "every": "30m",
+        "everyMs": 1800000
+      },
+      {
+        "agentId": "coder",
+        "enabled": true,
+        "every": "30m",
+        "everyMs": 1800000
+      },
+      {
+        "agentId": "finance",
+        "enabled": true,
+        "every": "30m",
+        "everyMs": 1800000
+      },
+      {
+        "agentId": "ishtar",
+        "enabled": true,
+        "every": "30m",
+        "everyMs": 1800000
+      },
+      {
+        "agentId": "katie",
+        "enabled": true,
+        "every": "30m",
+        "everyMs": 1800000
+      },
+      {
+        "agentId": "prometheus",
+        "enabled": true,
+        "every": "30m",
+        "everyMs": 1800000
+      },
+      {
+        "agentId": "qwen-nvidia",
+        "enabled": true,
+        "every": "30m",
+        "everyMs": 1800000
+      },
+      {
+        "agentId": "researcher",
+        "enabled": true,
+        "every": "30m",
+        "everyMs": 1800000
+      },
+      {
+        "agentId": "shannon",
+        "enabled": true,
+        "every": "30m",
+        "everyMs": 1800000
+      },
+      {
+        "agentId": "themis",
+        "enabled": true,
+        "every": "30m",
+        "everyMs": 1800000
+      }
+    ]
+  },
+  "queuedEvents": [],
+  "sessions": {
+    "total": 562,
+    "activeAgents": 1,
+    "totalTokens": 3619035,
+    "byAgent": [
+      {
+        "agentId": "main",
+        "sessions": 499,
+        "latestAge": 37,
+        "isActive": true,
+        "inputTokens": 2350148,
+        "outputTokens": 36563,
+        "model": "MiniMax-M2.5"
+      },
+      {
+        "agentId": "researcher",
+        "sessions": 7,
+        "latestAge": 523,
+        "isActive": false,
+        "inputTokens": 26203,
+        "outputTokens": 198,
+        "model": "zai-org/GLM-5-FP8"
+      },
+      {
+        "agentId": "finance",
+        "sessions": 17,
+        "latestAge": 526,
+        "isActive": false,
+        "inputTokens": 13033,
+        "outputTokens": 1494,
+        "model": "gemini"
+      },
+      {
+        "agentId": "prometheus",
+        "sessions": 8,
+        "latestAge": 606,
+        "isActive": false,
+        "inputTokens": 154910,
+        "outputTokens": 2398,
+        "model": "llama-3.3-70b-versatile"
+      },
+      {
+        "agentId": "coder",
+        "sessions": 7,
+        "latestAge": 628,
+        "isActive": false,
+        "inputTokens": 416039,
+        "outputTokens": 5083,
+        "model": "coder-model"
+      },
+      {
+        "agentId": "themis",
+        "sessions": 3,
+        "latestAge": 723,
+        "isActive": false,
+        "inputTokens": 26149,
+        "outputTokens": 91,
+        "model": "zai-org/GLM-5-FP8"
+      },
+      {
+        "agentId": "ishtar",
+        "sessions": 10,
+        "latestAge": 2073,
+        "isActive": false,
+        "inputTokens": 497605,
+        "outputTokens": 6868,
+        "model": "zai-org/GLM-5-FP8"
+      },
+      {
+        "agentId": "butler",
+        "sessions": 4,
+        "latestAge": 3096,
+        "isActive": false,
+        "inputTokens": 21341,
+        "outputTokens": 778,
+        "model": "zai-org/GLM-5-FP8"
+      },
+      {
+        "agentId": "cisco",
+        "sessions": 5,
+        "latestAge": 3134,
+        "isActive": false,
+        "inputTokens": 22354,
+        "outputTokens": 439,
+        "model": "zai-org/GLM-5-FP8"
+      },
+      {
+        "agentId": "katie",
+        "sessions": 1,
+        "latestAge": 115094,
+        "isActive": false,
+        "inputTokens": 10855,
+        "outputTokens": 78,
+        "model": "gpt-5.2-codex"
+      },
+      {
+        "agentId": "qwen-nvidia",
+        "sessions": 1,
+        "latestAge": 172233,
+        "isActive": false,
+        "inputTokens": 26363,
+        "outputTokens": 45,
+        "model": "qwen/qwen3.5-397b-a17b"
+      }
+    ]
+  }
+}

@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛡️ Athena Cyber OS</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@400;700;900&display=swap');
+        
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #111827;
+            --bg-tertiary: #1a2332;
+            --accent-cyan: #00f0ff;
+            --accent-magenta: #ff00aa;
+            --accent-green: #00ff88;
+            --accent-red: #ff3366;
+            --accent-yellow: #ffcc00;
+            --text-primary: #e0e6ed;
+            --text-secondary: #8b9cb3;
+            --border-color: #2d3a4f;
+            --glow-cyan: 0 0 20px rgba(0, 240, 255, 0.3);
+            --glow-magenta: 0 0 20px rgba(255, 0, 170, 0.3);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Animated background grid */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: var(--glow-cyan);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-icon {
+            font-size: 2.5rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .logo h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-magenta));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        
+        .status-bar {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--bg-primary);
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: blink 1.5s infinite;
+        }
+        
+        .status-dot.green { background: var(--accent-green); box-shadow: 0 0 10px var(--accent-green); }
+        .status-dot.cyan { background: var(--accent-cyan); box-shadow: 0 0 10px var(--accent-cyan); }
+        .status-dot.red { background: var(--accent-red); box-shadow: 0 0 10px var(--accent-red); }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr 300px;
+            gap: 20px;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        /* Agent List */
+        .agent-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .agent-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+        
+        .agent-item:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: var(--glow-cyan);
+            transform: translateX(5px);
+        }
+        
+        .agent-item.active {
+            border-color: var(--accent-magenta);
+            box-shadow: var(--glow-magenta);
+        }
+        
+        .agent-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .agent-info {
+            flex: 1;
+        }
+        
+        .agent-name {
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+        
+        .agent-role {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+        
+        .agent-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        /* Center Panel */
+        .center-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        /* Threat Scanner */
+        .scanner-panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .scanner-display {
+            height: 200px;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--accent-cyan);
+        }
+        
+        .scanner-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+            animation: scan 2s linear infinite;
+        }
+        
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 200px; }
+        }
+        
+        .scanner-output {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--accent-green);
+            line-height: 1.6;
+            height: 150px;
+            overflow-y: auto;
+        }
+        
+        .scan-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--accent-red) 0%, #cc0044 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(255, 51, 102, 0.3);
+        }
+        
+        .scan-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px rgba(255, 51, 102, 0.5);
+        }
+        
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        
+        .metric-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            border-color: var(--accent-cyan);
+            transform: translateY(-5px);
+        }
+        
+        .metric-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .metric-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+        
+        /* Console */
+        .console-panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .console-output {
+            flex: 1;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            margin: 15px;
+            padding: 15px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            line-height: 1.6;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+        
+        .console-line {
+            margin-bottom: 5px;
+        }
+        
+        .console-line .time { color: var(--accent-cyan); }
+        .console-line .info { color: var(--accent-green); }
+        .console-line .warn { color: var(--accent-yellow); }
+        .console-line .error { color: var(--accent-red); }
+        
+        .console-input {
+            display: flex;
+            margin: 0 15px 15px;
+            gap: 10px;
+        }
+        
+        .console-input input {
+            flex: 1;
+            padding: 12px 15px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+        
+        .console-input input:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+        }
+        
+        .console-input button {
+            padding: 12px 25px;
+            background: var(--accent-cyan);
+            border: none;
+            border-radius: 8px;
+            color: var(--bg-primary);
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .console-input button:hover {
+            box-shadow: var(--glow-cyan);
+        }
+        
+        /* Right Panel */
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        /* Vulnerability Feed */
+        .vuln-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .vuln-item {
+            padding: 15px;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            border-left: 3px solid;
+        }
+        
+        .vuln-item.critical { border-color: var(--accent-red); }
+        .vuln-item.high { border-color: var(--accent-yellow); }
+        .vuln-item.medium { border-color: var(--accent-cyan); }
+        
+        .vuln-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .vuln-type {
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        
+        .vuln-severity {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 10px;
+            text-transform: uppercase;
+        }
+        
+        .vuln-severity.critical { background: var(--accent-red); color: white; }
+        .vuln-severity.high { background: var(--accent-yellow); color: black; }
+        .vuln-severity.medium { background: var(--accent-cyan); color: var(--bg-primary); }
+        
+        .vuln-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        .action-btn {
+            padding: 15px 10px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .action-btn:hover {
+            border-color: var(--accent-magenta);
+            box-shadow: var(--glow-magenta);
+            transform: scale(1.05);
+        }
+        
+        .action-btn .icon {
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        /* Network Map */
+        .network-map {
+            height: 150px;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .node {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent-cyan);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .node.center {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background: var(--accent-cyan);
+            color: var(--bg-primary);
+            font-size: 1.2rem;
+        }
+        
+        .node:nth-child(2) { top: 20%; left: 30%; animation-delay: 0.5s; }
+        .node:nth-child(3) { top: 20%; left: 70%; animation-delay: 1s; }
+        .node:nth-child(4) { top: 70%; left: 30%; animation-delay: 1.5s; }
+        .node:nth-child(5) { top: 70%; left: 70%; animation-delay: 2s; }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-cyan);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">🛡️</div>
+                <h1>Athena Cyber OS</h1>
+            </div>
+            <div class="status-bar">
+                <div class="status-item">
+                    <span class="status-dot green"></span>
+                    <span>SYSTEMS ONLINE</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-dot cyan"></span>
+                    <span id="clock">00:00:00</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-dot green"></span>
+                    <span id="threat-level">THREAT: LOW</span>
+                </div>
+            </div>
+        </header>
+        
+        <div class="main-grid">
+            <!-- Left Sidebar -->
+            <div class="sidebar">
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-title">⚔️ Agents</span>
+                        <span>🟢 10</span>
+                    </div>
+                    <div class="agent-list">
+                        <div class="agent-item active">
+                            <div class="agent-avatar">🛡️</div>
+                            <div class="agent-info">
+                                <div class="agent-name">Shannon</div>
+                                <div class="agent-role">Pentester</div>
+                            </div>
+                            <div class="agent-status" style="background: var(--accent-green);"></div>
+                        </div>
+                        <div class="agent-item">
+                            <div class="agent-avatar">🔒</div>
+                            <div class="agent-info">
+                                <div class="agent-name">Cisco</div>
+                                <div class="agent-role">Security</div>
+                            </div>
+                            <div class="agent-status" style="background: var(--accent-green);"></div>
+                        </div>
+                        <div class="agent-item">
+                            <div class="agent-avatar">🧠</div>
+                            <div class="agent-info">
+                                <div class="agent-name">Nexus</div>
+                                <div class="agent-role">Intelligence</div>
+                            </div>
+                            <div class="agent-status" style="background: var(--accent-cyan);"></div>
+                        </div>
+                        <div class="agent-item">
+                            <div class="agent-avatar">⚖️</div>
+                            <div class="agent-info">
+                                <div class="agent-name">THEMIS</div>
+                                <div class="agent-role">Council</div>
+                            </div>
+                            <div class="agent-status" style="background: var(--accent-cyan);"></div>
+                        </div>
+                        <div class="agent-item">
+                            <div class="agent-avatar">💻</div>
+                            <div class="agent-info">
+                                <div class="agent-name">Felicity</div>
+                                <div class="agent-role">Frontend</div>
+                            </div>
+                            <div class="agent-status" style="background: var(--accent-green);"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-title">🌐 Network</span>
+                    </div>
+                    <div class="network-map">
+                        <div class="node center">🛡️</div>
+                        <div class="node">A</div>
+                        <div class="node">B</div>
+                        <div class="node">C</div>
+                        <div class="node">D</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Center Panel -->
+            <div class="center-panel">
+                <div class="scanner-panel">
+                    <div class="panel-header">
+                        <span class="panel-title">🔍 Threat Scanner</span>
+                        <span style="color: var(--accent-green);">READY</span>
+                    </div>
+                    <div class="scanner-display">
+                        <div class="scanner-line"></div>
+                        <canvas id="scanner-canvas" style="width: 100%; height: 100%;"></canvas>
+                    </div>
+                    <div class="scanner-output" id="scanner-output">
+                        <div>[SYSTEM] Athena Cyber OS v1.0 initialized</div>
+                        <div>[SYSTEM] Loading vulnerability databases...</div>
+                        <div>[READY] Shannon pentester module loaded</div>
+                        <div>[READY] Cisco security module loaded</div>
+                    </div>
+                    <button class="scan-btn" onclick="startScan()">▶ Initialize Scan</button>
+                </div>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value" id="vulns-found">0</div>
+                        <div class="metric-label">Vulnerabilities</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="tests-run">247</div>
+                        <div class="metric-label">Tests Run</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="uptime">99.9%</div>
+                        <div class="metric-label">Uptime</div>
+                    </div>
+                </div>
+                
+                <div class="console-panel">
+                    <div class="panel-header">
+                        <span class="panel-title">💻 Terminal</span>
+                    </div>
+                    <div class="console-output" id="console">
+                        <div class="console-line"><span class="time">[00:00:00]</span> <span class="info">Athena Cyber OS initialized</span></div>
+                        <div class="console-line"><span class="time">[00:00:01]</span> <span class="info">Shannon agent loaded</span></div>
+                        <div class="console-line"><span class="time">[00:00:02]</span> <span class="info">Cisco security module active</span></div>
+                    </div>
+                    <div class="console-input">
+                        <input type="text" id="cmd-input" placeholder="Enter command..." onkeypress="handleCommand(event)">
+                        <button onclick="executeCommand()">EXEC</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Panel -->
+            <div class="right-panel">
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-title">🚨 Vulnerabilities</span>
+                        <span id="vuln-count">0</span>
+                    </div>
+                    <div class="vuln-list" id="vuln-feed">
+                        <div class="vuln-item medium">
+                            <div class="vuln-header">
+                                <span class="vuln-type">XSS Reflection</span>
+                                <span class="vuln-severity medium">MEDIUM</span>
+                            </div>
+                            <div class="vuln-desc">Input sanitization missing in search parameter</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-title">⚡ Quick Actions</span>
+                    </div>
+                    <div class="quick-actions">
+                        <button class="action-btn" onclick="quickAction('scan')">
+                            <span class="icon">🔍</span>
+                            Quick Scan
+                        </button>
+                        <button class="action-btn" onclick="quickAction('shannon')">
+                            <span class="icon">🗡️</span>
+                            Shannon Test
+                        </button>
+                        <button class="action-btn" onclick="quickAction('audit')">
+                            <span class="icon">📋</span>
+                            Code Audit
+                        </button>
+                        <button class="action-btn" onclick="quickAction('report')">
+                            <span class="icon">📊</span>
+                            Gen Report
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-title">📊 Activity</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary);">
+                        <div style="margin-bottom: 10px; padding: 10px; background: var(--bg-primary); border-radius: 6px;">
+                            <div style="color: var(--accent-green);">✓ Scan Complete</div>
+                            <div style="font-size: 0.7rem;">2 minutes ago</div>
+                        </div>
+                        <div style="margin-bottom: 10px; padding: 10px; background: var(--bg-primary); border-radius: 6px;">
+                            <div style="color: var(--accent-cyan);">ℹ Report Generated</div>
+                            <div style="font-size: 0.7rem;">15 minutes ago</div>
+                        </div>
+                        <div style="padding: 10px; background: var(--bg-primary); border-radius: 6px;">
+                            <div style="color: var(--accent-magenta);">⚡ Agent Started</div>
+                            <div style="font-size: 0.7rem;">1 hour ago</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Clock
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', { hour12: false });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+        
+        // Scanner Canvas
+        const canvas = document.getElementById('scanner-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        
+        let scanParticles = [];
+        
+        function createParticles() {
+            for (let i = 0; i < 50; i++) {
+                scanParticles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 2,
+                    vy: (Math.random() - 0.5) * 2,
+                    size: Math.random() * 3 + 1,
+                    color: Math.random() > 0.5 ? '#00f0ff' : '#00ff88'
+                });
+            }
+        }
+        
+        function animateScanner() {
+            ctx.fillStyle = 'rgba(10, 14, 23, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            scanParticles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                
+                if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+                
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.fill();
+            });
+            
+            requestAnimationFrame(animateScanner);
+        }
+        
+        createParticles();
+        animateScanner();
+        
+        // Console
+        function log(type, message) {
+            const console = document.getElementById('console');
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+            console.innerHTML += `<div class="console-line"><span class="time">[${time}]</span> <span class="${type}">${message}</span></div>`;
+            console.scrollTop = console.scrollHeight;
+        }
+        
+        function handleCommand(e) {
+            if (e.key === 'Enter') executeCommand();
+        }
+        
+        function executeCommand() {
+            const input = document.getElementById('cmd-input');
+            const cmd = input.value.trim();
+            if (!cmd) return;
+            
+            log('info', `> ${cmd}`);
+            input.value = '';
+            
+            // Simulate command processing
+            setTimeout(() => {
+                if (cmd.includes('scan')) {
+                    log('info', 'Initializing threat scan...');
+                    setTimeout(() => log('info', 'Scan complete. 0 threats found.'), 1500);
+                } else if (cmd.includes('help')) {
+                    log('info', 'Available: scan, shannon, audit, report, status');
+                } else if (cmd.includes('status')) {
+                    log('info', 'All systems operational');
+                } else {
+                    log('warn', `Unknown command: ${cmd}`);
+                }
+            }, 500);
+        }
+        
+        // Scanner
+        function startScan() {
+            const output = document.getElementById('scanner-output');
+            const messages = [
+                '[INIT] Loading exploit signatures...',
+                '[SCAN] Analyzing attack surface...',
+                '[TEST] Injection vectors...',
+                '[TEST] XSS payloads...',
+                '[TEST] SSRF patterns...',
+                '[TEST] Auth bypass...',
+                '[ANALYZING] Code flow analysis...',
+                '[COMPLETE] Scan finished'
+            ];
+            
+            let i = 0;
+            const interval = setInterval(() => {
+                if (i >= messages.length) {
+                    clearInterval(interval);
+                    return;
+                }
+                output.innerHTML += `<div>${messages[i]}</div>`;
+                output.scrollTop = output.scrollHeight;
+                
+                // Update counter
+                if (i === messages.length - 1) {
+                    document.getElementById('vulns-found').textContent = Math.floor(Math.random() * 5);
+                }
+                i++;
+            }, 400);
+        }
+        
+        // Quick Actions
+        function quickAction(action) {
+            const actions = {
+                scan: 'Starting quick scan...',
+                shannon: 'Launching Shannon pentester...',
+                audit: 'Running code audit...',
+                report: 'Generating security report...'
+            };
+            log('info', actions[action]);
+        }
+        
+        // Initialize
+        log('info', 'Athena Cyber OS ready');
+        log('info', 'Use commands to interact with agents');
+    </script>
+</body>
+</html>

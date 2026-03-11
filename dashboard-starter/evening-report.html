@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evening Report | Athena Live</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    [data-theme="dark"] { --bg-base: #0c0f1a; --bg-surface: #111827; --bg-elevated: #1f2937; --border: #1f2937; --text-primary: #f9fafb; --text-secondary: #d1d5db; --text-muted: #9ca3af; }
+    [data-theme="light"] { --bg-base: #f8fafc; --bg-surface: #ffffff; --bg-elevated: #f1f5f9; --border: #e2e8f0; --text-primary: #0f172a; --text-secondary: #334155; --text-muted: #64748b; }
+    
+    .report-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-2xl); flex-wrap: wrap; gap: var(--space-md); }
+    .report-title-block { display: flex; align-items: center; gap: var(--space-md); }
+    .report-icon { width: 56px; height: 56px; border-radius: var(--radius-xl); background: linear-gradient(135deg, #f59e0b, #fbbf24); display: flex; align-items: center; justify-content: center; font-size: 1.75rem; }
+    .report-title { font-size: 1.75rem; font-weight: 700; color: var(--text-primary); }
+    .report-subtitle { font-size: 0.875rem; color: var(--text-muted); }
+    .report-meta { display: flex; align-items: center; gap: var(--space-lg); }
+    .meta-item { display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-sm) var(--space-md); background: var(--bg-elevated); border-radius: var(--radius-md); font-size: 0.8125rem; }
+    .meta-icon { font-size: 1rem; }
+    .meta-value { color: var(--text-primary); font-weight: 500; }
+    .pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; animation: pulse 2s infinite; }
+    
+    .collapsible { background: var(--gradient-card); border: 1px solid var(--border); border-radius: var(--radius-xl); margin-bottom: var(--space-lg); overflow: hidden; }
+    .collapsible-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-lg); cursor: pointer; transition: var(--transition-fast); }
+    .collapsible-header:hover { background: var(--bg-elevated); }
+    .collapsible-title { display: flex; align-items: center; gap: var(--space-md); }
+    .collapsible-icon { width: 40px; height: 40px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
+    .collapsible-icon.timeline { background: linear-gradient(135deg, #6366f1, #818cf8); }
+    .collapsible-icon.decisions { background: linear-gradient(135deg, #22d3ee, #67e8f9); }
+    .collapsible-icon.builds { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+    .collapsible-icon.completed { background: linear-gradient(135deg, #10b981, #34d399); }
+    .collapsible-icon.problems { background: linear-gradient(135deg, #ef4444, #f87171); }
+    .collapsible-icon.innovation { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+    .collapsible-icon.api { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+    .collapsible-icon.overnight { background: linear-gradient(135deg, #06b6d4, #22d3ee); }
+    .collapsible-icon.actions { background: linear-gradient(135deg, #ec4899, #f472b6); }
+    .collapsible-text h3 { font-size: 1rem; font-weight: 600; color: var(--text-primary); margin: 0; }
+    .collapsible-text p { font-size: 0.75rem; color: var(--text-muted); margin: 2px 0 0 0; }
+    .collapsible-arrow { font-size: 1.25rem; color: var(--text-muted); transition: transform var(--transition-fast); }
+    .collapsible.open .collapsible-arrow { transform: rotate(180deg); }
+    .collapsible-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+    .collapsible.open .collapsible-content { max-height: 2000px; }
+    .collapsible-inner { padding: 0 var(--space-lg) var(--space-lg); }
+    
+    .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 9999px; font-size: 0.625rem; font-weight: 600; text-transform: uppercase; }
+    .status-badge.success { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+    .status-badge.warning { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+    .status-badge.error { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+    .status-badge.info { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+    .status-badge.neutral { background: rgba(156, 163, 175, 0.1); color: #9ca3af; }
+    
+    .timeline { position: relative; padding-left: var(--space-xl); }
+    .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+    .timeline-item { position: relative; padding-bottom: var(--space-lg); }
+    .timeline-item:last-child { padding-bottom: 0; }
+    .timeline-dot { position: absolute; left: -24px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--bg-surface); border: 3px solid var(--primary); }
+    .timeline-dot.success { border-color: #10b981; }
+    .timeline-dot.warning { border-color: #f59e0b; }
+    .timeline-dot.error { border-color: #ef4444; }
+    .timeline-content { background: var(--bg-elevated); border-radius: var(--radius-lg); padding: var(--space-md); }
+    .timeline-time { font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); }
+    .timeline-title { font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin: var(--space-xs) 0; }
+    .timeline-desc { font-size: 0.8125rem; color: var(--text-secondary); }
+    
+    .decision-table { width: 100%; border-collapse: collapse; }
+    .decision-table th { text-align: left; padding: var(--space-md); font-size: 0.625rem; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    .decision-table td { padding: var(--space-md); font-size: 0.8125rem; color: var(--text-secondary); border-bottom: 1px solid var(--border); vertical-align: top; }
+    .decision-table tr:last-child td { border-bottom: none; }
+    .decision-agent { display: flex; align-items: center; gap: var(--space-sm); }
+    .agent-avatar-sm { width: 28px; height: 28px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 0.875rem; }
+    
+    .build-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-md); }
+    .build-card { background: var(--bg-elevated); border-radius: var(--radius-lg); padding: var(--space-lg); border: 1px solid var(--border); }
+    .build-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-md); }
+    .build-name { font-weight: 600; color: var(--text-primary); }
+    .build-progress { margin-top: var(--space-sm); }
+    .progress-bar { height: 8px; background: var(--bg-base); border-radius: var(--radius-full); overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: var(--radius-full); transition: width 0.5s ease; }
+    .progress-fill.green { background: linear-gradient(90deg, #10b981, #34d399); }
+    .progress-fill.yellow { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .progress-fill.red { background: linear-gradient(90deg, #ef4444, #f87171); }
+    .progress-label { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-top: var(--space-xs); }
+    .blocker-tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; background: rgba(239, 68, 68, 0.1); color: #ef4444; border-radius: var(--radius-sm); font-size: 0.6875rem; font-weight: 600; margin-top: var(--space-sm); }
+    
+    .completed-list { display: flex; flex-direction: column; gap: var(--space-sm); }
+    .completed-item { display: flex; align-items: center; gap: var(--space-md); padding: var(--space-md); background: var(--bg-elevated); border-radius: var(--radius-lg); }
+    .completed-icon { width: 36px; height: 36px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+    .completed-info { flex: 1; }
+    .completed-name { font-weight: 500; color: var(--text-primary); font-size: 0.875rem; }
+    .completed-meta { font-size: 0.75rem; color: var(--text-muted); }
+    
+    .problems-table { width: 100%; border-collapse: collapse; }
+    .problems-table th { text-align: left; padding: var(--space-sm) var(--space-md); font-size: 0.625rem; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border); background: var(--bg-elevated); }
+    .problems-table td { padding: var(--space-sm) var(--space-md); font-size: 0.8125rem; color: var(--text-secondary); border-bottom: 1px solid var(--border); }
+    .problems-table tr:last-child td { border-bottom: none; }
+    
+    .innovation-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: var(--space-md); }
+    .innovation-card { background: var(--bg-elevated); border-radius: var(--radius-lg); padding: var(--space-lg); border: 1px solid var(--border); position: relative; overflow: hidden; }
+    .innovation-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+    .innovation-submitter { font-size: 0.6875rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: var(--space-xs); }
+    .innovation-title { font-weight: 600; color: var(--text-primary); margin-bottom: var(--space-sm); }
+    .innovation-desc { font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5; }
+    
+    .api-table { width: 100%; border-collapse: collapse; }
+    .api-table th { text-align: left; padding: var(--space-md); font-size: 0.625rem; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    .api-table td { padding: var(--space-md); font-size: 0.8125rem; color: var(--text-secondary); border-bottom: 1px solid var(--border); }
+    .api-usage { display: flex; align-items: center; gap: var(--space-sm); }
+    .usage-bar { flex: 1; height: 6px; background: var(--bg-base); border-radius: var(--radius-full); overflow: hidden; }
+    .usage-fill { height: 100%; border-radius: var(--radius-full); }
+    .usage-fill.low { background: #10b981; }
+    .usage-fill.medium { background: #f59e0b; }
+    .usage-fill.high { background: #ef4444; }
+    
+    .overnight-list { display: flex; flex-direction: column; gap: var(--space-sm); }
+    .overnight-item { display: flex; align-items: center; gap: var(--space-md); padding: var(--space-md); background: var(--bg-elevated); border-radius: var(--radius-lg); border-left: 3px solid #06b6d4; }
+    .overnight-checkbox { width: 20px; height: 20px; border-radius: var(--radius-sm); border: 2px solid var(--border); cursor: pointer; }
+    .overnight-task { flex: 1; }
+    .overnight-title { font-weight: 500; color: var(--text-primary); font-size: 0.875rem; }
+    .overnight-meta { font-size: 0.75rem; color: var(--text-muted); }
+    .overnight-agent { font-size: 0.6875rem; padding: 2px 8px; background: var(--bg-base); border-radius: var(--radius-sm); color: var(--text-muted); }
+    
+    .action-list { display: flex; flex-direction: column; gap: var(--space-sm); }
+    .action-item { display: flex; align-items: flex-start; gap: var(--space-md); padding: var(--space-md); background: var(--bg-elevated); border-radius: var(--radius-lg); border-left: 3px solid; }
+    .action-item.p1 { border-left-color: #ef4444; }
+    .action-item.p2 { border-left-color: #f59e0b; }
+    .action-item.p3 { border-left-color: #10b981; }
+    .priority-badge { font-size: 0.625rem; font-weight: 700; padding: 2px 6px; border-radius: var(--radius-sm); }
+    .priority-badge.p1 { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+    .priority-badge.p2 { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+    .priority-badge.p3 { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+    .action-content { flex: 1; }
+    .action-title { font-weight: 500; color: var(--text-primary); font-size: 0.875rem; }
+    .action-desc { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    @media (max-width: 768px) {
+      .report-header { flex-direction: column; align-items: flex-start; }
+      .report-meta { flex-wrap: wrap; }
+      .build-grid, .innovation-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-overlay" id="loader"><div class="loader"></div><p class="loading-text">Loading Evening Report...</p></div>
+  <main class="container">
+    
+    <header class="report-header animate-fade-in">
+      <div class="report-title-block">
+        <div class="report-icon">🌙</div>
+        <div>
+          <h1 class="report-title">Evening Report</h1>
+          <p class="report-subtitle">Athena Operations Summary</p>
+        </div>
+      </div>
+      <div class="report-meta">
+        <div class="meta-item">
+          <span class="meta-icon">🕐</span>
+          <span class="meta-value" id="timestamp">--</span>
+        </div>
+        <div class="meta-item">
+          <span class="pulse-dot"></span>
+          <span class="meta-value">Pulse: <span id="pulse-count">--</span></span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-icon">📅</span>
+          <span class="meta-value" id="date">--</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Section 1: Day So Far - System Summary -->
+    <div class="collapsible open">
+      <div class="collapsible-header" onclick="toggleCollapsible(this)">
+        <div class="collapsible-title">
+          <div class="collapsible-icon timeline">📊</div>
+          <div class="collapsible-text">
+            <h3>Day So Far - System Summary</h3>
+            <p>Timeline of today's key events</p>
+          </div>
+        </div>
+        <span class="collapsible-arrow">▼</span>
+      </div>
+      <div class="collapsible-content">
+        <div class="collapsible-inner">
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-dot success"></div>
+              <div class="timeline-content">
+                <div class="timeline-time">08:00 UTC</div>
+                <div class="timeline-title">Morning Handoff Complete</div>
+                <div class="timeline-desc">All agents transitioned from overnight to daytime operations. Sterling began auto-bidding.</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot success"></div>
+              <div class="timeline-content">
+                <div class="timeline-time">10:30 UTC</div>
+                <div class="timeline-title">Beelancer Bid Accepted</div>
+                <div class="timeline-desc">Sterling won $127.50 gig - Frontend React Developer</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot warning"></div>
+              <div class="timeline-content">
+                <div class="timeline-time">14:00 UTC</div>
+                <div class="timeline-title">API Rate Limit Warning</div>
+                <div class="timeline-desc">Prometheus approached 80% consumption threshold - alerted operator</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <div class="timeline-time">16:45 UTC</div>
+                <div class="timeline-title">Innovation Submission Received</div>
+                <div class="timeline-desc">Ishtar submitted PAI Architecture improvement proposal</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <div class="timeline-time">18:00 UTC</div>
+                <div class="timeline-title">Evening Report Generation</div>
+                <div class="timeline-desc">Current status - awaiting operator review</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: Agent Decision Log -->
+    <div class="collapsible open">
+      <div class="collapsible-header" onclick="toggleCollapsible(this)">
+        <div class="collapsible-title">
+          <div class="collapsible-icon decisions">🤔</div>
+          <div class="collapsible-text">
+            <h3>Agent Decision Log</h3>
+            <p>Key decisions made by agents today</p>
+          </div>
+        </div>
+        <span class="collapsible-arrow">▼</span>
+      </div>
+      <div class="collapsible-content">
+        <div class="collapsible-inner">
+          <table class="decision-table">
+            <thead>
+              <tr>
+                <th>Agent</th>
+                <th>Decision</th>
+                <th>Reasoning</th>
+                <th>Alternatives</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="decision-agent">
+                    <div class="agent-avatar-sm" style="background: linear-gradient(135deg, #10b981, #34d399);">💰</div>
+                    <span>Sterling</span>
+                  </div>
+                </td>
+                <td>Accept $127.50 Frontend gig</td>
+                <td>Budget matches criteria, client rating 5 stars, timeline reasonable</td>
+                <td>Wait for higher-paying gigs (rejected - uncertain)</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="decision-agent">
+                    <div class="agent-avatar-sm" style="background: linear-gradient(135deg, #8b5cf6, #a78bfa);">🔮</div>
+                    <span>Ishtar</span>
+                  </div>
+                </td>
+                <td>Defer PAI implementation</td>
+                <td>Current API consumption too high for full rollout</td>
+                <td>Partial rollout, A/B testing</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="decision-agent">
+                    <div class="agent-avatar-sm" style="background: linear-gradient(135deg, #f59e0b, #fbbf24);">⚡</div>
+                    <span>Prometheus</span>
+                  </div>
+                </td>
+                <td>Throttle non-critical tasks</td>
+                <td>Approaching rate limits, prioritize active gigs</td>
+                <td>Alert operator (selected), reduce model quality</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="decision-agent">
+                    <div class="agent-avatar-sm" style="background: linear-gradient(135deg, #3b82f6, #60a5fa);">🧠</div>
+                    <span>Nexus</span>
+                  </div>
+                </td>
+                <td>Route to Delver for research</td>
+                <td>Complex technical query requires deep research</td>
+                <td>Direct response (insufficient), escalate to Ishtar</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: Builds In Progress -->
+    <div class="collapsible open">
+      <div class="collapsible-header" onclick="toggleCollapsible(this)">
+        <div class="collapsible-title">
+          <div class="collapsible-icon builds">🔧</div>
+          <div class="collapsible-text">
+            <h3>Builds In Progress</h3>
+            <p>Active development tasks</p>
+          </div>
+        </div>
+        <span class="collapsible-arrow">▼</span>
+      </div>
+      <div class="collapsible-content">
+        <div class="collapsible-inner">
+          <div class="build-grid">
+            <div class="build-card">
+              <div class="build-header">
+                <span class="build-name">Client Portal v2.0</span>
+                <span class="status-badge success">On Track</span>
+              </div>
+              <div class="build-progress">
+                <div class="progress-bar">
+                  <div class="progress-fill green" style="width: 75%;"></div>
+                </div>
+                <div class="progress-label">
+                  <span>75% complete</span>
+                  <span>Est. 2h remaining</span>
+                </div>
+              </div>
+              <div class="blocker-tag">⚠️ Awaiting client feedback</div>
+            </div>
+            <div class="build-card">
+              <div class="build-header">
+                <span class="build-name">API Integration</span>
+                <span class="status-badge warning">Blocked</span>
+              </div>
+              <div class="build-progress">
+                <div class="progress-bar">
+                  <div class="progress-fill yellow" style="width: 40%;"></div>
+                </div>
+                <div class="progress-label">
+                  <span>40% complete</span>
+                  <span>Est. 4h remaining</span>
+                </div>
+              </div>
+              <div class="blocker-tag">🚫 Rate limit exceeded</div>
+            </div>
+            <div class="build-card">
+              <div class="build-header">
+                <span class="build-name">Dashboard Refresh</span>
+                <span class="status-badge success">On Track</span>
+              </div>
+              <div class="build-progress">
+                <div class="progress-bar">
+                  <div class="progress-fill green" style="width: 90%;"></div>
+                </div>
+                <div class="progress-label">
+                  <span>90% complete</span>
+                  <span>Est. 30min remaining</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4: Completed Since Morning -->
+    <div class="collapsible open">
+      <div class="collapsible-header" onclick="toggleCollapsible(this)">
+        <div class="collapsible-title">
+          <div class="collapsible-icon completed">✅</div>
+          <div class="collapsible-text">
+            <h3>Completed Since Morning</h3>
+            <p>Tasks finished today</p>
+          </div>
+        </div>
+        <span class="collapsible-arrow">▼</span>
+      </div>
+      <div class="collapsible-content">
+        <div class="collapsible-inner">
+          <div class="completed-list">
+            <div class="completed-item">
+              <div class="completed-icon" style="background: rgba(16, 185, 129, 0.1);">🚀</div>
+              <div class="completed-info">
+                <div class="completed-name">Beelancer Gig: React Dashboard</div>
+                <div class="completed-meta">Deployed • $127.50 earned • Sterling</div>
+              </div>
+              <span class="status-badge success">Live</span>
+            </div>
+            <div class="completed-item">
+              <div class="completed-icon" style="background: rgba(59, 130, 246, 0.1);">📊</div>
+              <div class="completed-info">
+                <div class="completed-name">Analytics Widget</div>
+                <div class="completed-meta">Shipped • Integrated into client portal</div>
+              </div>
+              <span class="status-badge success">Deployed</span>
+            </div>
+            <div class="completed-item">
+              <div class="completed-icon" style="background: rgba(139, 92, 246, 0.1);">🔧</div>
+              <div class="completed-info">
+                <div class="completed-name">API Cache Layer</div>
+                <div class="completed-meta">Completed • 40% latency reduction</div>
+              </div>
+              <span class="status-badge success">Active</span>
+            </div>
+            <div class="completed-item">
+              <div class="completed-icon" style="background: rgba(245, 158, 11, 0.1);">📝</div>
+              <div class="completed-info">
+                <div class="completed-name">Documentation Update</div>
+                <div class="completed-meta">Published • Agent workflows</div>
+              </div>
+              <span class="status-badge info">Done</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 5: Problems Opened & Closed -->
+    <div class="collapsible">
+      <div class="collapsible-header" onclick="toggleCollapsible(this)">
+        <div class="collapsible-title">
+          <div class="collapsible-icon problems">🐛</div>
+          <div class="collapsible-text">
+            <h3>Problems Opened & Closed</h3>
+            <p>Issue tracking summary</p>
+          </div>
+        </div>
+        <span class="collapsible-arrow">▼</span>
+      </div>
+      <div class="collapsible-content">
+        <div class="collapsible-inner">
+          <table class="problems-table">
+            <thead>
+              <tr>
+                <th>Issue</th>
+                <th>Severity</th>
+                <th>Status</th>
+                <th>Opened</th>
+                <th>Closed</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>API Rate Limit Exceeded</td>
+                <td><span class="status-badge warning">Medium</span></td>
+                <td><span class="status-badge success">Resolved</span></td>
+                <td>14:00 UTC</td>
+                <td>14:45 UTC</td>
+              </tr>
+              <tr>
+                <td>Dashboard Loading Slow</td>
+                <td><span class="status-badge error">High</span></td>
+                <td><span class="status-badge success">Resolved</span></td>
+                <td>09:30 UTC</td>
+                <td>10:15 UTC</td>
+              </tr>
+              <tr>
+                <td>Client Feedback Delay</td>
+                <td><span class="status-badge neutral">Low</span></td>
+                <td><span class="status-badge warning">Open</span></td>
+                <td>16:00 UTC</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td>Token Expiration in Cache</td>
+                <td><span class="status-badge info">Medium</span></td>
+                <td><span class="status-badge success">Resolved</span></td>
+                <td>11:20 UTC</td>
+                <td>12:00 UTC</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 6: Innovation Competition -->
+    <div class="collapsible">
+      <div class="collapsible-header" onclick="toggleCollapsible(this)">
+        <div class="collapsible-title">
+          <div class="collapsible-icon innovation">💡</div>
+          <div class="collapsible-text">
+            <h3>Innovation Competition</h3>
+            <p>Today's submissions</p>
+          </div>
+        </div>
+        <span class="collapsible-arrow">▼</span>
+      </div>
+      <div class="collapsible-content">
+        <div class="collapsible-inner">
+          <div class="innovation-grid">
+            <div class="innovation-card">
+              <div class="innovation-submitter">Ishtar</div>
+              <div class="innovation-title">PAI Architecture v2</div>
+              <div class="innovation-desc">Redesigned agent handoff protocol reducing decision latency by 35% through predictive routing.</div>
+            </div>
+            <div class="innovation-card">
+              <div class="innovation-submitter">Nexus</div>
+              <div class="innovation-title">Context Compression</div>
+              <div class="innovation-desc">Novel approach to long-context summarization preserving key decision points.</div>
+            </div>
+            <div class="innovation-card">
+              <div class="innovation-submitter">Prometheus</div>
+              <div class="innovation-title">Adaptive Rate Limiting</div>
+              <div class="innovation-desc">ML-based prediction of API limits to preemptively throttle non-critical requests.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 7: API Consumption Update -->
+    <div class="collapsible">
+      <div class="collapsible-header" onclick="toggleCollapsible(this)">
+        <div class="collapsible-title">
+          <div class="collapsible-icon api">📡</div>
+          <div class="collapsible-text">
+            <h3>API Consumption Update</h3>
+            <p>Real-time usage tracking</p>
+          </div>
+        </div>
+        <span class="collapsible-arrow">▼</span>
+      </div>
+      <div class="collapsible-content">
+        <div class="collapsible-inner">
+          <table class="api-table">
+            <thead>
+              <tr>
+                <th>Model/Service</th>
+                <th>Daily Limit</th>
+                <th>Used Today</th>
+                <th>Remaining</th>
+                <th>Usage</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>GPT-4o (Primary)</td>
+                <td>500,000</td>
+                <td>385,000</td>
+                <td>115,000</td>
+                <td>
+                  <div class="api-usage">
+                    <div class="usage-bar"><div class="usage-fill medium" style="width: 77%;"></div></div>
+                    <span>77%</span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>Claude 3.5 (Analysis)</td>
+                <td>200,000</td>
+                <td>142,000</td>
+                <td>58,000</td>
+                <td>
+                  <div class="api-usage">
+                    <div class="usage-bar"><div class="usage-fill high" style="width: 71%;"></div></div>
+                    <span>71%</span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>Gemini Pro (Research)</td>
+                <td>150,000</td>
+                <td>45,000</td>
+                <td>105,000</td>
+                <td>
+                  <div class="api-usage">
+                    <div class="usage-bar"><div class="usage-fill low" style="width: 30%;"></div></div>
+                    <span>30%</span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>Stable Diffusion (Images)</td>
+                <td>50,000</td>
+                <td>12,500</td>
+                <td>37,500</td>
+                <td>
+                  <div class="api-usage">
+                    <div class="usage-bar"><div class="usage-fill low" style="width: 25%;"></div></div>
+                    <span>25%</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 8: Overnight Operations Plan -->
+    <div class="collapsible">
+      <div class="collapsible-header" onclick="toggleCollapsible(this)">
+        <div class="collapsible-title">
+          <div class="collapsible-icon overnight">🌊</div>
+          <div class="collapsible-text">
+            <h3>Overnight Operations Plan</h3>
+            <p>Tasks scheduled for overnight execution</p>
+          </div>
+        </div>
+        <span class="collapsible-arrow">▼</span>
+      </div>
+      <div class="collapsible-content">
+        <div class="collapsible-inner">
+          <div class="overnight-list">
+            <div class="overnight-item">
+              <input type="checkbox" class="overnight-checkbox">
+              <div class="overnight-task">
+                <div class="overnight-title">Complete API Integration</div>
+                <div class="overnight-meta">Remaining: 4 hours</div>
+              </div>
+              <span class="overnight-agent">Felicity</span>
+            </div>
+            <div class="overnight-item">
+              <input type="checkbox" class="overnight-checkbox">
+              <div class="overnight-task">
+                <div class="overnight-title">Finalize Dashboard Refresh</div>
+                <div class="overnight-meta">Remaining: 30 minutes</div>
+              </div>
+              <span class="overnight-agent">Prometheus</span>
+            </div>
+            <div class="overnight-item">
+              <input type="checkbox" class="overnight-checkbox">
+              <div class="overnight-task">
+                <div class="overnight-title">Run overnight backup</div>
+                <div class="overnight-meta">Scheduled: 02:00 UTC</div>
+              </div>
+              <span class="overnight-agent">Squire</span>
+            </div>
+            <div class="overnight-item">
+              <input type="checkbox" class="overnight-checkbox">
+              <div class="overnight-task">
+                <div class="overnight-title">Monitor API limits</div>
+                <div class="overnight-meta">Continuous</div>
+              </div>
+              <span class="overnight-agent">Prometheus</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 9: Operator Evening Action Items -->
+    <div class="collapsible">
+      <div class="collapsible-header" onclick="toggleCollapsible(this)">
+        <div class="collapsible-title">
+          <div class="collapsible-icon actions">🎯</div>
+          <div class="collapsible-text">
+            <h3>Operator Evening Action Items</h3>
+            <p>Priority-ranked tasks for you</p>
+          </div>
+        </div>
+        <span class="collapsible-arrow">▼</span>
+      </div>
+      <div class="collapsible-content">
+        <div class="collapsible-inner">
+          <div class="action-list">
+            <div class="action-item p1">
+              <span class="priority-badge p1">P1</span>
+              <div class="action-content">
+                <div class="action-title">Review API rate limit strategy</div>
+                <div class="action-desc">Claude 3.5 at 71% - decide on overnight throttling plan</div>
+              </div>
+            </div>
+            <div class="action-item p1">
+              <span class="priority-badge p1">P1</span>
+              <div class="action-content">
+                <div class="action-title">Client feedback on Portal v2</div>
+                <div class="action-desc">Awaiting response - may unblock final deployment</div>
+              </div>
+            </div>
+            <div class="action-item p2">
+              <span class="priority-badge p2">P2</span>
+              <div class="action-content">
+                <div class="action-title">Approve innovation submissions</div>
+                <div class="action-desc">3 proposals ready for review - vote by midnight</div>
+              </div>
+            </div>
+            <div class="action-item p2">
+              <span class="priority-badge p2">P2</span>
+              <div class="action-content">
+                <div class="action-title">Check tomorrow's gig pipeline</div>
+                <div class="action-desc">Ensure Sterling has fresh opportunities queued</div>
+              </div>
+            </div>
+            <div class="action-item p3">
+              <span class="priority-badge p3">P3</span>
+              <div class="action-content">
+                <div class="action-title">Review decision logs</div>
+                <div class="action-desc">Optional - for learning and optimization</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // Initialize timestamp and date
+    function updateMeta() {
+      const now = new Date();
+      document.getElementById('timestamp').textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) + ' UTC';
+      document.getElementById('date').textContent = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+      document.getElementById('pulse-count').textContent = Math.floor(Math.random() * 100) + 500;
+    }
+    
+    // Collapsible toggle
+    function toggleCollapsible(header) {
+      const collapsible = header.parentElement;
+      collapsible.classList.toggle('open');
+    }
+    
+    // Hide loader
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        document.getElementById('loader').style.opacity = '0';
+        setTimeout(function() {
+          document.getElementById('loader').style.display = 'none';
+        }, 300);
+      }, 500);
+      updateMeta();
+    });
+  </script>
+</body>
+</html>

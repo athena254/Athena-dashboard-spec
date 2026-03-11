@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Athena | Agent Pulse</title>
+  <style>
+    :root {
+      --bg: #0a0e17;
+      --surface: #111827;
+      --elevated: #1a2234;
+      --border: #2d3748;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --green: #10b981;
+      --yellow: #f59e0b;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --purple: #8b5cf6;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 1.5rem;
+      min-height: 100vh;
+    }
+
+    .pulse-container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between: 1.5rem;
+   ;
+      margin-bottom }
+
+    .header h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .refresh-btn {
+      background: var(--elevated);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+    }
+
+    .refresh-btn:hover {
+      background: var(--border);
+    }
+
+    .refresh-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .system-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--blue);
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+    }
+
+    .section-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .agent-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .agent-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 0.75rem 1rem;
+      transition: all 0.2s;
+    }
+
+    .agent-row:hover {
+      background: var(--elevated);
+    }
+
+    .agent-row.active {
+      border-left: 3px solid var(--green);
+    }
+
+    .agent-row.idle {
+      border-left: 3px solid var(--yellow);
+      opacity: 0.7;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .status-dot.active { background: var(--green); }
+    .status-dot.idle { background: var(--yellow); }
+
+    .agent-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .agent-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .agent-role {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .agent-stats {
+      text-align: right;
+      font-size: 0.75rem;
+    }
+
+    .task-count {
+      color: var(--blue);
+      font-weight: 600;
+    }
+
+    .success-rate {
+      color: var(--green);
+    }
+
+    .success-rate.low {
+      color: var(--yellow);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: var(--muted);
+    }
+
+    .error {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid var(--red);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      color: var(--red);
+      text-align: center;
+    }
+
+    .last-updated {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="pulse-container">
+    <div class="header">
+      <h1>🏛️ Agent Pulse</h1>
+      <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+    </div>
+
+    <div id="content">
+      <div class="loading">Loading agent data...</div>
+    </div>
+  </div>
+
+  <script>
+    const DATA_PATH = '/athena-live/api/data.json';
+
+    async function loadData() {
+      const content = document.getElementById('content');
+      const btn = document.querySelector('.refresh-btn');
+      btn.disabled = true;
+
+      try {
+        const resp = await fetch(DATA_PATH);
+        if (!resp.ok) throw new Error('Failed to fetch');
+        const data = await resp.json();
+        render(data);
+      } catch (e) {
+        content.innerHTML = `<div class="error">Error loading data: ${e.message}</div>`;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function render(data) {
+      const active = data.agents.filter(a => a.status === 'active');
+      const idle = data.agents.filter(a => a.status === 'idle');
+      const totalTasks = data.agents.reduce((sum, a) => sum + a.tasks, 0);
+      const avgSuccess = (data.agents.reduce((sum, a) => sum + parseFloat(a.success), 0) / data.agents.length).toFixed(1);
+
+      let html = `
+        <div class="system-bar">
+          <div class="stat-card">
+            <div class="stat-value">${data.agents.length}</div>
+            <div class="stat-label">Total Agents</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" style="color: var(--green)">${active.length}</div>
+            <div class="stat-label">Active</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${totalTasks}</div>
+            <div class="stat-label">Total Tasks</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" style="color: var(--green)">${avgSuccess}%</div>
+            <div class="stat-label">Avg Success</div>
+          </div>
+        </div>
+
+        <div class="section-title">🟢 Active Agents (${active.length})</div>
+        <div class="agent-list">
+          ${active.map(a => `
+            <div class="agent-row active">
+              <div class="status-dot active"></div>
+              <div class="agent-info">
+                <div class="agent-name">${a.avatar} ${a.name}</div>
+                <div class="agent-role">${a.role}</div>
+              </div>
+              <div class="agent-stats">
+                <div class="task-count">${a.tasks} tasks</div>
+                <div class="success-rate">${a.success} success</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="section-title" style="margin-top: 1.5rem">🟡 Idle Agents (${idle.length})</div>
+        <div class="agent-list">
+          ${idle.map(a => `
+            <div class="agent-row idle">
+              <div class="status-dot idle"></div>
+              <div class="agent-info">
+                <div class="agent-name">${a.avatar} ${a.name}</div>
+                <div class="agent-role">${a.role}</div>
+              </div>
+              <div class="agent-stats">
+                <div class="task-count">${a.tasks} tasks</div>
+                <div class="success-rate">${a.success} success</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="last-updated">
+          Last updated: ${new Date(data.lastUpdated).toLocaleString()}
+        </div>
+      `;
+
+      content.innerHTML = html;
+    }
+
+    // Load on init
+    loadData();
+
+    // Auto-refresh every 30 seconds
+    setInterval(loadData, 30000);
+  </script>
+</body>
+</html>

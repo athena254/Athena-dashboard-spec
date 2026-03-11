@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Athena Agent Status Monitor</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #16161f;
+            --bg-card-hover: #1c1c28;
+            --text-primary: #e8e8ed;
+            --text-secondary: #8888a0;
+            --accent-cyan: #00d4ff;
+            --accent-purple: #a855f7;
+            --accent-green: #22c55e;
+            --accent-orange: #f97316;
+            --accent-red: #ef4444;
+            --accent-yellow: #eab308;
+            --border-color: #2a2a3a;
+            --glow-cyan: 0 0 20px rgba(0, 212, 255, 0.3);
+            --glow-purple: 0 0 20px rgba(168, 85, 247, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(ellipse at 20% 0%, rgba(0, 212, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 100%, rgba(168, 85, 247, 0.08) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 1.25rem;
+            box-shadow: var(--glow-cyan);
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, var(--text-primary), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .stat-value.active { color: var(--accent-green); }
+        .stat-value.busy { color: var(--accent-orange); }
+        .stat-value.idle { color: var(--text-secondary); }
+        .stat-value.total { color: var(--accent-cyan); }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .agent-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .agent-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--status-color);
+            opacity: 0.8;
+        }
+
+        .agent-card:hover {
+            transform: translateY(-4px);
+            background: var(--bg-card-hover);
+            border-color: var(--status-color);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .agent-card.status-active { --status-color: var(--accent-green); }
+        .agent-card.status-busy { --status-color: var(--accent-orange); }
+        .agent-card.status-idle { --status-color: var(--accent-cyan); }
+        .agent-card.status-offline { --status-color: var(--accent-red); }
+
+        .agent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .agent-info h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .agent-role {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-badge.active {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--accent-green);
+        }
+
+        .status-badge.busy {
+            background: rgba(249, 115, 22, 0.15);
+            color: var(--accent-orange);
+        }
+
+        .status-badge.idle {
+            background: rgba(0, 212, 255, 0.15);
+            color: var(--accent-cyan);
+        }
+
+        .status-badge.offline {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--accent-red);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .status-badge.busy .status-dot,
+        .status-badge.active .status-dot {
+            animation: pulse 1s infinite;
+        }
+
+        .agent-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+        }
+
+        .detail-value {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-primary);
+            font-size: 0.8rem;
+        }
+
+        .current-task {
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .current-task-label {
+            font-size: 0.7rem;
+            color: var(--accent-purple);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.35rem;
+        }
+
+        .current-task-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+            word-break: break-all;
+        }
+
+        .load-bar {
+            height: 4px;
+            background: var(--bg-secondary);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .load-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+
+        .capabilities {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: 0.75rem;
+        }
+
+        .capability-tag {
+            padding: 0.25rem 0.5rem;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            text-transform: lowercase;
+        }
+
+        .last-heartbeat {
+            margin-top: 1rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .last-heartbeat::before {
+            content: '⏱';
+            font-size: 0.65rem;
+        }
+
+        .refresh-indicator {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .refresh-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            header { flex-direction: column; gap: 1rem; }
+            .stats-bar { width: 100%; justify-content: space-around; }
+            .agents-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-section">
+                <div class="logo">A</div>
+                <div>
+                    <h1>Athena Agent Monitor</h1>
+                    <div class="subtitle">Live Status Dashboard • 9 Core Agents</div>
+                </div>
+            </div>
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-value total" id="total-agents">0</div>
+                    <div class="stat-label">Total</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value active" id="active-agents">0</div>
+                    <div class="stat-label">Active</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value busy" id="busy-agents">0</div>
+                    <div class="stat-label">Busy</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value idle" id="idle-agents">0</div>
+                    <div class="stat-label">Idle</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="agents-grid" id="agents-grid">
+            <!-- Agent cards will be rendered here -->
+        </div>
+    </div>
+
+    <div class="refresh-indicator">
+        <div class="refresh-dot"></div>
+        <span>Live</span>
+    </div>
+
+    <script>
+        const CORE_AGENTS = ['athena', 'sterling', 'ishtar', 'delver', 'squire', 'felicity', 'prometheus', 'cisco', 'themis'];
+
+        function getStatusClass(status) {
+            const s = status.toUpperCase();
+            if (s === 'ACTIVE') return 'active';
+            if (s === 'BUSY') return 'busy';
+            if (s === 'IDLE') return 'idle';
+            return 'offline';
+        }
+
+        function formatTimestamp(isoString) {
+            if (!isoString) return 'Never';
+            const date = new Date(isoString);
+            const now = new Date();
+            const diff = now - date;
+            
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            
+            if (minutes < 1) return 'Just now';
+            if (minutes < 60) return `${minutes}m ago`;
+            if (hours < 24) return `${hours}h ago`;
+            return date.toLocaleDateString();
+        }
+
+        function renderAgentCard(agent, key) {
+            const statusClass = getStatusClass(agent.status);
+            const loadPercent = Math.round((agent.load || 0) * 100);
+            
+            return `
+                <div class="agent-card status-${statusClass}">
+                    <div class="agent-header">
+                        <div class="agent-info">
+                            <h2>${agent.name}</h2>
+                            <div class="agent-role">${agent.role}</div>
+                        </div>
+                        <div class="status-badge ${statusClass}">
+                            <div class="status-dot"></div>
+                            ${agent.status}
+                        </div>
+                    </div>
+                    
+                    <div class="agent-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Queue Depth</span>
+                            <span class="detail-value">${agent.queueDepth || 0}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Load</span>
+                            <span class="detail-value">${loadPercent}%</span>
+                        </div>
+                        <div class="load-bar">
+                            <div class="load-fill" style="width: ${loadPercent}%"></div>
+                        </div>
+                        
+                        ${agent.currentTask ? `
+                            <div class="current-task">
+                                <div class="current-task-label">Current Task</div>
+                                <div class="current-task-value">${agent.currentTask}</div>
+                            </div>
+                        ` : ''}
+                        
+                        <div class="capabilities">
+                            ${(agent.capabilities || []).slice(0, 4).map(cap => 
+                                `<span class="capability-tag">${cap.replace(/_/g, ' ')}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="last-heartbeat">
+                        Last heartbeat: ${formatTimestamp(agent.lastHeartbeat)}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderDashboard(data) {
+            const agents = data.agents || {};
+            const coreAgents = CORE_AGENTS.map(key => ({ ...agents[key], key })).filter(a => a.name);
+            
+            // Update stats
+            document.getElementById('total-agents').textContent = coreAgents.length;
+            document.getElementById('active-agents').textContent = coreAgents.filter(a => a.status === 'ACTIVE').length;
+            document.getElementById('busy-agents').textContent = coreAgents.filter(a => a.status === 'BUSY').length;
+            document.getElementById('idle-agents').textContent = coreAgents.filter(a => a.status === 'IDLE').length;
+            
+            // Render agent cards
+            const grid = document.getElementById('agents-grid');
+            grid.innerHTML = coreAgents.map(agent => renderAgentCard(agent, agent.key)).join('');
+        }
+
+        // Load initial data
+        fetch('/memory/agent-status.json')
+            .then(res => res.json())
+            .then(renderDashboard)
+            .catch(err => {
+                console.error('Failed to load agent status:', err);
+                document.getElementById('agents-grid').innerHTML = 
+                    '<p style="color: var(--accent-red); text-align: center; grid-column: 1/-1;">Failed to load agent status</p>';
+            });
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            fetch('/memory/agent-status.json')
+                .then(res => res.json())
+                .then(renderDashboard)
+                .catch(console.error);
+        }, 30000);
+    </script>
+</body>
+</html>

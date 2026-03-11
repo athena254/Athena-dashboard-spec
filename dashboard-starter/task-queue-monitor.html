@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Athena | Live Task Queue</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    :root {
+      --bg: #0c0f1a;
+      --surface: #111827;
+      --elevated: #1f2937;
+      --border: #1f2937;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --green: #10b981;
+      --yellow: #f59e0b;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --purple: #8b5cf6;
+      --cyan: #06b6d4;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+    }
+
+    .title {
+      font-size: 1.125rem;
+      font-weight: 600;
+    }
+
+    .title span {
+      color: var(--purple);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .connection-status {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .connection-status.connected {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--green);
+    }
+
+    .connection-status.disconnected {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--red);
+    }
+
+    .connection-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .connection-status.connected .connection-dot {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .metrics-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      padding: 1rem 1.5rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .metric-card {
+      background: var(--elevated);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .metric-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .metric-value.pending { color: var(--yellow); }
+    .metric-value.processing { color: var(--blue); }
+    .metric-value.completed { color: var(--green); }
+    .metric-value.failed { color: var(--red); }
+
+    .metric-label {
+      font-size: 0.625rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-top: 0.25rem;
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 1rem;
+      padding: 1rem 1.5rem;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1024px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .queue-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+
+    .section-header {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .section-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .task-list {
+      max-height: calc(100vh - 280px);
+      overflow-y: auto;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.875rem 1rem;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .task-item:hover {
+      background: var(--elevated);
+    }
+
+    .task-item:last-child {
+      border-bottom: none;
+    }
+
+    .task-priority {
+      width: 4px;
+      height: 36px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .task-priority.high { background: var(--red); }
+    .task-priority.medium { background: var(--yellow); }
+    .task-priority.low { background: var(--green); }
+
+    .task-icon {
+      font-size: 1.25rem;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--elevated);
+      border-radius: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .task-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .task-name {
+      font-size: 0.8125rem;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .task-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.125rem;
+    }
+
+    .task-agent {
+      font-size: 0.6875rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .task-time {
+      font-size: 0.6875rem;
+      color: var(--muted);
+    }
+
+    .task-status {
+      padding: 0.25rem 0.625rem;
+      border-radius: 9999px;
+      font-size: 0.625rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .task-status.pending {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--yellow);
+    }
+
+    .task-status.processing {
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--blue);
+    }
+
+    .task-status.completed {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--green);
+    }
+
+    .task-status.failed {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--red);
+    }
+
+    .task-status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      display: inline-block;
+      margin-right: 0.25rem;
+    }
+
+    .task-status.processing .task-status-dot {
+      animation: pulse 1s infinite;
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .sidebar-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1rem;
+    }
+
+    .sidebar-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+
+    .agent-activity {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .agent-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      background: var(--elevated);
+      border-radius: 0.5rem;
+    }
+
+    .agent-avatar {
+      font-size: 1rem;
+    }
+
+    .agent-name {
+      flex: 1;
+      font-size: 0.8125rem;
+      font-weight: 500;
+    }
+
+    .agent-tasks {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .activity-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .activity-item {
+      font-size: 0.75rem;
+      color: var(--muted);
+      padding: 0.375rem 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+
+    .activity-time {
+      color: var(--purple);
+      font-size: 0.625rem;
+      white-space: nowrap;
+    }
+
+    .activity-text {
+      flex: 1;
+    }
+
+    .empty-state {
+      padding: 3rem 1rem;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .empty-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.75rem;
+      opacity: 0.5;
+    }
+
+    .empty-text {
+      font-size: 0.875rem;
+    }
+
+    .refresh-btn {
+      background: none;
+      border: none;
+      color: var(--blue);
+      cursor: pointer;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+    }
+
+    .refresh-btn:hover {
+      background: var(--elevated);
+    }
+
+    .filters {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .filter-btn {
+      padding: 0.25rem 0.625rem;
+      border-radius: 9999px;
+      font-size: 0.6875rem;
+      border: 1px solid var(--border);
+      background: none;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--purple);
+      color: var(--purple);
+    }
+
+    .filter-btn.active {
+      background: var(--purple);
+      border-color: var(--purple);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-left">
+      <span class="logo">📋</span>
+      <h1 class="title">Task <span>Queue</span></h1>
+    </div>
+    <div class="header-right">
+      <div class="connection-status disconnected" id="connection-status">
+        <span class="connection-dot"></span>
+        <span>Disconnected</span>
+      </div>
+      <button class="refresh-btn" onclick="refreshData()">
+        ↻ Refresh
+      </button>
+    </div>
+  </header>
+
+  <div class="metrics-bar">
+    <div class="metric-card">
+      <div class="metric-value pending" id="pending-count">0</div>
+      <div class="metric-label">Pending</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value processing" id="processing-count">0</div>
+      <div class="metric-label">Processing</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value completed" id="completed-count">0</div>
+      <div class="metric-label">Completed</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value failed" id="failed-count">0</div>
+      <div class="metric-label">Failed</div>
+    </div>
+  </div>
+
+  <main class="main-content">
+    <section class="queue-section">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span>📋</span> Active Tasks
+        </h2>
+        <div class="filters">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="pending">Pending</button>
+          <button class="filter-btn" data-filter="processing">Processing</button>
+          <button class="filter-btn" data-filter="completed">Done</button>
+        </div>
+      </div>
+      <div class="task-list" id="task-list">
+        <div class="empty-state">
+          <div class="empty-icon">⏳</div>
+          <p class="empty-text">Loading tasks...</p>
+        </div>
+      </div>
+    </section>
+
+    <aside class="sidebar">
+      <div class="sidebar-card">
+        <h3 class="sidebar-title">
+          <span>🤖</span> Agent Activity
+        </h3>
+        <div class="agent-activity" id="agent-activity">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <h3 class="sidebar-title">
+          <span>⚡</span> Live Feed
+        </h3>
+        <div class="activity-feed" id="activity-feed">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    // Simulated task data - in production this would connect to actual queue
+    let tasks = [];
+    let filter = 'all';
+    let activityLog = [];
+
+    const agentIcons = {
+      'athena': '🦉',
+      'sterling': '💰',
+      'ishtar': '🔮',
+      'themis': '⚖️',
+      'felicity': '🎨',
+      'prometheus': '⚡',
+      'nexus': '🧠',
+      'cisco': '🔒',
+      'delver': '🕵️',
+      'squire': '🤴',
+      'beelancer': '🐝',
+      'hermes': '✉️',
+      'apollo': '📞',
+      'browser': '🌐'
+    };
+
+    function generateDemoTasks() {
+      const taskTypes = [
+        { name: 'Process Beelancer bids', agent: 'sterling', priority: 'high' },
+        { name: 'Research MCP servers', agent: 'delver', priority: 'medium' },
+        { name: 'Generate morning report', agent: 'athena', priority: 'medium' },
+        { name: 'Security audit check', agent: 'cisco', priority: 'high' },
+        { name: 'Deploy dashboard update', agent: 'prometheus', priority: 'medium' },
+        { name: 'Update knowledge base', agent: 'nexus', priority: 'low' },
+        { name: 'Compose outreach message', agent: 'hermes', priority: 'medium' },
+        { name: 'Design new UI component', agent: 'felicity', priority: 'low' },
+        { name: 'Analyze market trends', agent: 'ishtar', priority: 'medium' },
+        { name: 'Review code PR', agent: 'themis', priority: 'high' },
+        { name: 'Schedule cron job', agent: 'squire', priority: 'low' },
+        { name: 'Scrape competitor data', agent: 'browser', priority: 'medium' }
+      ];
+
+      return taskTypes.map((t, i) => ({
+        id: `task-${Date.now()}-${i}`,
+        name: t.name,
+        agent: t.agent,
+        priority: t.priority,
+        status: ['pending', 'processing', 'completed', 'failed'][Math.floor(Math.random() * 4)],
+        createdAt: new Date(Date.now() - Math.random() * 3600000).toISOString()
+      }));
+    }
+
+    function formatTime(isoString) {
+      const date = new Date(isoString);
+      return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function renderTasks() {
+      const list = document.getElementById('task-list');
+      const filtered = filter === 'all' ? tasks : tasks.filter(t => t.status === filter);
+
+      if (filtered.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">✓</div>
+            <p class="empty-text">No ${filter === 'all' ? '' : filter} tasks</p>
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = filtered.map(task => `
+        <div class="task-item">
+          <div class="task-priority ${task.priority}"></div>
+          <div class="task-icon">${agentIcons[task.agent] || '🤖'}</div>
+          <div class="task-info">
+            <div class="task-name">${task.name}</div>
+            <div class="task-meta">
+              <span class="task-agent">${agentIcons[task.agent] || ''} ${task.agent}</span>
+              <span class="task-time">${formatTime(task.createdAt)}</span>
+            </div>
+          </div>
+          <span class="task-status ${task.status}">
+            <span class="task-status-dot"></span>
+            ${task.status}
+          </span>
+        </div>
+      `).join('');
+    }
+
+    function renderMetrics() {
+      const counts = {
+        pending: tasks.filter(t => t.status === 'pending').length,
+        processing: tasks.filter(t => t.status === 'processing').length,
+        completed: tasks.filter(t => t.status === 'completed').length,
+        failed: tasks.filter(t => t.status === 'failed').length
+      };
+
+      document.getElementById('pending-count').textContent = counts.pending;
+      document.getElementById('processing-count').textContent = counts.processing;
+      document.getElementById('completed-count').textContent = counts.completed;
+      document.getElementById('failed-count').textContent = counts.failed;
+    }
+
+    function renderAgentActivity() {
+      const agentCounts = {};
+      tasks.forEach(t => {
+        if (t.status === 'processing' || t.status === 'pending') {
+          agentCounts[t.agent] = (agentCounts[t.agent] || 0) + 1;
+        }
+      });
+
+      const sorted = Object.entries(agentCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5);
+
+      const container = document.getElementById('agent-activity');
+      
+      if (sorted.length === 0) {
+        container.innerHTML = '<p style="color: var(--muted); font-size: 0.75rem; text-align: center; padding: 1rem;">No active tasks</p>';
+        return;
+      }
+
+      container.innerHTML = sorted.map(([agent, count]) => `
+        <div class="agent-row">
+          <span class="agent-avatar">${agentIcons[agent] || '🤖'}</span>
+          <span class="agent-name">${agent}</span>
+          <span class="agent-tasks">${count} task${count > 1 ? 's' : ''}</span>
+        </div>
+      `).join('');
+    }
+
+    function addActivity(message) {
+      activityLog.unshift({
+        time: new Date().toISOString(),
+        text: message
+      });
+      activityLog = activityLog.slice(0, 20);
+      renderActivityFeed();
+    }
+
+    function renderActivityFeed() {
+      const container = document.getElementById('activity-feed');
+      container.innerHTML = activityLog.map(a => `
+        <div class="activity-item">
+          <span class="activity-time">${formatTime(a.time)}</span>
+          <span class="activity-text">${a.text}</span>
+        </div>
+      `).join('');
+    }
+
+    function refreshData() {
+      // Simulate fetching new data
+      tasks = generateDemoTasks();
+      renderTasks();
+      renderMetrics();
+      renderAgentActivity();
+      addActivity('Queue refreshed');
+      
+      // Update connection status
+      document.getElementById('connection-status').className = 'connection-status connected';
+      document.getElementById('connection-status').innerHTML = `
+        <span class="connection-dot"></span>
+        <span>Live</span>
+      `;
+    }
+
+    // Filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        filter = btn.dataset.filter;
+        renderTasks();
+      });
+    });
+
+    // Initial load
+    refreshData();
+
+    // Auto-refresh every 10 seconds
+    setInterval(refreshData, 10000);
+  </script>
+</body>
+</html>

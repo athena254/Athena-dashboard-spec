@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hermes - Outreach & Marketing Agent</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg-primary:#0d0d0d;--bg-secondary:#161616;--bg-tertiary:#1f1f1f;--bg-card:#1a1a1a;--accent-primary:#f59e0b;--accent-secondary:#fbbf24;--accent-glow:rgba(245,158,11,0.2);--text-primary:#f5f5f5;--text-secondary:#a3a3a3;--text-muted:#737373;--border-color:#2a2a2a;--success:#22c55e;--warning:#eab308;--error:#ef4444;--info:#3b82f6}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh}
+.app-container{display:flex;min-height:100vh}
+.sidebar{width:240px;background:var(--bg-secondary);border-right:1px solid var(--border-color);padding:20px 0;position:fixed;height:100vh}
+.sidebar-header{padding:0 20px 20px;border-bottom:1px solid var(--border-color);margin-bottom:20px}
+.back-btn{display:flex;align-items:center;gap:8px;color:var(--text-secondary);text-decoration:none;font-size:13px;padding:8px 12px;border-radius:6px;margin-bottom:16px}
+.back-btn:hover{background:var(--bg-tertiary);color:var(--accent-primary)}
+.nav-section{padding:0 12px;margin-bottom:8px}
+.nav-section-title{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);padding:8px 8px 4px;font-weight:600}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:8px;cursor:pointer;color:var(--text-secondary);font-size:14px;margin-bottom:2px}
+.nav-item:hover{background:var(--bg-tertiary);color:var(--text-primary)}
+.nav-item.active{background:linear-gradient(135deg,var(--accent-glow),transparent);color:var(--accent-primary);border:1px solid rgba(245,158,11,.3)}
+.main-content{flex:1;margin-left:240px}
+.header{background:var(--bg-secondary);border-bottom:1px solid var(--border-color);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0}
+.header-left{display:flex;align-items:center;gap:16px}
+.agent-avatar{width:48px;height:48px;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px}
+.agent-info h1{font-size:20px;font-weight:600;margin-bottom:4px}
+.agent-meta{display:flex;align-items:center;gap:12px}
+.status-badge{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--success)}
+.status-badge::before{content:'';width:8px;height:8px;background:var(--success);border-radius:50%;animation:pulse 2s infinite}
+.status-badge.yellow{color:var(--warning)}
+.status-badge.yellow::before{background:var(--warning)}
+.status-badge.gray{color:var(--text-muted)}
+.status-badge.gray::before{background:var(--text-muted);animation:none}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.header-actions{display:flex;gap:12px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:none;font-family:inherit}
+.btn-primary{background:linear-gradient(135deg,var(--accent-primary),#d97706);color:#000}
+.btn-primary:hover{transform:translateY(-1px)}
+.btn-secondary{background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color)}
+.btn-ghost{background:0 0;color:var(--text-secondary);padding:6px 12px;font-size:13px}
+.btn-ghost:hover{background:var(--bg-tertiary)}
+.content-area{padding:32px}
+.page-title{font-size:24px;font-weight:600;margin-bottom:24px}
+.card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:24px;margin-bottom:24px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.card-title{font-size:16px;font-weight:600}
+.form-group{margin-bottom:20px}
+.form-label{display:block;font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:8px}
+.form-input,.form-select,.form-textarea{width:100%;padding:12px 16px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:8px;color:var(--text-primary);font-size:14px}
+.form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--accent-primary)}
+.form-textarea{min-height:120px;resize:vertical}
+.form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:20px}
+.stat-card:hover{border-color:var(--accent-primary)}
+.stat-label{font-size:13px;color:var(--text-muted);margin-bottom:8px}
+.stat-value{font-size:28px;font-weight:700;color:var(--accent-primary)}
+.stat-change{font-size:12px;margin-top:8px}
+.stat-change.positive{color:var(--success)}
+.table-container{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th,td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--border-color)}
+th{font-size:12px;font-weight:600;text-transform:uppercase;color:var(--text-muted);background:var(--bg-tertiary)}
+td{font-size:14px;color:var(--text-secondary)}
+tr:hover td{background:var(--bg-tertiary)}
+.tag{display:inline-flex;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:500}
+.tag-success{background:rgba(34,197,94,.15);color:var(--success)}
+.tag-warning{background:rgba(234,179,8,.15);color:var(--warning)}
+.tag-info{background:rgba(59,130,246,.15);color:var(--info)}
+.tag-primary{background:var(--accent-glow);color:var(--accent-primary)}
+.toggle-wrapper{display:flex;align-items:center;justify-content:space-between;padding:16px;background:var(--bg-tertiary);border-radius:8px;margin-bottom:16px}
+.toggle{position:relative;width:48px;height:26px;background:var(--border-color);border-radius:13px;cursor:pointer}
+.toggle.active{background:var(--accent-primary)}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:all .3s}
+.toggle.active::after{left:25px}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.calendar-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:13px;border:1px solid transparent}
+.calendar-day:hover{background:var(--bg-tertiary)}
+.calendar-day.has-post{background:var(--accent-glow);border-color:var(--accent-primary);color:var(--accent-primary)}
+.calendar-day.today{border-color:var(--accent-primary)}
+.chart-container{height:200px;background:var(--bg-tertiary);border-radius:8px;display:flex;align-items:flex-end;justify-content:space-around;padding:20px;margin-top:16px}
+.chart-bar{width:40px;background:linear-gradient(to top,var(--accent-primary),var(--accent-secondary));border-radius:4px 4px 0 0;position:relative}
+.chart-bar::after{content:attr(data-value);position:absolute;top:-24px;left:50%;transform:translateX(-50%);font-size:12px;font-weight:600;color:var(--accent-primary)}
+.template-item{display:flex;align-items:center;justify-content:space-between;padding:16px;background:var(--bg-tertiary);border-radius:8px;margin-bottom:12px;border:1px solid transparent}
+.template-item:hover{border-color:var(--accent-primary)}
+.template-name{font-weight:500;margin-bottom:4px}
+.template-preview{font-size:13px;color:var(--text-muted)}
+.page-section{display:none}
+.page-section.active{display:block}
+</style>
+</head>
+<body>
+<div class="app-container">
+<nav class="sidebar">
+<div class="sidebar-header">
+<a href="index.html" class="back-btn">&larr; Back to Master</a>
+</div>
+<div class="nav-section">
+<div class="nav-section-title">Core Features</div>
+<div class="nav-item active" data-page="leads">Lead Generation</div>
+<div class="nav-item" data-page="email">Email Campaigns</div>
+<div class="nav-item" data-page="social">Social Media</div>
+<div class="nav-item" data-page="messaging">Cold Messaging</div>
+</div>
+<div class="nav-section">
+<div class="nav-section-title">Analytics</div>
+<div class="nav-item" data-page="analytics">Campaign Analytics</div>
+<div class="nav-item" data-page="testing">A/B Testing</div>
+</div>
+<div class="nav-section">
+<div class="nav-section-title">Management</div>
+<div class="nav-item" data-page="segments">Audience Segments</div>
+<div class="nav-item" data-page="templates">Template Library</div>
+<div class="nav-item" data-page="competitors">Competitor Monitor</div>
+<div class="nav-item" data-page="replies">Reply Handling</div>
+</div>
+</nav>
+<main class="main-content">
+<header class="header">
+<div class="header-left">
+<div class="agent-avatar">&#128227;</div>
+<div class="agent-info">
+<h1>Hermes</h1>
+<div class="agent-meta">
+<span class="status-badge" id="statusBadge">Active</span>
+<span style="color:var(--text-muted);font-size:13px">Outreach & Marketing</span>
+</div>
+</div>
+</div>
+<div class="header-actions">
+<button class="btn btn-ghost" onclick="setStatus('idle')">Idle</button>
+<button class="btn btn-primary" onclick="setStatus('campaign')">Start Campaign</button>
+</div>
+</header>
+<div class="content-area">
+<section class="page-section active" id="page-leads">
+<h2 class="page-title">Lead Generation</h2>
+<div class="card">
+<div class="card-header"><h3 class="card-title">Find New Leads</h3></div>
+<div class="form-row">
+<div class="form-group">
+<label class="form-label">Source</label>
+<select class="form-select" id="leadSource"><option value="">Select source...</option><option value="linkedin">LinkedIn</option><option value="twitter">Twitter</option><option value="directory">Directory</option></select>
+</div>
+<div class="form-group">
+<label class="form-label">Keywords</label>
+<input type="text" class="form-input" id="leadKeywords" placeholder="e.g., CTO, SaaS, AI startup...">
+</div>
+<div class="form-group" style="display:flex;align-items:flex-end">
+<button class="btn btn-primary" onclick="generateLeads()" style="width:100%">Generate Leads</button>
+</div>
+</div>
+</div>
+<div class="card">
+<div class="card-header"><h3 class="card-title">Generated Leads</h3><button class="btn btn-secondary" onclick="refreshLeads()">Refresh</button></div>
+<table>
+<thead><tr><th>Name</th><th>Company</th><th>Role</th><th>Source</th><th>Status</th><th>Actions</th></tr></thead>
+<tbody>
+<tr><td>Sarah Chen</td><td>TechFlow AI</td><td>CEO</td><td><span class="tag tag-info">LinkedIn</span></td><td><span class="tag tag-success">New</span></td><td><button class="btn btn-ghost">Add to Sequence</button></td></tr>
+<tr><td>Marcus Johnson</td><td>DataSync Inc</td><td>CTO</td><td><span class="tag tag-info">LinkedIn</span></td><td><span class="tag tag-success">New</span></td><td><button class="btn btn-ghost">Add to Sequence</button></td></tr>
+<tr><td>Elena Rodriguez</td><td>CloudScale</td><td>VP Engineering</td><td><span class="tag tag-primary">Twitter</span></td><td><span class="tag tag-warning">Contacted</span></td><td><button class="btn btn-ghost">Add to Sequence</button></td></tr>
+<tr><td>David Kim</td><td>Innovate Labs</td><td>Founder</td><td><span class="tag tag-info">Directory</span></td><td><span class="tag tag-success">New</span></td><td><button class="btn btn-ghost">Add to Sequence</button></td></tr>
+</tbody>
+</table>
+</div>
+</section>
+<section class="page-section" id="page-email">
+<h2 class="page-title">Email Campaigns</h2>
+<div class="stats-grid">
+<div class="stat-card"><div class="stat-label">Total Campaigns</div><div class="stat-value">12</div><div class="stat-change positive">+3 this month</div></div>
+<div class="stat-card"><div class="stat-label">Emails Sent</div><div class="stat-value">4,832</div><div class="stat-change positive">+892 this week</div></div>
+<div class="stat-card"><div class="stat-label">Open Rate</div><div class="stat-value">42.3%</div><div class="stat-change positive">+5.2%</div></div>
+<div class="stat-card"><div class="stat-label">Response Rate</div><div class="stat-value">18.7%</div><div class="stat-change positive">+2.1%</div></div>
+</div>
+<div class="card">
+<div class="card-header"><h3 class="card-title">Create Campaign</h3></div>
+<div class="form-group"><label class="form-label">Campaign Name</label><input type="text" class="form-input" placeholder="e.g., Q1 Outreach"></div>
+<div class="form-group"><label class="form-label">Subject Line</label><input type="text" class="form-input" placeholder="e.g., Quick question"></div>
+<div class="form-group"><label class="form-label">Email Body</label><textarea class="form-textarea" placeholder="Write your email..."></textarea></div>
+<button class="btn btn-primary" onclick="alert('Campaign sent!')">Send Campaign</button>
+</div>
+<div class="card">
+<div class="card-header"><h3 class="card-title">Recent Campaigns</h3></div>
+<table>
+<thead><tr><th>Name</th><th>Sent</th><th>Opens</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>Product Launch</td><td>1,240</td><td>523 (42%)</td><td><span class="tag tag-success">Completed</span></td></tr>
+<tr><td>Follow-up Series</td><td>856</td><td>412 (48%)</td><td><span class="tag tag-success">Completed</span></td></tr>
+<tr><td>Webinar Invite</td><td>2,100</td><td>840 (40%)</td><td><span class="tag tag-warning">Active</span></td></tr>
+</tbody>
+</table>
+</div>
+</section>
+<section class="page-section" id="page-social">
+<h2 class="page-title">Social Media</h2>
+<div class="card">
+<div class="card-header"><h3 class="card-title">Create Post</h3></div>
+<div class="form-row">
+<div class="form-group"><label class="form-label">Platform</label><select class="form-select"><option>Twitter</option><option>LinkedIn</option></select></div>
+<div class="form-group" style="grid-column:span 2"><label class="form-label">Post Content</label><textarea class="form-textarea" placeholder="What do you want to share?"></textarea></div>
+</div>
+<button class="btn btn-primary" onclick="alert('Post scheduled!')">Schedule Post</button>
+</div>
+<div class="card">
+<div class="card-header"><h3 class="card-title">Calendar</h3></div>
+<div class="calendar-grid">
+<div class="calendar-day">1</div><div class="calendar-day">2</div><div class="calendar-day">3</div><div class="calendar-day has-post">4</div><div class="calendar-day">5</div><div class="calendar-day">6</div><div class="calendar-day">7</div>
+<div class="calendar-day">8</div><div class="calendar-day has-post">9</div><div class="calendar-day">10</div><div class="calendar-day">11</div><div class="calendar-day">12</div><div class="calendar-day">13</div><div class="calendar-day">14</div>
+<div class="calendar-day">15</div><div class="calendar-day">16</div><div class="calendar-day">17</div><div class="calendar-day">18</div><div class="calendar-day has-post">19</div><div class="calendar-day">20</div><div class="calendar-day">21</div>
+<div class="calendar-day">22</div><div class="calendar-day">23</div><div class="calendar-day">24</div><div class="calendar-day">25</div><div class="calendar-day">26</div><div class="calendar-day">27</div><div class="calendar-day today">28</div>
+</div>
+</div>
+</section>
+<section class="page-section" id="page-messaging">
+<h2 class="page-title">Cold Messaging</h2>
+<div class="stats-grid">
+<div class="stat-card"><div class="stat-label">Messages Sent</div><div class="stat-value">2,156</div></div>
+<div class="stat-card"><div class="stat-label">Response Rate</div><div class="stat-value">24.5%</div></div>
+<div class="stat-card"><div class="stat-label">Acceptance Rate</div><div class="stat-value">68%</div></div>
+</div>
+<div class="card">
+<div class="card-header"><h3 class="card-title">Send Message</h3></div>
+<div class="form-row">
+<div class="form-group"><label class="form-label">Platform</label><select class="form-select"><option>LinkedIn</option><option>Twitter</option></select></div>
+<div class="form-group"><label class="form-label">Template</label><select class="form-select"><option>Introduction</option><option>Follow-up</option></select></div>
+<div class="form-group" style="display:flex;align-items:flex-end"><button class="btn btn-primary" style="width:100%">Send</button></div>
+</div>
+</div>
+</section>
+<section class="page-section" id="page-analytics">
+<h2 class="page-title">Campaign Analytics</h2>
+<div class="stats-grid">
+<div class="stat-card"><div class="stat-label">Total Reach</div><div class="stat-value">48.2K</div></div>
+<div class="stat-card"><div class="stat-label">Engagement</div><div class="stat-value">6.8%</div></div>
+<div class="stat-card"><div class="stat-label">Conversions</div><div class="stat-value">847</div></div>
+<div class="stat-card"><div class="stat-label">ROI</div><div class="stat-value">324%</div></div>
+</div>
+<div class="card">
+<div class="card-header"><h3 class="card-title">Performance</h3></div>
+<div class="chart-container">
+<div class="chart-bar" style="height:60%" data-value="60%"></div>
+<div class="chart-bar" style="height:80%" data-value="80%"></div>
+<div class="chart-bar" style="height:45%" data-value="45%"></div>
+<div class="chart-bar" style="height:90%" data-value="90%"></div>
+<div class="chart-bar" style="height:70%" data-value="70%"></div>
+<div class="chart-bar" style="height:85%" data-value="85%"></div>
+<div class="chart-bar" style="height:95%" data-value="95%"></div>
+</div>
+</div>
+</section>
+<section class="page-section" id="page-testing">
+<h2 class="page-title">A/B Testing</h2>
+<div class="card">
+<div class="card-header"><h3 class="card-title">Create Test</h3></div>
+<div class="form-row">
+<div class="form-group"><label class="form-label">Test Type</label><select class="form-select"><option>Subject</option><option>Copy</option><option>Time</option></select></div>
+<div class="form-group"><label class="form-label">Test Name</label><input type="text" class="form-input" placeholder="e.g., Subject A vs B"></div>
+<div class="form-group" style="display:flex;align-items:flex-end"><button class="btn btn-primary" style="width:100%">Create</button></div>
+</div>
+</div>
+<div class="card">
+<div class="card-header"><h3 class="card-title">Test Results</h3></div>
+<table>
+<thead><tr><th>Test</th><th>Type</th><th>Winner</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>Subject A/B</td><td>Subject</td><td>Version B</td><td><span class="tag tag-success">Completed</span></td></tr>
+<tr><td>Send Time</td><td>Time</td><td>9 AM</td><td><span class="tag tag-success">Completed</span></td></tr>
+<tr><td>CTA Copy</td><td>Copy</td><td>-</td><td><span class="tag tag-warning">Running</span></td></tr>
+</tbody>
+</table>
+</div>
+</section>
+<section class="page-section" id="page-segments">
+<h2 class="page-title">Audience Segments</h2>
+<div class="card">
+<div class="card-header"><h3 class="card-title">Create Segment</h3></div>
+<div class="form-group"><label class="form-label">Segment Name</label><input type="text" class="form-input" placeholder="e.g., CTOs in SaaS"></div>
+<button class="btn btn-primary">Create Segment</button>
+</div>
+<div class="card">
+<div class="card-header"><h3 class="card-title">Segments</h3></div>
+<table>
+<thead><tr><th>Name</th><th>Size</th><th>Actions</th></tr></thead>
+<tbody>
+<tr><td>CTOs in Tech</td><td>1,245</td><td><button class="btn btn-ghost">Edit</button></td></tr>
+<tr><td>Startup Founders</td><td>892</td><td><button class="btn btn-ghost">Edit</button></td></tr>
+<tr><td>Enterprise Leaders</td><td>456</td><td><button class="btn btn-ghost">Edit</button></td></tr>
+</tbody>
+</table>
+</div>
+</section>
+<section class="page-section" id="page-templates">
+<h2 class="page-title">Template Library</h2>
+<div class="card">
+<div class="card-header"><h3 class="card-title">Add Template</h3></div>
+<div class="form-group"><label class="form-label">Template Name</label><input type="text" class="form-input"></div>
+<div class="form-group"><label class="form-label">Content</label><textarea class="form-textarea"></textarea></div>
+<button class="btn btn-primary">Save Template</button>
+</div>
+</section>
+<section class="page-section" id="page-competitors">
+<h2 class="page-title">Competitor Monitor</h2>
+<div class="card">
+<div class="card-header"><h3 class="card-title">Track Competitor</h3></div>
+<div class="form-row">
+<div class="form-group"><input type="text" class="form-input" placeholder="Competitor name"></div>
+<div class="form-group" style="display:flex;align-items:flex-end"><button class="btn btn-primary" style="width:100%">Track</button></div>
+</div>
+</div>
+</section>
+<section class="page-section" id="page-replies">
+<h2 class="page-title">Reply Handling</h2>
+<div class="card">
+<div class="toggle-wrapper"><span>Auto-response</span><div class="toggle active"></div></div>
+<div class="toggle-wrapper"><span>Smart Routing</span><div class="toggle active"></div></div>
+</div>
+</section>
+</div>
+</main>
+</div>
+<script>
+document.querySelectorAll('.nav-item').forEach(item => {
+item.addEventListener('click', () => {
+document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+item.classList.add('active');
+document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+document.getElementById('page-' + item.dataset.page).classList.add('active');
+});
+});
+function setStatus(status) {
+const badge = document.getElementById('statusBadge');
+badge.className = 'status-badge';
+if (status === 'idle') badge.classList.add('gray');
+else if (status === 'campaign') badge.classList.add('yellow');
+badge.textContent = status === 'idle' ? 'Idle' : status === 'campaign' ? 'Campaign Running' : 'Active';
+}
+</script>
+</body>
+</html>

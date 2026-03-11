@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Athena Agent Command Center</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #00d9ff, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            color: #888;
+            font-size: 1rem;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px 25px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00d9ff;
+        }
+
+        .stat-label {
+            color: #888;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .agent-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .agent-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--agent-color, #00d9ff);
+        }
+
+        .agent-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .agent-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .agent-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--agent-color, #00d9ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .agent-info h3 {
+            font-size: 1.2rem;
+            color: #fff;
+            margin-bottom: 3px;
+        }
+
+        .agent-role {
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .agent-status {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.active {
+            background: #10b981;
+            box-shadow: 0 0 10px #10b981;
+        }
+
+        .status-dot.idle {
+            background: #f59e0b;
+            box-shadow: 0 0 10px #f59e0b;
+        }
+
+        .status-dot.offline {
+            background: #ef4444;
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .agent-details {
+            display: grid;
+            gap: 10px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .detail-label {
+            color: #888;
+        }
+
+        .detail-value {
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .agent-task {
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(0, 217, 255, 0.1);
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            border-radius: 8px;
+        }
+
+        .task-label {
+            color: #00d9ff;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .task-content {
+            color: #fff;
+            font-size: 0.9rem;
+        }
+
+        .model-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            background: rgba(168, 85, 247, 0.2);
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            color: #a855f7;
+        }
+
+        .voice-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            background: rgba(236, 72, 153, 0.2);
+            border: 1px solid rgba(236, 72, 153, 0.4);
+            color: #ec4899;
+        }
+
+        .refresh-info {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        /* Agent-specific colors */
+        .agent-athena { --agent-color: #00d9ff; }
+        .agent-sterling { --agent-color: #10b981; }
+        .agent-ishtar { --agent-color: #a855f7; }
+        .agent-themis { --agent-color: #f97316; }
+        .agent-felicity { --agent-color: #ec4899; }
+        .agent-prometheus { --agent-color: #ef4444; }
+        .agent-nexus { --agent-color: #8b5cf6; }
+        .agent-cisco { --agent-color: #14b8a6; }
+        .agent-delver { --agent-color: #f59e0b; }
+        .agent-squire { --agent-color: #6366f1; }
+        .agent-beelancer { --agent-color: #fbbf24; }
+        .agent-scribe { --agent-color: #06b6d4; }
+        .agent-voyager { --agent-color: #f43f5e; }
+        .agent-chronos { --agent-color: #84cc16; }
+        .agent-hermes { --agent-color: #3b82f6; }
+        .agent-argo { --agent-color: #14b8a6; }
+        .agent-vesta { --agent-color: #f97316; }
+        .agent-janus { --agent-color: #6366f1; }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            .agents-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🦉 Athena Command Center</h1>
+        <p class="subtitle">Real-time agent fleet monitoring</p>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat-item">
+            <div class="stat-value" id="total-agents">9</div>
+            <div class="stat-label">Total Agents</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="active-agents">0</div>
+            <div class="stat-label">Active</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="idle-agents">0</div>
+            <div class="stat-label">Idle</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="pending-bids">-</div>
+            <div class="stat-label">Pending Bids</div>
+        </div>
+    </div>
+
+    <!-- Real-Time Metrics Panel -->
+    <div class="metrics-panel" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 30px;">
+        <div class="metric-card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; text-align: center;">
+            <div style="font-size: 1.8rem; margin-bottom: 8px;">👥</div>
+            <div style="font-size: 1.8rem; font-weight: bold; color: #00d9ff; margin-bottom: 5px;" id="activeSessions">12</div>
+            <div style="color: #888; font-size: 0.75rem; text-transform: uppercase;">Active Sessions</div>
+        </div>
+        <div class="metric-card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; text-align: center;">
+            <div style="font-size: 1.8rem; margin-bottom: 8px;">⚡</div>
+            <div style="font-size: 1.8rem; font-weight: bold; color: #a855f7; margin-bottom: 5px;" id="tokenRate">2.4K</div>
+            <div style="color: #888; font-size: 0.75rem; text-transform: uppercase;">Tokens/Min</div>
+        </div>
+        <div class="metric-card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; text-align: center;">
+            <div style="font-size: 1.8rem; margin-bottom: 8px;">🌐</div>
+            <div style="font-size: 1.8rem; font-weight: bold; color: #10b981; margin-bottom: 5px;" id="gatewayUptime">99.9%</div>
+            <div style="color: #888; font-size: 0.75rem; text-transform: uppercase;">Gateway Uptime</div>
+        </div>
+        <div class="metric-card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px;">
+            <div style="font-size: 1.8rem; margin-bottom: 8px;">📊</div>
+            <div style="color: #888; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 10px;">API Rate Limits</div>
+            <div style="margin-bottom: 8px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.7rem; margin-bottom: 3px;">
+                    <span>Llama</span><span id="llamaLimit">45%</span>
+                </div>
+                <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden;">
+                    <div style="height: 100%; width: 45%; background: linear-gradient(90deg, #10b981, #f59e0b, #ef4444);"></div>
+                </div>
+            </div>
+            <div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.7rem; margin-bottom: 3px;">
+                    <span>Gemini</span><span id="geminiLimit">62%</span>
+                </div>
+                <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden;">
+                    <div style="height: 100%; width: 62%; background: linear-gradient(90deg, #10b981, #f59e0b, #ef4444);"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; margin-bottom: 30px;">
+        <div onclick="restartGateway()" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s ease;">
+            <div style="font-size: 1.8rem; margin-bottom: 8px;">🔄</div>
+            <div style="color: #888; font-size: 0.75rem; text-transform: uppercase;">Restart Gateway</div>
+        </div>
+        <div onclick="refreshAll()" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s ease;">
+            <div style="font-size: 1.8rem; margin-bottom: 8px;">🔃</div>
+            <div style="color: #888; font-size: 0.75rem; text-transform: uppercase;">Refresh All</div>
+        </div>
+        <div onclick="toggleSilentMode()" id="silentModeBtn" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s ease;">
+            <div style="font-size: 1.8rem; margin-bottom: 8px;">🔔</div>
+            <div style="color: #888; font-size: 0.75rem; text-transform: uppercase;">Silent Mode</div>
+        </div>
+        <div onclick="checkBids()" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s ease;">
+            <div style="font-size: 1.8rem; margin-bottom: 8px;">🐝</div>
+            <div style="color: #888; font-size: 0.75rem; text-transform: uppercase;">Check Bids</div>
+        </div>
+    </div>
+
+    <!-- Recent Activity Feed -->
+    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 25px; margin-bottom: 30px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+            <h3 style="color: #00d9ff; font-size: 1.2rem; display: flex; align-items: center; gap: 10px;">
+                <span style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: inline-block; animation: pulse 2s infinite;"></span>
+                Recent Activity
+            </h3>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button onclick="filterActivity('all')" class="activity-tab" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 6px 12px; color: #888; cursor: pointer; font-size: 0.75rem;">All</button>
+                <button onclick="filterActivity('subagent')" class="activity-tab" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 6px 12px; color: #888; cursor: pointer; font-size: 0.75rem;">Subagents</button>
+                <button onclick="filterActivity('beelancer')" class="activity-tab" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 6px 12px; color: #888; cursor: pointer; font-size: 0.75rem;">Beelancer</button>
+                <button onclick="filterActivity('system')" class="activity-tab" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 6px 12px; color: #888; cursor: pointer; font-size: 0.75rem;">System</button>
+            </div>
+        </div>
+        <ul style="list-style: none; padding: 0;" id="activityList">
+            <li style="display: flex; align-items: center; gap: 12px; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); border-left: 3px solid #10b981; margin-bottom: 5px;" data-category="subagent">
+                <span style="font-size: 1.3rem; min-width: 2rem;">🤖</span>
+                <div style="flex: 1;">
+                    <div style="font-weight: 600; margin-bottom: 3px; color: white; font-size: 0.9rem;">Subagent: dashboard-enhancer</div>
+                    <div style="font-size: 0.75rem; color: #666;">Enhanced Athena Live Dashboard</div>
+                </div>
+                <span style="color: #666; font-size: 0.7rem;">2m ago</span>
+            </li>
+            <li style="display: flex; align-items: center; gap: 12px; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); border-left: 3px solid #10b981; margin-bottom: 5px;" data-category="beelancer">
+                <span style="font-size: 1.3rem; min-width: 2rem;">🐝</span>
+                <div style="flex: 1;">
+                    <div style="font-weight: 600; margin-bottom: 3px; color: white; font-size: 0.9rem;">Bid Won: React Dashboard</div>
+                    <div style="font-size: 0.75rem; color: #666;">TechStart Inc. | $2,500</div>
+                </div>
+                <span style="color: #666; font-size: 0.7rem;">5m ago</span>
+            </li>
+            <li style="display: flex; align-items: center; gap: 12px; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); border-left: 3px solid #00d9ff; margin-bottom: 5px;" data-category="system">
+                <span style="font-size: 1.3rem; min-width: 2rem;">🔄</span>
+                <div style="flex: 1;">
+                    <div style="font-weight: 600; margin-bottom: 3px; color: white; font-size: 0.9rem;">Gateway Restarted</div>
+                    <div style="font-size: 0.75rem; color: #666;">Scheduled maintenance</div>
+                </div>
+                <span style="color: #666; font-size: 0.7rem;">12m ago</span>
+            </li>
+            <li style="display: flex; align-items: center; gap: 12px; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); border-left: 3px solid #00d9ff; margin-bottom: 5px;" data-category="subagent">
+                <span style="font-size: 1.3rem; min-width: 2rem;">🤖</span>
+                <div style="flex: 1;">
+                    <div style="font-weight: 600; margin-bottom: 3px; color: white; font-size: 0.9rem;">Subagent: beelancer-scout</div>
+                    <div style="font-size: 0.75rem; color: #666;">Scanning for new gigs</div>
+                </div>
+                <span style="color: #666; font-size: 0.7rem;">15m ago</span>
+            </li>
+            <li style="display: flex; align-items: center; gap: 12px; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); border-left: 3px solid #00d9ff; margin-bottom: 5px;" data-category="beelancer">
+                <span style="font-size: 1.3rem; min-width: 2rem;">🐝</span>
+                <div style="flex: 1;">
+                    <div style="font-weight: 600; margin-bottom: 3px; color: white; font-size: 0.9rem;">Bid Placed: AI Integration</div>
+                    <div style="font-size: 0.75rem; color: #666;">Competing with 12 freelancers</div>
+                </div>
+                <span style="color: #666; font-size: 0.7rem;">18m ago</span>
+            </li>
+        </ul>
+    </div>
+
+    <div class="agents-grid" id="agents-container">
+        <!-- Agents will be rendered here -->
+    </div>
+
+    <div class="refresh-info">
+        Last updated: <span id="last-update">-</span> | Auto-refresh every 30s
+    </div>
+
+    <script>
+        // Live data store
+        let liveData = null;
+
+        // Fetch live data from API
+        async function fetchLiveData() {
+            try {
+                const response = await fetch('/api/data.json?t=' + Date.now());
+                const data = await response.json();
+                liveData = data;
+                return data;
+            } catch (error) {
+                console.error('Failed to fetch data:', error);
+                return null;
+            }
+        }
+
+        // Map data.json agent to display format
+        function mapAgent(dataAgent) {
+            return {
+                id: dataAgent.id || dataAgent.name?.toLowerCase(),
+                name: dataAgent.name,
+                emoji: dataAgent.avatar || '🤖',
+                role: dataAgent.role,
+                voice: dataAgent.voice || 'Default',
+                model: dataAgent.model || 'Unknown',
+                status: dataAgent.status || 'idle',
+                currentTask: dataAgent.specialty || 'Awaiting assignment',
+                tasks: dataAgent.tasks || 0,
+                success: dataAgent.success || '100%'
+            };
+        }
+
+        // Render agent card
+        function renderAgentCard(agent) {
+            const statusClass = agent.status === 'active' ? 'active' : 'idle';
+            const statusText = agent.status === 'active' ? 'Active' : 'Idle';
+            
+            return `
+                <div class="agent-card agent-${agent.id}">
+                    <div class="agent-header">
+                        <div class="agent-avatar">${agent.emoji}</div>
+                        <div class="agent-info">
+                            <h3>${agent.name}</h3>
+                            <div class="agent-role">${agent.role}</div>
+                        </div>
+                        <div class="agent-status">
+                            <span class="status-dot ${statusClass}"></span>
+                            <span>${statusText}</span>
+                        </div>
+                    </div>
+                    <div class="agent-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Tasks</span>
+                            <span class="detail-value">${agent.tasks}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Success</span>
+                            <span class="detail-value">${agent.success}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Voice</span>
+                            <span class="detail-value">
+                                <span class="voice-badge">${agent.voice}</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="agent-task">
+                        <div class="task-label">Specialty</div>
+                        <div class="task-content">${agent.currentTask}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Update dashboard with live data
+        async function updateDashboard() {
+            const data = await fetchLiveData();
+            
+            if (!data || !data.agents) {
+                console.error('No agent data available');
+                return;
+            }
+
+            // Map all agents from live data
+            const agents = data.agents.map(mapAgent);
+            
+            // Render agent cards
+            const container = document.getElementById('agents-container');
+            container.innerHTML = agents.map(renderAgentCard).join('');
+
+            // Update stats from live data
+            document.getElementById('total-agents').textContent = data.agents.length;
+            document.getElementById('pending-bids').textContent = data.metrics?.pendingBids || 0;
+            
+            // Count active/idle from live data
+            const activeCount = data.agents.filter(a => a.status === 'active').length;
+            const idleCount = data.agents.filter(a => a.status !== 'active').length;
+            document.getElementById('active-agents').textContent = activeCount;
+            document.getElementById('idle-agents').textContent = idleCount;
+
+            // Update timestamp
+            const now = new Date();
+            document.getElementById('last-update').textContent = now.toLocaleTimeString();
+        }
+
+        // Load and render activity feed
+        async function loadActivityFeed() {
+            try {
+                const response = await fetch('/api/activity.json?t=' + Date.now());
+                const data = await response.json();
+                renderActivityFeed(data.activity || []);
+            } catch (error) {
+                console.error('Failed to load activity:', error);
+            }
+        }
+        
+        function renderActivityFeed(activity) {
+            const container = document.getElementById('activityList');
+            if (!container || activity.length === 0) return;
+            
+            const icons = {
+                'subagent': '🤖',
+                'beelancer': '🐝',
+                'system': '🔄'
+            };
+            
+            const borders = {
+                'subagent': '#00d9ff',
+                'beelancer': '#10b981',
+                'system': '#00d9ff'
+            };
+            
+            container.innerHTML = activity.map(item => `
+                <li style="display: flex; align-items: center; gap: 12px; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); border-left: 3px solid ${borders[item.category] || '#00d9ff'}; margin-bottom: 5px;" data-category="${item.category}">
+                    <span style="font-size: 1.3rem; min-width: 2rem;">${icons[item.category] || '📊'}</span>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; margin-bottom: 3px; color: white; font-size: 0.9rem;">${item.event}</div>
+                        <div style="font-size: 0.75rem; color: #666;">${item.agent}</div>
+                    </div>
+                    <span style="color: #666; font-size: 0.7rem;">${item.time}</span>
+                </li>
+            `).join('');
+        }
+        
+        // Initial render
+        updateDashboard();
+        loadActivityFeed();
+
+        // Auto-refresh every 30 seconds
+        setInterval(updateDashboard, 30000);
+        setInterval(loadActivityFeed, 30000);
+        
+        // Real-time metrics updates
+        let silentMode = false;
+        let currentFilter = 'all';
+        
+        function startRealTimeUpdates() {
+            setInterval(() => {
+                const sessions = document.getElementById('activeSessions');
+                if (sessions) {
+                    const currentSessions = parseInt(sessions.textContent);
+                    const change = Math.floor(Math.random() * 5) - 2;
+                    sessions.textContent = Math.max(1, currentSessions + change);
+                }
+                
+                const tokenRate = document.getElementById('tokenRate');
+                if (tokenRate) {
+                    const baseRate = 2400;
+                    const fluctuation = Math.floor(Math.random() * 400) - 200;
+                    tokenRate.textContent = (baseRate + fluctuation) / 1000 + 'K';
+                }
+                
+                updateRateLimit('llamaLimit');
+                updateRateLimit('geminiLimit');
+            }, 5000);
+        }
+        
+        function updateRateLimit(elementId) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            const currentPercent = parseInt(element.textContent);
+            const change = Math.floor(Math.random() * 10) - 5;
+            const newPercent = Math.max(0, Math.min(100, currentPercent + change));
+            element.textContent = newPercent + '%';
+            const progressBar = element.parentElement.nextElementSibling.querySelector('div[style*="height"]');
+            if (progressBar) progressBar.style.width = newPercent + '%';
+        }
+        
+        function restartGateway() {
+            if (confirm('⚠️ Restart Gateway?\n\nThis will temporarily disconnect all active sessions.')) {
+                showToast('🔄 Restarting gateway...', 'info');
+                setTimeout(() => {
+                    showToast('✅ Gateway restarted successfully', 'success');
+                    document.getElementById('gatewayUptime').textContent = '100%';
+                }, 3000);
+            }
+        }
+        
+        function refreshAll() {
+            showToast('🔃 Refreshing all data...', 'info');
+            setTimeout(() => {
+                showToast('✅ All data refreshed', 'success');
+                updateDashboard();
+            }, 2000);
+        }
+        
+        function toggleSilentMode() {
+            silentMode = !silentMode;
+            const btn = document.getElementById('silentModeBtn');
+            if (silentMode) {
+                btn.querySelector('div:first-child').textContent = '🔇';
+                showToast('🔇 Silent mode enabled', 'info');
+            } else {
+                btn.querySelector('div:first-child').textContent = '🔔';
+                showToast('🔔 Silent mode disabled', 'info');
+            }
+        }
+        
+        function checkBids() {
+            showToast('🐝 Checking pending bids...', 'info');
+            setTimeout(() => {
+                showToast('📊 Found 3 pending bids', 'success');
+            }, 2000);
+        }
+        
+        function filterActivity(category) {
+            currentFilter = category;
+            const items = document.querySelectorAll('#activityList li');
+            items.forEach(item => {
+                if (category === 'all' || item.dataset.category === category) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+        
+        function showToast(message, type = 'info') {
+            let container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 1000;';
+                document.body.appendChild(container);
+            }
+            const toast = document.createElement('div');
+            toast.textContent = message;
+            toast.style.cssText = `background: rgba(22,33,62,0.95); border: 1px solid ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#00d9ff'}; border-radius: 12px; padding: 15px 20px; margin-top: 10px; color: white; animation: slideIn 0.3s ease;`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+        
+        // Start real-time updates
+        startRealTimeUpdates();
+    </script>
+</body>
+</html>

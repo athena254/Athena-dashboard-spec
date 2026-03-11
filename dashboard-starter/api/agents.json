@@ -1,0 +1,23 @@
+{
+  "lastUpdated": "2026-02-26T19:30:00.000Z",
+  "agents": [
+    { "name": "Athena", "role": "Main Orchestrator", "emoji": "🦉", "status": "active", "model": "GLM-5 Key #2", "fallback": "qwen_nvidia", "tasks": 47, "uptime": "99.9%" },
+    { "name": "Sterling", "role": "Finance / Bidding", "emoji": "💰", "status": "active", "model": "GLM-5 Key #1", "fallback": "MiniMax-M2.5", "tasks": 23, "uptime": "100%" },
+    { "name": "Ishtar", "role": "Oracle / PAI Research", "emoji": "🌙", "status": "idle", "model": "OpenAI Codex", "fallback": "GLM-5 Key #1", "tasks": 15, "uptime": "98.5%" },
+    { "name": "THEMIS", "role": "Council Deliberation", "emoji": "⚖️", "status": "idle", "model": "GLM-5 Key #1", "fallback": "qwen coder", "tasks": 12, "uptime": "99.2%" },
+    { "name": "Felicity", "role": "Code Artisan", "emoji": "🎨", "status": "active", "model": "qwen_nvidia", "fallback": "MiniMax-M2.1", "tasks": 34, "uptime": "99.7%" },
+    { "name": "Prometheus", "role": "Executor", "emoji": "⚡", "status": "idle", "model": "GPT-4o", "fallback": "grok-code-fast", "tasks": 28, "uptime": "98.9%" },
+    { "name": "Nexus", "role": "Intelligence", "emoji": "🧠", "status": "idle", "model": "qwen_nvidia", "fallback": "GLM-5 Key #1", "tasks": 19, "uptime": "97.8%" },
+    { "name": "Cisco", "role": "Security", "emoji": "🔒", "status": "idle", "model": "GLM-5 Key #1", "fallback": "gemini-3-pro", "tasks": 8, "uptime": "100%" },
+    { "name": "Delver", "role": "Research", "emoji": "🕵️", "status": "idle", "model": "llama", "fallback": "qwen_nvidia", "tasks": 11, "uptime": "96.5%" },
+    { "name": "Squire", "role": "Operations", "emoji": "🤴", "status": "idle", "model": "GLM-5 Key #1", "fallback": "qwen_nvidia", "tasks": 22, "uptime": "99.1%" },
+    { "name": "Beelancer", "role": "Gig Scout", "emoji": "🐝", "status": "active", "model": "GLM-5 Key #1", "fallback": "qwen_nvidia", "tasks": 56, "uptime": "94.2%" },
+    { "name": "Scribe", "role": "Documentation", "emoji": "📝", "status": "idle", "model": "qwen_nvidia", "fallback": "GLM-5 Key #1", "tasks": 31, "uptime": "99.5%" },
+    { "name": "Voyager", "role": "Exploration", "emoji": "🚀", "status": "idle", "model": "GLM-5 Key #2", "fallback": "qwen_nvidia", "tasks": 14, "uptime": "97.1%" },
+    { "name": "Chronos", "role": "Scheduler", "emoji": "⏰", "status": "active", "model": "GLM-5 Key #1", "fallback": "qwen_nvidia", "tasks": 89, "uptime": "99.8%" },
+    { "name": "Hermes", "role": "Communications", "emoji": "✉️", "status": "idle", "model": "GLM-5 Key #1", "fallback": "qwen_nvidia", "tasks": 42, "uptime": "98.3%" },
+    { "name": "Argo", "role": "Navigation", "emoji": "🚢", "status": "idle", "model": "qwen_nvidia", "fallback": "GLM-5 Key #1", "tasks": 17, "uptime": "96.9%" },
+    { "name": "Vesta", "role": "Home Ops", "emoji": "🏠", "status": "idle", "model": "GLM-5 Key #1", "fallback": "qwen_nvidia", "tasks": 25, "uptime": "99.4%" },
+    { "name": "Janus", "role": "Gateway", "emoji": "🚪", "status": "active", "model": "GLM-5 Key #2", "fallback": "qwen_nvidia", "tasks": 156, "uptime": "99.6%" }
+  ]
+}

@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Athena Task Scheduler | Cron Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: #f1f5f9; 
+            min-height: 100vh;
+        }
+        .card { 
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(99, 102, 241, 0.2); 
+            border-radius: 1rem; 
+            padding: 1.5rem;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(51, 65, 85, 0.9) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+        .glow-text { text-shadow: 0 0 20px rgba(99, 102, 241, 0.5); }
+        code, .cron-input { font-family: 'Fira Code', monospace; }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .status-enabled { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+        .status-disabled { background: rgba(100, 116, 139, 0.2); color: #94a3b8; }
+        .status-paused { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .template-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .template-card:hover {
+            border-color: rgba(99, 102, 241, 0.5);
+            background: rgba(30, 41, 59, 0.8);
+        }
+        .template-card.selected {
+            border-color: #6366f1;
+            background: rgba(99, 102, 241, 0.1);
+        }
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+        .modal-content {
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+        }
+        input, select, textarea {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: #f1f5f9;
+            width: 100%;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+        .btn-secondary {
+            background: rgba(51, 65, 85, 0.8);
+            color: #f1f5f9;
+        }
+        .btn-secondary:hover {
+            background: rgba(71, 85, 105, 0.8);
+        }
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                <div>
+                    <h1 class="text-3xl font-bold glow-text flex items-center gap-3">
+                        ⏰ Task Scheduler
+                    </h1>
+                    <p class="text-slate-400 mt-1">Cron-like scheduling for automated tasks</p>
+                </div>
+                <div class="flex gap-3">
+                    <button id="new-task-btn" class="btn btn-primary flex items-center gap-2">
+                        <span>➕</span> New Schedule
+                    </button>
+                    <button id="refresh-btn" class="btn btn-secondary flex items-center gap-2">
+                        <span>🔄</span> Refresh
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Stats Overview -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="stat-card">
+                <p class="text-slate-400 text-sm">Total Schedules</p>
+                <p class="text-2xl font-bold mt-1" id="stat-total">--</p>
+            </div>
+            <div class="stat-card">
+                <p class="text-slate-400 text-sm">Enabled</p>
+                <p class="text-2xl font-bold mt-1 text-green-400" id="stat-enabled">--</p>
+            </div>
+            <div class="stat-card">
+                <p class="text-slate-400 text-sm">Paused</p>
+                <p class="text-2xl font-bold mt-1 text-amber-400" id="stat-paused">--</p>
+            </div>
+            <div class="stat-card">
+                <p class="text-slate-400 text-sm">Total Runs</p>
+                <p class="text-2xl font-bold mt-1" id="stat-runs">--</p>
+            </div>
+        </div>
+
+        <!-- Next Runs -->
+        <div class="card mb-8">
+            <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                <span class="text-cyan-400">⏱️</span> Upcoming Runs
+            </h2>
+            <div id="next-runs" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- Scheduled Tasks -->
+        <div class="card mb-8">
+            <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                <span class="text-indigo-400">📋</span> Scheduled Tasks
+            </h2>
+            <div id="tasks-list" class="space-y-3">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- Recent Runs -->
+        <div class="card">
+            <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                <span class="text-purple-400">📜</span> Recent Runs
+            </h2>
+            <div id="recent-runs" class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="text-left text-slate-400 border-b border-slate-700">
+                            <th class="pb-2">Time</th>
+                            <th class="pb-2">Task</th>
+                            <th class="pb-2">Queued ID</th>
+                            <th class="pb-2">Run #</th>
+                        </tr>
+                    </thead>
+                    <tbody id="runs-table-body">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-8 text-center text-slate-500 text-xs font-mono">
+            <p>Athena Task Scheduler • Cron Expression Reference: min hour dom month dow</p>
+        </footer>
+    </div>
+
+    <!-- New Task Modal -->
+    <div id="new-task-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 class="text-xl font-semibold mb-4">Create Scheduled Task</h3>
+            
+            <!-- Template Selection -->
+            <div class="mb-4">
+                <label class="block text-sm text-slate-400 mb-2">Select Template</label>
+                <div class="grid grid-cols-2 gap-2" id="template-grid">
+                    <div class="template-card" data-template="health_check">
+                        <span class="text-lg">🏥</span>
+                        <p class="font-medium text-sm mt-1">Health Check</p>
+                    </div>
+                    <div class="template-card" data-template="backup">
+                        <span class="text-lg">💾</span>
+                        <p class="font-medium text-sm mt-1">Backup</p>
+                    </div>
+                    <div class="template-card" data-template="metrics_collect">
+                        <span class="text-lg">📊</span>
+                        <p class="font-medium text-sm mt-1">Metrics</p>
+                    </div>
+                    <div class="template-card" data-template="bidding_cycle">
+                        <span class="text-lg">🐝</span>
+                        <p class="font-medium text-sm mt-1">Bidding</p>
+                    </div>
+                    <div class="template-card" data-template="inbox_check">
+                        <span class="text-lg">📧</span>
+                        <p class="font-medium text-sm mt-1">Inbox Check</p>
+                    </div>
+                    <div class="template-card" data-template="custom">
+                        <span class="text-lg">⚙️</span>
+                        <p class="font-medium text-sm mt-1">Custom</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Task Name -->
+            <div class="mb-4">
+                <label class="block text-sm text-slate-400 mb-2">Task Name</label>
+                <input type="text" id="task-name" placeholder="e.g., hourly_backup" class="w-full">
+            </div>
+
+            <!-- Schedule Type -->
+            <div class="mb-4">
+                <label class="block text-sm text-slate-400 mb-2">Schedule Type</label>
+                <select id="schedule-type" class="w-full">
+                    <option value="cron">Cron Expression</option>
+                    <option value="interval">Interval (seconds)</option>
+                    <option value="once">One-time</option>
+                </select>
+            </div>
+
+            <!-- Schedule Value -->
+            <div class="mb-4">
+                <label class="block text-sm text-slate-400 mb-2" id="schedule-label">Cron Expression</label>
+                <input type="text" id="schedule-value" placeholder="0 * * * *" class="cron-input w-full">
+                <p class="text-xs text-slate-500 mt-1" id="schedule-hint">min hour day-of-month month day-of-week (e.g., "0 9 * * *" = daily at 9am)</p>
+            </div>
+
+            <!-- Quick Presets -->
+            <div class="mb-4">
+                <label class="block text-sm text-slate-400 mb-2">Quick Presets</label>
+                <div class="flex flex-wrap gap-2">
+                    <button class="btn btn-secondary text-xs" data-cron="0 * * * *">Hourly</button>
+                    <button class="btn btn-secondary text-xs" data-cron="0 0 * * *">Daily Midnight</button>
+                    <button class="btn btn-secondary text-xs" data-cron="0 9 * * *">Daily 9am</button>
+                    <button class="btn btn-secondary text-xs" data-cron="0 9 * * 1">Weekly Mon</button>
+                    <button class="btn btn-secondary text-xs" data-cron="*/15 * * * *">Every 15min</button>
+                </div>
+            </div>
+
+            <!-- Assignee -->
+            <div class="mb-6">
+                <label class="block text-sm text-slate-400 mb-2">Assign to Agent</label>
+                <select id="task-assignee" class="w-full">
+                    <option value="athena">Athena (Coordinator)</option>
+                    <option value="sterling">Sterling (Finance/Bidding)</option>
+                    <option value="ishtar">Ishtar (Research)</option>
+                    <option value="felicity">Felicity (Communications)</option>
+                    <option value="squire">Squire (Maintenance)</option>
+                    <option value="prometheus">Prometheus (Development)</option>
+                </select>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex justify-end gap-3">
+                <button id="cancel-task-btn" class="btn btn-secondary">Cancel</button>
+                <button id="create-task-btn" class="btn btn-primary">Create Schedule</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let schedulerData = null;
+        let selectedTemplate = null;
+
+        // DOM Elements
+        const modal = document.getElementById('new-task-modal');
+        const newTaskBtn = document.getElementById('new-task-btn');
+        const cancelBtn = document.getElementById('cancel-task-btn');
+        const createBtn = document.getElementById('create-task-btn');
+        const refreshBtn = document.getElementById('refresh-btn');
+        const scheduleType = document.getElementById('schedule-type');
+        const scheduleLabel = document.getElementById('schedule-label');
+        const scheduleHint = document.getElementById('schedule-hint');
+        const scheduleValue = document.getElementById('schedule-value');
+        const templateCards = document.querySelectorAll('.template-card');
+        const presetBtns = document.querySelectorAll('[data-cron]');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Modal
+            newTaskBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+            cancelBtn.addEventListener('click', () => modal.classList.add('hidden'));
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.classList.add('hidden');
+            });
+
+            // Refresh
+            refreshBtn.addEventListener('click', loadData);
+
+            // Schedule type change
+            scheduleType.addEventListener('change', updateScheduleHint);
+
+            // Template selection
+            templateCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    templateCards.forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    selectedTemplate = card.dataset.template;
+                    
+                    // Pre-fill based on template
+                    if (selectedTemplate !== 'custom') {
+                        document.getElementById('task-name').value = selectedTemplate + '_task';
+                    }
+                });
+            });
+
+            // Preset buttons
+            presetBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    scheduleValue.value = btn.dataset.cron;
+                    scheduleType.value = 'cron';
+                    updateScheduleHint();
+                });
+            });
+
+            // Create task
+            createBtn.addEventListener('click', createTask);
+        }
+
+        function updateScheduleHint() {
+            const type = scheduleType.value;
+            if (type === 'cron') {
+                scheduleLabel.textContent = 'Cron Expression';
+                scheduleHint.textContent = 'min hour day-of-month month day-of-week (e.g., "0 9 * * *" = daily at 9am)';
+            } else if (type === 'interval') {
+                scheduleLabel.textContent = 'Interval (seconds)';
+                scheduleHint.textContent = 'Run every N seconds (e.g., 3600 = every hour)';
+            } else {
+                scheduleLabel.textContent = 'Scheduled Time (ISO)';
+                scheduleHint.textContent = 'ISO datetime (e.g., 2026-03-01T09:00:00Z)';
+            }
+        }
+
+        async function loadData() {
+            try {
+                const res = await fetch('/api/scheduled-tasks.json?t=' + Date.now());
+                schedulerData = await res.json();
+                updateUI();
+            } catch (error) {
+                console.error('Failed to load scheduler data:', error);
+                showEmptyState();
+            }
+        }
+
+        function updateUI() {
+            if (!schedulerData) return;
+
+            const tasks = Object.values(schedulerData.tasks || {});
+            const enabled = tasks.filter(t => t.status === 'enabled');
+            const paused = tasks.filter(t => t.status === 'paused');
+            const totalRuns = tasks.reduce((sum, t) => sum + (t.run_count || 0), 0);
+
+            // Stats
+            document.getElementById('stat-total').textContent = tasks.length;
+            document.getElementById('stat-enabled').textContent = enabled.length;
+            document.getElementById('stat-paused').textContent = paused.length;
+            document.getElementById('stat-runs').textContent = totalRuns;
+
+            // Next runs
+            const nextRuns = tasks
+                .filter(t => t.next_run && t.status === 'enabled')
+                .sort((a, b) => a.next_run.localeCompare(b.next_run))
+                .slice(0, 3);
+
+            document.getElementById('next-runs').innerHTML = nextRuns.map(t => `
+                <div class="bg-slate-800/50 rounded-lg p-3">
+                    <div class="flex items-center gap-2">
+                        <span class="pulse-dot bg-green-500"></span>
+                        <span class="font-medium">${t.name}</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1">${formatNextRun(t.next_run)}</p>
+                    <code class="text-xs text-indigo-400">${t.cron_expression || t.interval_seconds + 's'}</code>
+                </div>
+            `).join('') || '<p class="text-slate-500">No upcoming runs</p>';
+
+            // Tasks list
+            document.getElementById('tasks-list').innerHTML = tasks.map(t => `
+                <div class="flex items-center justify-between bg-slate-800/30 rounded-lg p-4">
+                    <div class="flex items-center gap-4">
+                        <span class="text-2xl">${getTaskIcon(t.task_template?.type)}</span>
+                        <div>
+                            <p class="font-medium">${t.name}</p>
+                            <div class="flex items-center gap-3 mt-1">
+                                <code class="text-xs text-slate-400">${t.cron_expression || t.interval_seconds + 's interval' || 'once'}</code>
+                                <span class="text-xs text-slate-500">•</span>
+                                <span class="text-xs text-slate-400">${t.run_count} runs</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="status-badge status-${t.status}">
+                            ${getStatusDot(t.status)} ${t.status}
+                        </span>
+                        <div class="flex gap-1">
+                            ${t.status === 'enabled' ? `
+                                <button class="btn btn-secondary text-xs" onclick="toggleTask('${t.id}', 'pause')">⏸️</button>
+                            ` : t.status === 'paused' ? `
+                                <button class="btn btn-secondary text-xs" onclick="toggleTask('${t.id}', 'enable')">▶️</button>
+                            ` : ''}
+                            <button class="btn btn-secondary text-xs" onclick="toggleTask('${t.id}', 'disable')">⏹️</button>
+                            <button class="btn btn-danger text-xs" onclick="deleteTask('${t.id}')">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('') || '<p class="text-slate-500 text-center py-4">No scheduled tasks</p>';
+
+            // Recent runs
+            const recentRuns = (schedulerData.run_history || []).slice(-10).reverse();
+            document.getElementById('runs-table-body').innerHTML = recentRuns.map(r => `
+                <tr class="border-b border-slate-800/50">
+                    <td class="py-2 text-slate-300">${new Date(r.run_at).toLocaleString()}</td>
+                    <td class="py-2">${r.task_name}</td>
+                    <td class="py-2 font-mono text-xs text-slate-400">${r.queued_task_id}</td>
+                    <td class="py-2">#${r.run_count}</td>
+                </tr>
+            `).join('') || '<tr><td colspan="4" class="py-4 text-center text-slate-500">No runs yet</td></tr>';
+        }
+
+        function showEmptyState() {
+            document.getElementById('stat-total').textContent = '0';
+            document.getElementById('stat-enabled').textContent = '0';
+            document.getElementById('stat-paused').textContent = '0';
+            document.getElementById('stat-runs').textContent = '0';
+            document.getElementById('tasks-list').innerHTML = '<p class="text-slate-500 text-center py-4">No scheduled tasks. Create one!</p>';
+        }
+
+        function formatNextRun(nextRun) {
+            const date = new Date(nextRun);
+            const now = new Date();
+            const diff = date - now;
+            
+            if (diff < 0) return 'Overdue';
+            if (diff < 60000) return 'In < 1 min';
+            if (diff < 3600000) return `In ${Math.floor(diff / 60000)} min`;
+            if (diff < 86400000) return `In ${Math.floor(diff / 3600000)} hours`;
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        }
+
+        function getTaskIcon(type) {
+            const icons = {
+                'MAINTENANCE': '🔧',
+                'BIDDING': '🐝',
+                'COMMUNICATION': '📧',
+                'REPORT': '📊',
+                'RESEARCH': '🔬',
+                'DEVELOPMENT': '💻'
+            };
+            return icons[type] || '📋';
+        }
+
+        function getStatusDot(status) {
+            const dots = {
+                'enabled': '<span class="pulse-dot bg-green-500"></span>',
+                'disabled': '<span class="w-2 h-2 rounded-full bg-slate-500"></span>',
+                'paused': '<span class="w-2 h-2 rounded-full bg-amber-500"></span>'
+            };
+            return dots[status] || '';
+        }
+
+        async function toggleTask(taskId, action) {
+            try {
+                // This would call an API endpoint in a real implementation
+                console.log(`Toggle task ${taskId}: ${action}`);
+                // For now, just refresh
+                loadData();
+            } catch (error) {
+                console.error('Failed to toggle task:', error);
+            }
+        }
+
+        async function deleteTask(taskId) {
+            if (!confirm('Delete this scheduled task?')) return;
+            try {
+                console.log(`Delete task ${taskId}`);
+                loadData();
+            } catch (error) {
+                console.error('Failed to delete task:', error);
+            }
+        }
+
+        async function createTask() {
+            const name = document.getElementById('task-name').value;
+            const type = scheduleType.value;
+            const value = scheduleValue.value;
+            const assignee = document.getElementById('task-assignee').value;
+
+            if (!name || !value) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            // In a real implementation, this would POST to an API
+            console.log('Creating task:', { name, type, value, assignee, template: selectedTemplate });
+            
+            modal.classList.add('hidden');
+            loadData();
+        }
+    </script>
+</body>
+</html>

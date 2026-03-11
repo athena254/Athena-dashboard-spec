@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client Portal | Athena</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    :root {
+      --primary: #8b5cf6;
+      --primary-light: #a78bfa;
+      --primary-dark: #7c3aed;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #3b82f6;
+      --bg-base: #0c0f1a;
+      --bg-surface: #111827;
+      --bg-elevated: #1f2937;
+      --border: #374151;
+      --text-primary: #f9fafb;
+      --text-secondary: #d1d5db;
+      --text-muted: #9ca3af;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --shadow-lg: 0 10px 40px rgba(0,0,0,0.3);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-base); color: var(--text-primary); min-height: 100vh; line-height: 1.6; }
+    
+    .portal-header { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%); padding: 2rem; border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
+    .portal-header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+    .portal-header-content { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+    .portal-brand { display: flex; align-items: center; gap: 1rem; }
+    .portal-logo { width: 48px; height: 48px; background: linear-gradient(135deg, var(--primary), #c084fc); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .portal-title h1 { font-size: 1.75rem; font-weight: 700; color: white; }
+    .portal-title p { font-size: 0.875rem; color: rgba(255,255,255,0.7); }
+    .portal-status { display: flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 9999px; backdrop-filter: blur(10px); }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); animation: pulse 2s infinite; }
+    .status-text { font-size: 0.875rem; color: white; font-weight: 500; }
+    
+    .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+    
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .stat-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 1.5rem; transition: all 0.3s ease; position: relative; overflow: hidden; }
+    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+    .stat-card.active::before { background: linear-gradient(90deg, var(--success), #34d399); }
+    .stat-card.pending::before { background: linear-gradient(90deg, var(--warning), #fbbf24); }
+    .stat-card.earned::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+    .stat-card.total::before { background: linear-gradient(90deg, var(--info), #60a5fa); }
+    .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+    .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1rem; }
+    .stat-card.active .stat-icon { background: rgba(16, 185, 129, 0.15); }
+    .stat-card.pending .stat-icon { background: rgba(245, 158, 11, 0.15); }
+    .stat-card.earned .stat-icon { background: rgba(139, 92, 246, 0.15); }
+    .stat-card.total .stat-icon { background: rgba(59, 130, 246, 0.15); }
+    .stat-value { font-size: 2rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem; }
+    .stat-label { font-size: 0.875rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .stat-trend { position: absolute; top: 1rem; right: 1rem; font-size: 0.75rem; padding: 0.25rem 0.5rem; border-radius: 9999px; }
+    .stat-trend.up { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    
+    .section-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; }
+    .section-title::before { content: ''; width: 4px; height: 24px; background: var(--primary); border-radius: 2px; }
+    
+    .gigs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .gig-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 1.5rem; transition: all 0.3s ease; position: relative; }
+    .gig-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
+    .gig-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+    .gig-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); flex: 1; padding-right: 1rem; }
+    .gig-status { font-size: 0.75rem; font-weight: 600; padding: 0.25rem 0.75rem; border-radius: 9999px; text-transform: uppercase; }
+    .gig-status.active { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .gig-status.progress { background: rgba(59, 130, 246, 0.15); color: var(--info); }
+    .gig-status.review { background: rgba(139, 92, 246, 0.15); color: var(--primary); }
+    .gig-status.completed { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+    .gig-meta { display: flex; gap: 1.5rem; margin-bottom: 1rem; font-size: 0.875rem; color: var(--text-muted); }
+    .gig-meta-item { display: flex; align-items: center; gap: 0.5rem; }
+    .gig-reward { display: flex; align-items: center; justify-content: space-between; padding-top: 1rem; border-top: 1px solid var(--border); }
+    .gig-reward-label { font-size: 0.875rem; color: var(--text-muted); }
+    .gig-reward-value { font-size: 1.25rem; font-weight: 700; color: var(--success); }
+    .gig-progress { margin-top: 1rem; }
+    .progress-bar { height: 6px; background: var(--bg-elevated); border-radius: 9999px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 9999px; transition: width 0.5s ease; }
+    .progress-fill.active { background: linear-gradient(90deg, var(--success), #34d399); }
+    .progress-fill.progress { background: linear-gradient(90deg, var(--info), #60a5fa); }
+    .progress-label { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; }
+    
+    .bids-section { margin-bottom: 2rem; }
+    .bids-list { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-xl); overflow: hidden; }
+    .bid-row { display: grid; grid-template-columns: 1fr 120px 100px 100px; gap: 1rem; padding: 1rem 1.5rem; align-items: center; border-bottom: 1px solid var(--border); transition: background 0.2s; }
+    .bid-row:last-child { border-bottom: none; }
+    .bid-row:hover { background: var(--bg-elevated); }
+    .bid-title { font-weight: 500; }
+    .bid-category { font-size: 0.75rem; color: var(--text-muted); }
+    .bid-amount { font-weight: 600; color: var(--warning); }
+    .bid-status { font-size: 0.75rem; font-weight: 600; padding: 0.25rem 0.75rem; border-radius: 9999px; text-align: center; }
+    .bid-status.pending { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+    .bid-status.accepted { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .bid-time { font-size: 0.875rem; color: var(--text-muted); }
+    
+    .activity-feed { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 1.5rem; }
+    .activity-item { display: flex; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--border); }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .activity-icon.bid { background: rgba(245, 158, 11, 0.15); }
+    .activity-icon.accept { background: rgba(16, 185, 129, 0.15); }
+    .activity-icon.complete { background: rgba(139, 92, 246, 0.15); }
+    .activity-content { flex: 1; }
+    .activity-text { font-size: 0.875rem; }
+    .activity-time { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
+    
+    .refresh-btn { position: fixed; bottom: 2rem; right: 2rem; width: 56px; height: 56px; border-radius: 50%; background: var(--primary); border: none; color: white; font-size: 1.5rem; cursor: pointer; box-shadow: var(--shadow-lg); transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; }
+    .refresh-btn:hover { transform: rotate(180deg); background: var(--primary-dark); }
+    .refresh-btn.loading { animation: spin 1s linear infinite; }
+    
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    
+    .last-updated { text-align: center; font-size: 0.75rem; color: var(--text-muted); margin-top: 2rem; }
+    
+    @media (max-width: 768px) {
+      .portal-header-content { flex-direction: column; gap: 1rem; text-align: center; }
+      .gigs-grid { grid-template-columns: 1fr; }
+      .bid-row { grid-template-columns: 1fr; gap: 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="portal-header">
+    <div class="portal-header-content">
+      <div class="portal-brand">
+        <div class="portal-logo">🦅</div>
+        <div class="portal-title">
+          <h1>Athena Client Portal</h1>
+          <p>Real-time Gig Management Dashboard</p>
+        </div>
+      </div>
+      <div class="portal-status">
+        <span class="status-dot"></span>
+        <span class="status-text">Live Updates</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-card active">
+        <div class="stat-icon">🎯</div>
+        <div class="stat-value" id="active-gigs">3</div>
+        <div class="stat-label">Active Gigs</div>
+        <span class="stat-trend up">In Progress</span>
+      </div>
+      <div class="stat-card pending">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-value" id="pending-bids">10</div>
+        <div class="stat-label">Pending Bids</div>
+      </div>
+      <div class="stat-card earned">
+        <div class="stat-icon">🍯</div>
+        <div class="stat-value" id="total-earned">2,450</div>
+        <div class="stat-label">Honey Earned</div>
+      </div>
+      <div class="stat-card total">
+        <div class="stat-icon">📊</div>
+        <div class="stat-value" id="completion-rate">94%</div>
+        <div class="stat-label">Completion Rate</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">Active Projects</h2>
+    <div class="gigs-grid" id="gigs-container">
+      <div class="gig-card">
+        <div class="gig-header">
+          <div class="gig-title">Write unit tests for React components</div>
+          <span class="gig-status progress">In Progress</span>
+        </div>
+        <div class="gig-meta">
+          <div class="gig-meta-item">📁 Coding</div>
+          <div class="gig-meta-item">👤 Client: techstartup.io</div>
+        </div>
+        <div class="gig-progress">
+          <div class="progress-bar"><div class="progress-fill progress" style="width: 65%"></div></div>
+          <div class="progress-label"><span>3/5 tests completed</span><span>65%</span></div>
+        </div>
+        <div class="gig-reward">
+          <span class="gig-reward-label">Reward</span>
+          <span class="gig-reward-value">🍯 1,000</span>
+        </div>
+      </div>
+
+      <div class="gig-card">
+        <div class="gig-header">
+          <div class="gig-title">Data analysis on customer churn</div>
+          <span class="gig-status active">Active</span>
+        </div>
+        <div class="gig-meta">
+          <div class="gig-meta-item">📁 Research</div>
+          <div class="gig-meta-item">👤 Client: retailco.com</div>
+        </div>
+        <div class="gig-progress">
+          <div class="progress-bar"><div class="progress-fill active" style="width: 40%"></div></div>
+          <div class="progress-label"><span>2/5 milestones</span><span>40%</span></div>
+        </div>
+        <div class="gig-reward">
+          <span class="gig-reward-label">Reward</span>
+          <span class="gig-reward-value">🍯 400</span>
+        </div>
+      </div>
+
+      <div class="gig-card">
+        <div class="gig-header">
+          <div class="gig-title">Design landing page for SaaS</div>
+          <span class="gig-status review">In Review</span>
+        </div>
+        <div class="gig-meta">
+          <div class="gig-meta-item">📁 Design</div>
+          <div class="gig-meta-item">👤 Client: innovatelabs.co</div>
+        </div>
+        <div class="gig-progress">
+          <div class="progress-bar"><div class="progress-fill" style="width: 90%; background: linear-gradient(90deg, #8b5cf6, #a78bfa)"></div></div>
+          <div class="progress-label"><span>Awaiting client approval</span><span>90%</span></div>
+        </div>
+        <div class="gig-reward">
+          <span class="gig-reward-label">Reward</span>
+          <span class="gig-reward-value">🍯 500</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bids-section">
+      <h2 class="section-title">Pending Bids</h2>
+      <div class="bids-list" id="bids-container">
+        <div class="bid-row">
+          <div>
+            <div class="bid-title">Review and improve smart contract</div>
+            <div class="bid-category">Coding • 3 bidders</div>
+          </div>
+          <div class="bid-amount">🍯 750</div>
+          <div class="bid-status pending">Pending</div>
+          <div class="bid-time">2h ago</div>
+        </div>
+        <div class="bid-row">
+          <div>
+            <div class="bid-title">CBT app development</div>
+            <div class="bid-category">Development • 2 bidders</div>
+          </div>
+          <div class="bid-amount">🍯 850</div>
+          <div class="bid-status pending">Pending</div>
+          <div class="bid-time">4h ago</div>
+        </div>
+        <div class="bid-row">
+          <div>
+            <div class="bid-title">Translate marketing copy to Spanish</div>
+            <div class="bid-category">Writing • 1 bidder</div>
+          </div>
+          <div class="bid-amount">🍯 425</div>
+          <div class="bid-status pending">Pending</div>
+          <div class="bid-time">6h ago</div>
+        </div>
+        <div class="bid-row">
+          <div>
+            <div class="bid-title">Create 5 social media graphics</div>
+            <div class="bid-category">Design • No competition</div>
+          </div>
+          <div class="bid-amount">🍯 270</div>
+          <div class="bid-status pending">Pending</div>
+          <div class="bid-time">8h ago</div>
+        </div>
+        <div class="bid-row">
+          <div>
+            <div class="bid-title">Build REST API endpoints</div>
+            <div class="bid-category">Coding • 4 bidders</div>
+          </div>
+          <div class="bid-amount">🍯 600</div>
+          <div class="bid-status pending">Pending</div>
+          <div class="bid-time">12h ago</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+      <div>
+        <h2 class="section-title">Recent Activity</h2>
+        <div class="activity-feed">
+          <div class="activity-item">
+            <div class="activity-icon bid">📝</div>
+            <div class="activity-content">
+              <div class="activity-text">New bid placed on <strong>Build REST API</strong></div>
+              <div class="activity-time">2 hours ago</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon accept">✅</div>
+            <div class="activity-content">
+              <div class="activity-text"><strong>Design landing page</strong> moved to review</div>
+              <div class="activity-time">5 hours ago</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon complete">🎉</div>
+            <div class="activity-content">
+              <div class="activity-text"><strong>Data analysis</strong> milestone completed</div>
+              <div class="activity-time">Yesterday</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon accept">✅</div>
+            <div class="activity-content">
+              <div class="activity-text"><strong>React tests</strong> project accepted</div>
+              <div class="activity-time">Yesterday</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h2 class="section-title">Quick Stats</h2>
+        <div class="activity-feed">
+          <div class="activity-item" style="border: none; padding: 0.5rem 0;">
+            <div style="flex: 1; display: flex; justify-content: space-between;">
+              <span style="color: var(--text-muted);">Win Rate</span>
+              <span style="font-weight: 600; color: var(--success);">42%</span>
+            </div>
+          </div>
+          <div class="activity-item" style="border: none; padding: 0.5rem 0;">
+            <div style="flex: 1; display: flex; justify-content: space-between;">
+              <span style="color: var(--text-muted);">Avg. Response Time</span>
+              <span style="font-weight: 600;">&lt; 5 min</span>
+            </div>
+          </div>
+          <div class="activity-item" style="border: none; padding: 0.5rem 0;">
+            <div style="flex: 1; display: flex; justify-content: space-between;">
+              <span style="color: var(--text-muted);">Active Since</span>
+              <span style="font-weight: 600;">Feb 20, 2026</span>
+            </div>
+          </div>
+          <div class="activity-item" style="border: none; padding: 0.5rem 0;">
+            <div style="flex: 1; display: flex; justify-content: space-between;">
+              <span style="color: var(--text-muted);">Total Projects</span>
+              <span style="font-weight: 600;">47</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="last-updated" id="last-updated">Last updated: Loading...</p>
+  </div>
+
+  <button class="refresh-btn" id="refresh-btn" title="Refresh Data">🔄</button>
+
+  <script>
+    const API_DATA_URL = 'api/data.json';
+    
+    async function fetchData() {
+      try {
+        const response = await fetch(API_DATA_URL);
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        return null;
+      }
+    }
+
+    async function updateDashboard() {
+      const btn = document.getElementById('refresh-btn');
+      btn.classList.add('loading');
+      
+      const data = await fetchData();
+      
+      if (data) {
+        document.getElementById('active-gigs').textContent = data.activeGigs || 3;
+        document.getElementById('pending-bids').textContent = data.pendingBids || 10;
+        
+        const now = new Date();
+        document.getElementById('last-updated').textContent = 
+          `Last updated: ${now.toLocaleTimeString()} (${data.lastUpdated ? new Date(data.lastUpdated).toLocaleString() : 'N/A'})`;
+      } else {
+        document.getElementById('last-updated').textContent = 
+          `Last updated: ${new Date().toLocaleTimeString()} (Using cached data)`;
+      }
+      
+      setTimeout(() => btn.classList.remove('loading'), 1000);
+    }
+
+    document.getElementById('refresh-btn').addEventListener('click', updateDashboard);
+    
+    // Auto-refresh every 30 seconds
+    setInterval(updateDashboard, 30000);
+    
+    // Initial load
+    updateDashboard();
+  </script>
+</body>
+</html>

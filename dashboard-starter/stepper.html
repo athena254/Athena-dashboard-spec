@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stepper</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #fff;
+      margin-bottom: 40px;
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+
+    .stepper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 40px;
+      position: relative;
+    }
+
+    .stepline {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: #2a2a4a;
+      transform: translateY(-50%);
+      z-index: 0;
+    }
+
+    .stepline-progress {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #4a9eff, #00d9a5);
+      transform: translateY(-50%);
+      z-index: 1;
+      transition: width 0.4s ease;
+      width: 0%;
+    }
+
+    .step {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .step-circle {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: #2a2a4a;
+      border: 3px solid #2a2a4a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #6a6a8a;
+      transition: all 0.3s ease;
+    }
+
+    .step.active .step-circle {
+      background: linear-gradient(135deg, #4a9eff, #00d9a5);
+      border-color: #4a9eff;
+      color: #fff;
+      box-shadow: 0 0 20px rgba(74, 158, 255, 0.5);
+    }
+
+    .step.completed .step-circle {
+      background: #00d9a5;
+      border-color: #00d9a5;
+      color: #1a1a2e;
+    }
+
+    .step-label {
+      font-size: 0.85rem;
+      color: #6a6a8a;
+      font-weight: 500;
+      transition: color 0.3s ease;
+      max-width: 80px;
+      text-align: center;
+    }
+
+    .step.active .step-label {
+      color: #4a9eff;
+    }
+
+    .step.completed .step-label {
+      color: #00d9a5;
+    }
+
+    .step-icon {
+      font-size: 1.1rem;
+    }
+
+    .content {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .content h2 {
+      color: #fff;
+      font-size: 1.4rem;
+      margin-bottom: 15px;
+    }
+
+    .content p {
+      color: #8a8aaa;
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    .controls {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 12px 28px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-prev {
+      background: #2a2a4a;
+      color: #fff;
+    }
+
+    .btn-prev:hover:not(:disabled) {
+      background: #3a3a5a;
+      transform: translateY(-2px);
+    }
+
+    .btn-next {
+      background: linear-gradient(135deg, #4a9eff, #00d9a5);
+      color: #fff;
+    }
+
+    .btn-next:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(74, 158, 255, 0.4);
+    }
+
+    .btn-reset {
+      background: #ff6b6b;
+      color: #fff;
+    }
+
+    .btn-reset:hover {
+      background: #ff5555;
+      transform: translateY(-2px);
+    }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .step-indicator {
+      color: #6a6a8a;
+      font-size: 0.9rem;
+      margin-top: 20px;
+    }
+
+    .step-indicator span {
+      color: #4a9eff;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚀 Multi-Step Stepper</h1>
+    
+    <div class="stepper">
+      <div class="stepline"></div>
+      <div class="stepline-progress" id="steplineProgress"></div>
+      
+      <div class="step active" data-step="0">
+        <div class="step-circle">
+          <span class="step-icon">📝</span>
+        </div>
+        <span class="step-label">Details</span>
+      </div>
+      
+      <div class="step" data-step="1">
+        <div class="step-circle">
+          <span class="step-icon">👤</span>
+        </div>
+        <span class="step-label">Account</span>
+      </div>
+      
+      <div class="step" data-step="2">
+        <div class="step-circle">
+          <span class="step-icon">💳</span>
+        </div>
+        <span class="step-label">Payment</span>
+      </div>
+      
+      <div class="step" data-step="3">
+        <div class="step-circle">
+          <span class="step-icon">✅</span>
+        </div>
+        <span class="step-label">Confirm</span>
+      </div>
+      
+      <div class="step" data-step="4">
+        <div class="step-circle">
+          <span class="step-icon">🎉</span>
+        </div>
+        <span class="step-label">Done</span>
+      </div>
+    </div>
+
+    <div class="content">
+      <h2 id="contentTitle">Step 1: Enter Details</h2>
+      <p id="contentText">Fill in your basic information to get started with the setup process.</p>
+    </div>
+
+    <div class="controls">
+      <button class="btn-prev" id="btnPrev" onclick="prevStep()">
+        ← Previous
+      </button>
+      <button class="btn-next" id="btnNext" onclick="nextStep()">
+        Next →
+      </button>
+      <button class="btn-reset" onclick="resetStepper()">
+        ↺ Reset
+      </button>
+    </div>
+
+    <div class="step-indicator">
+      Step <span id="currentStepNum">1</span> of <span id="totalSteps">5</span>
+    </div>
+  </div>
+
+  <script>
+    const steps = document.querySelectorAll('.step');
+    const steplineProgress = document.getElementById('steplineProgress');
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
+    const contentTitle = document.getElementById('contentTitle');
+    const contentText = document.getElementById('contentText');
+    const currentStepNum = document.getElementById('currentStepNum');
+    const totalSteps = document.getElementById('totalSteps');
+
+    let currentStep = 0;
+    const totalStepsCount = steps.length;
+
+    const stepContent = [
+      { title: "Step 1: Enter Details", text: "Fill in your basic information to get started with the setup process." },
+      { title: "Step 2: Account Setup", text: "Create your account credentials and set up your profile preferences." },
+      { title: "Step 3: Payment Info", text: "Add your payment method. All transactions are secure and encrypted." },
+      { title: "Step 4: Confirm", text: "Review all your information before finalizing the setup." },
+      { title: "Step 5: Complete! 🎉", text: "You're all set! Welcome to the team. You can now access all features." }
+    ];
+
+    totalSteps.textContent = totalStepsCount;
+
+    function updateStepper() {
+      // Update step states
+      steps.forEach((step, index) => {
+        step.classList.remove('active', 'completed');
+        
+        if (index < currentStep) {
+          step.classList.add('completed');
+          step.querySelector('.step-circle').innerHTML = '✓';
+        } else if (index === currentStep) {
+          step.classList.add('active');
+          step.querySelector('.step-circle').innerHTML = stepContent[index].title.includes('📝') ? '📝' : 
+                                                         stepContent[index].title.includes('👤') ? '👤' :
+                                                         stepContent[index].title.includes('💳') ? '💳' :
+                                                         stepContent[index].title.includes('✅') ? '✅' : '🎉';
+        } else {
+          const icons = ['📝', '👤', '💳', '✅', '🎉'];
+          step.querySelector('.step-circle').innerHTML = icons[index] || index + 1;
+        }
+      });
+
+      // Update progress line
+      const progressPercent = currentStep === 0 ? 0 : (currentStep / (totalStepsCount - 1)) * 100;
+      steplineProgress.style.width = `${progressPercent}%`;
+
+      // Update buttons
+      btnPrev.disabled = currentStep === 0;
+      btnNext.disabled = currentStep === totalStepsCount - 1;
+      btnNext.textContent = currentStep === totalStepsCount - 1 ? 'Finish ✓' : 'Next →';
+
+      // Update content
+      contentTitle.textContent = stepContent[currentStep].title;
+      contentText.textContent = stepContent[currentStep].text;
+
+      // Update indicator
+      currentStepNum.textContent = currentStep + 1;
+    }
+
+    function nextStep() {
+      if (currentStep < totalStepsCount - 1) {
+        currentStep++;
+        updateStepper();
+      }
+    }
+
+    function prevStep() {
+      if (currentStep > 0) {
+        currentStep--;
+        updateStepper();
+      }
+    }
+
+    function resetStepper() {
+      currentStep = 0;
+      updateStepper();
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        nextStep();
+      } else if (e.key === 'ArrowLeft') {
+        prevStep();
+      }
+    });
+
+    // Initialize
+    updateStepper();
+  </script>
+</body>
+</html>

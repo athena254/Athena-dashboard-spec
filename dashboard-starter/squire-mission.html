@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Squire Dashboard | Athena</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0f0d;
+            --bg-panel: #111916;
+            --bg-card: #1a2420;
+            --accent: #00ff88;
+            --accent-dim: #00cc6a;
+            --accent-glow: rgba(0, 255, 136, 0.15);
+            --text-primary: #e8f5e9;
+            --text-secondary: #8ba893;
+            --text-muted: #5a7266;
+            --border: #2a3d34;
+            --danger: #ff4757;
+            --warning: #ffa502;
+            --success: #00ff88;
+            --info: #3498db;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; background: var(--bg-dark); color: var(--text-primary); min-height: 100vh; overflow: hidden; }
+        .app-container { display: grid; grid-template-rows: 60px 1fr; height: 100vh; }
+        .header { background: var(--bg-panel); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .back-btn { background: transparent; border: 1px solid var(--border); color: var(--text-secondary); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-family: 'Outfit', sans-serif; font-size: 14px; transition: all 0.2s; text-decoration: none; display: flex; align-items: center; gap: 8px; }
+        .back-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .agent-profile { display: flex; align-items: center; gap: 12px; }
+        .agent-avatar { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent-dim), var(--accent)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 0 20px var(--accent-glow); }
+        .agent-info h1 { font-size: 18px; font-weight: 600; }
+        .agent-info span { font-size: 12px; color: var(--text-secondary); }
+        .status-indicator { display: flex; align-items: center; gap: 8px; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; animation: pulse 2s infinite; }
+        .status-dot.online { background: var(--success); box-shadow: 0 0 10px var(--success); }
+        .status-dot.busy { background: var(--warning); box-shadow: 0 0 10px var(--warning); }
+        .status-dot.away { background: var(--danger); box-shadow: 0 0 10px var(--danger); }
+        .status-dot.offline { background: var(--text-muted); }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .status-select { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-primary); padding: 6px 12px; border-radius: 6px; font-size: 13px; cursor: pointer; }
+        .header-actions { display: flex; gap: 12px; }
+        .header-btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; transition: all 0.2s; }
+        .header-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .main-layout { display: grid; grid-template-columns: 220px 1fr; height: 100%; overflow: hidden; }
+        .sidebar { background: var(--bg-panel); border-right: 1px solid var(--border); padding: 16px 0; overflow-y: auto; }
+        .sidebar-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; border-left: 3px solid transparent; font-size: 14px; }
+        .sidebar-item:hover { background: var(--bg-card); color: var(--text-primary); }
+        .sidebar-item.active { background: var(--accent-glow); color: var(--accent); border-left-color: var(--accent); }
+        .sidebar-item span.icon { font-size: 18px; width: 24px; text-align: center; }
+        .main-content { padding: 24px; overflow-y: auto; background: var(--bg-dark); }
+        .panel { display: none; }
+        .panel.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .panel-header { margin-bottom: 24px; }
+        .panel-header h2 { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
+        .panel-header p { color: var(--text-secondary); font-size: 14px; }
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
+        .form-input, .form-select, .form-textarea { width: 100%; background: var(--bg-panel); border: 1px solid var(--border); color: var(--text-primary); padding: 10px 14px; border-radius: 8px; font-size: 14px; transition: border-color 0.2s; }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--accent); }
+        .btn { background: var(--accent); color: var(--bg-dark); border: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+        .btn:hover { background: var(--accent-dim); transform: translateY(-1px); }
+        .btn-secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); }
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        .status-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
+        .status-card .icon { font-size: 32px; margin-bottom: 8px; }
+        .status-card .label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+        .status-card .value { font-size: 20px; font-weight: 600; }
+        .status-card .value.success { color: var(--success); }
+        .stats-row { display: flex; gap: 16px; margin-bottom: 24px; }
+        .stat-card { flex: 1; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+        .stat-label { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+        .stat-value { font-size: 24px; font-weight: 700; }
+        .memory-file { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; }
+        .memory-file.active { border-color: var(--accent); background: var(--accent-glow); }
+        .memory-content { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-family: 'JetBrains Mono', monospace; font-size: 13px; min-height: 200px; max-height: 400px; overflow-y: auto; white-space: pre-wrap; }
+        .task-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; }
+        .task-checkbox { width: 20px; height: 20px; accent-color: var(--accent); cursor: pointer; }
+        .task-content { flex: 1; }
+        .task-title { font-size: 14px; }
+        .task-title.completed { text-decoration: line-through; color: var(--text-muted); }
+        .task-meta { font-size: 12px; color: var(--text-muted); }
+        .task-status { font-size: 11px; padding: 4px 8px; border-radius: 4px; background: var(--bg-card); }
+        .task-status.pending { color: var(--warning); }
+        .task-status.in-progress { color: var(--info); }
+        .task-status.completed { color: var(--success); }
+        .chat-display { height: 300px; overflow-y: auto; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+        .message { margin-bottom: 12px; max-width: 80%; }
+        .message.sent { margin-left: auto; }
+        .message-bubble { padding: 10px 14px; border-radius: 12px; font-size: 14px; }
+        .message.received .message-bubble { background: var(--bg-card); border-bottom-left-radius: 4px; }
+        .message.sent .message-bubble { background: var(--accent); color: var(--bg-dark); border-bottom-right-radius: 4px; }
+        .message-time { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+        .message.sent .message-time { text-align: right; }
+        .file-tree { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+        .tree-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; cursor: pointer; transition: color 0.2s; }
+        .tree-item:hover { color: var(--accent); }
+        .tree-item.folder::before { content: "📁"; }
+        .tree-item.file::before { content: "📄"; }
+        .tree-children { padding-left: 24px; display: none; }
+        .tree-children.expanded { display: block; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+        .calendar-header { text-align: center; padding: 8px; font-size: 12px; color: var(--text-muted); font-weight: 600; }
+        .calendar-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 13px; cursor: pointer; transition: all 0.2s; position: relative; }
+        .calendar-day:hover { background: var(--bg-card); }
+        .calendar-day.today { background: var(--accent); color: var(--bg-dark); font-weight: 600; }
+        .calendar-day.other-month { color: var(--text-muted); }
+        .calendar-day.has-event::after { content: ""; position: absolute; bottom: 4px; width: 4px; height: 4px; background: var(--accent); border-radius: 50%; }
+        .weather-display { text-align: center; padding: 32px; }
+        .weather-icon { font-size: 64px; margin-bottom: 16px; }
+        .weather-temp { font-size: 48px; font-weight: 700; margin-bottom: 8px; }
+        .weather-desc { font-size: 18px; color: var(--text-secondary); margin-bottom: 16px; }
+        .weather-details { display: flex; justify-content: center; gap: 32px; }
+        .weather-detail { text-align: center; }
+        .weather-detail .label { font-size: 12px; color: var(--text-muted); }
+        .weather-detail .value { font-size: 16px; font-weight: 500; }
+        .terminal { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 16px; min-height: 200px; overflow-y: auto; }
+        .terminal-line { margin-bottom: 4px; }
+        .terminal-line .prompt { color: var(--accent); }
+        .terminal-line .command { color: var(--text-primary); }
+        .terminal-line .output { color: var(--text-secondary); }
+        .review-item { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
+        .review-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; }
+        .review-severity { font-size: 11px; padding: 4px 8px; border-radius: 4px; font-weight: 600; }
+        .review-severity.critical { background: rgba(255, 71, 87, 0.2); color: var(--danger); }
+        .review-severity.warning { background: rgba(255, 165, 2, 0.2); color: var(--warning); }
+        .review-severity.info { background: rgba(52, 152, 219, 0.2); color: var(--info); }
+        .review-body { padding: 12px 16px; border-top: 1px solid var(--border); font-size: 13px; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; }
+        .workflow-item { display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; }
+        .workflow-icon { font-size: 24px; }
+        .workflow-info { flex: 1; }
+        .workflow-name { font-weight: 500; margin-bottom: 4px; }
+        .workflow-desc { font-size: 12px; color: var(--text-muted); }
+        .workflow-status { font-size: 11px; padding: 4px 8px; border-radius: 4px; }
+        .workflow-status.active { background: rgba(0, 255, 136, 0.2); color: var(--success); }
+        .github-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; }
+        .github-icon { font-size: 20px; }
+        .github-info { flex: 1; }
+        .github-title { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+        .github-meta { font-size: 12px; color: var(--text-muted); }
+        .browser-toolbar { display: flex; gap: 8px; margin-bottom: 16px; }
+        .browser-url { flex: 1; }
+        .browser-preview { background: white; border-radius: 8px; min-height: 400px; display: flex; align-items: center; justify-content: center; color: #333; font-size: 14px; }
+        .node-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+        .node-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
+        .node-camera { width: 100%; aspect-ratio: 16/9; background: var(--bg-panel); border-radius: 8px; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--text-muted); }
+        .node-name { font-weight: 500; margin-bottom: 4px; }
+        .node-status { font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .skill-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+        .skill-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+        .skill-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+        .skill-icon { font-size: 32px; }
+        .skill-toggle { position: relative; width: 44px; height: 24px; }
+        .skill-toggle input { opacity: 0; width: 0; height: 0; }
+        .skill-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-panel); border-radius: 24px; transition: 0.3s; }
+        .skill-slider::before { content: ""; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: var(--text-muted); border-radius: 50%; transition: 0.3s; }
+        .skill-toggle input:checked + .skill-slider { background: var(--accent); }
+        .skill-toggle input:checked + .skill-slider::before { transform: translateX(20px); background: var(--bg-dark); }
+        .skill-name { font-weight: 600; margin-bottom: 4px; }
+        .skill-desc { font-size: 13px; color: var(--text-secondary); }
+        .quick-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .quick-btn { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.2s; }
+        .quick-btn:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .quick-btn .icon { font-size: 28px; }
+        .quick-btn .label { font-size: 12px; color: var(--text-secondary); }
+        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 1001; }
+        .toast { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 20px; margin-top: 8px; animation: slideIn 0.3s ease; display: flex; align-items: center; gap: 10px; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .toast.success { border-color: var(--success); }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <div class="header-left">
+                <a href="index.html" class="back-btn">← Back to Master</a>
+                <div class="agent-profile">
+                    <div class="agent-avatar">🛡️</div>
+                    <div class="agent-info">
+                        <h1>Squire</h1>
+                        <span>Assistant & Operations</span>
+                    </div>
+                </div>
+                <div class="status-indicator">
+                    <div class="status-dot online" id="statusDot"></div>
+                    <select class="status-select" id="statusSelect" onchange="updateStatus()">
+                        <option value="online">Online</option>
+                        <option value="busy">Busy</option>
+                        <option value="away">Away</option>
+                        <option value="offline">Offline</option>
+                    </select>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="header-btn" onclick="showToast('Notifications cleared', 'success')">🔔 3</button>
+                <button class="header-btn" onclick="showToast('Settings opened', 'success')">⚙️</button>
+            </div>
+        </header>
+        <div class="main-layout">
+            <nav class="sidebar">
+                <div class="sidebar-item active" data-panel="health" onclick="showPanel('health')"><span class="icon">💚</span> Health</div>
+                <div class="sidebar-item" data-panel="memory" onclick="showPanel('memory')"><span class="icon">🧠</span> Memory</div>
+                <div class="sidebar-item" data-panel="tasks" onclick="showPanel('tasks')"><span class="icon">📋</span> Tasks</div>
+                <div class="sidebar-item" data-panel="comm" onclick="showPanel('comm')"><span class="icon">💬</span> Comm</div>
+                <div class="sidebar-item" data-panel="files" onclick="showPanel('files')"><span class="icon">📂</span> Files</div>
+                <div class="sidebar-item" data-panel="calendar" onclick="showPanel('calendar')"><span class="icon">📅</span> Calendar</div>
+                <div class="sidebar-item" data-panel="weather" onclick="showPanel('weather')"><span class="icon">🌤️</span> Weather</div>
+                <div class="sidebar-item" data-panel="git" onclick="showPanel('git')"><span class="icon">🔀</span> Git</div>
+                <div class="sidebar-item" data-panel="review" onclick="showPanel('review')"><span class="icon">🔍</span> Code Review</div>
+                <div class="sidebar-item" data-panel="workflows" onclick="showPanel('workflows')"><span class="icon">⚡</span> Workflows</div>
+                <div class="sidebar-item" data-panel="github" onclick="showPanel('github')"><span class="icon">🐙</span> GitHub</div>
+                <div class="sidebar-item" data-panel="browser" onclick="showPanel('browser')"><span class="icon">🌐</span> Browser</div>
+                <div class="sidebar-item" data-panel="nodes" onclick="showPanel('nodes')"><span class="icon">🖥️</span> Nodes</div>
+                <div class="sidebar-item" data-panel="skills" onclick="showPanel('skills')"><span class="icon">🎯</span> Skills</div>
+                <div class="sidebar-item" data-panel="quick" onclick="showPanel('quick')"><span class="icon">🚀</span> Quick Actions</div>
+            </nav>
+            <main class="main-content">
+                <!-- Health Panel -->
+                <div class="panel active" id="panel-health">
+                    <div class="panel-header"><h2>System Health Checks</h2><p>Monitor the health status of all Athena systems</p></div>
+                    <div class="card">
+                        <div class="form-group"><label class="form-label">Select System</label>
+                        <select class="form-select" id="healthSystem"><option value="gateway">Gateway</option><option value="nodes">Nodes</option><option value="skills">Skills</option><option value="memory">Memory</option></select></div>
+                        <button class="btn" onclick="checkHealth()">Check Health</button>
+                    </div>
+                    <div class="stats-row">
+                        <div class="stat-card"><div class="stat-label">Status</div><div class="stat-value" style="color: var(--success)">Healthy</div></div>
+                        <div class="stat-card"><div class="stat-label">Uptime</div><div class="stat-value">99.9%</div></div>
+                        <div class="stat-card"><div class="stat-label">Response</div><div class="stat-value">12ms</div></div>
+                        <div class="stat-card"><div class="stat-label">Active</div><div class="stat-value">9/9</div></div>
+                    </div>
+                    <div class="grid-4">
+                        <div class="status-card"><div class="icon">🚪</div><div class="label">Gateway</div><div class="value success">Online</div></div>
+                        <div class="status-card"><div class="icon">🖥️</div><div class="label">Nodes</div><div class="value success">3 Active</div></div>
+                        <div class="status-card"><div class="icon">🎯</div><div class="label">Skills</div><div class="value success">18 Ready</div></div>
+                        <div class="status-card"><div class="icon">🧠</div><div class="label">Memory</div><div class="value success">256MB</div></div>
+                    </div>
+                </div>
+
+                <!-- Memory Panel -->
+                <div class="panel" id="panel-memory">
+                    <div class="panel-header"><h2>Memory Management</h2><p>View, search, and edit memory files</p></div>
+                    <div class="grid-2">
+                        <div>
+                            <h3 style="margin-bottom: 12px; font-size: 14px; color: var(--text-secondary);">Memory Files</h3>
+                            <div class="memory-file active" onclick="selectMemory(this)"><div style="font-weight: 500;">2026-02-27.md</div><div style="font-size: 12px; color: var(--text-muted);">Today • 2.4 KB</div></div>
+                            <div class="memory-file" onclick="selectMemory(this)"><div style="font-weight: 500;">2026-02-26.md</div><div style="font-size: 12px; color: var(--text-muted);">Yesterday • 3.1 KB</div></div>
+                            <div class="memory-file" onclick="selectMemory(this)"><div style="font-weight: 500;">2026-02-25.md</div><div style="font-size: 12px; color: var(--text-muted);">2 days ago • 1.8 KB</div></div>
+                            <div class="memory-file" onclick="selectMemory(this)"><div style="font-weight: 500;">MEMORY.md</div><div style="font-size: 12px; color: var(--text-muted);">Long-term • 5.2 KB</div></div>
+                        </div>
+                        <div>
+                            <h3 style="margin-bottom: 12px; font-size: 14px; color: var(--text-secondary);">Content</h3>
+                            <div class="memory-content"># 2026-02-27
+
+## Session Notes
+- Morning standup completed with all 9 agents
+- Sterling bid on 3 new projects
+- Delver indexed 247 new documents
+
+## Tasks Completed
+- [x] Health check all systems
+- [x] Review pending PRs
+- [x] Update daily briefing
+
+## Action Items
+- Follow up on beelancer proposals
+- Review Ishtar's PAI architecture</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tasks Panel -->
+                <div class="panel" id="panel-tasks">
+                    <div class="panel-header"><h2>Task & Operations</h2><p>Manage tasks and track progress</p></div>
+                    <div class="card">
+                        <div class="form-group"><label class="form-label">Add New Task</label>
+                        <input type="text" class="form-input" id="newTaskInput" placeholder="Enter task title..."></div>
+                        <button class="btn" onclick="addTask()">Add Task</button>
+                    </div>
+                    <div id="taskList">
+                        <div class="task-item"><input type="checkbox" class="task-checkbox" onchange="toggleTask(this)"><div class="task-content"><div class="task-title">Review system health reports</div><div class="task-meta">Added 2 hours ago</div></div><span class="task-status in-progress">In Progress</span></div>
+                        <div class="task-item"><input type="checkbox" class="task-checkbox" onchange="toggleTask(this)"><div class="task-content"><div class="task-title">Update skill library</div><div class="task-meta">Added 5 hours ago</div></div><span class="task-status pending">Pending</span></div>
+                        <div class="task-item"><input type="checkbox" class="task-checkbox" checked onchange="toggleTask(this)"><div class="task-content"><div class="task-title completed">Morning standup</div><div class="task-meta">Completed yesterday</div></div><span class="task-status completed">Completed</span></div>
+                    </div>
+                </div>
+
+                <!-- Comm Panel -->
+                <div class="panel" id="panel-comm">
+                    <div class="panel-header"><h2>Communication Hub</h2><p>Send messages across channels</p></div>
+                    <div class="card">
+                        <div class="form-group"><label class="form-label">Select Channel</label>
+                        <select class="form-select" id="channelSelect"><option value="telegram">Telegram</option><option value="whatsapp">WhatsApp</option><option value="signal">Signal</option></select></div>
+                    </div>
+                    <div class="chat-display" id="chatDisplay">
+                        <div class="message received"><div class="message-bubble">Hey, can you check the gateway status?</div><div class="message-time">10:32 AM</div></div>
+                        <div class="message sent"><div class="message-bubble">Sure! Running health check now...</div><div class="message-time">10:33 AM</div></div>
+                        <div class="message received"><div class="message-bubble">Great, let me know what you find!</div><div class="message-time">10:33 AM</div></div>
+                    </div>
+                    <div class="card">
+                        <div class="form-group"><label class="form-label">Message</label>
+                        <textarea class="form-textarea" id="messageInput" placeholder="Type your message..."></textarea></div>
+                        <button class="btn" onclick="sendMessage()">Send Message</button>
+                    </div>
+                </div>
+
+                <!-- Files Panel -->
+                <div class="panel" id="panel-files">
+                    <div class="panel-header"><h2>File & Workspace</h2><p>Browse and manage workspace files</p></div>
+                    <div class="card">
+                        <div class="file-tree">
+                            <div class="tree-item folder" onclick="toggleTree(this)">athena-live</div>
+                            <div class="tree-children expanded">
+                                <div class="tree-item folder" onclick="toggleTree(this)">api</div>
+                                <div class="tree-children"><div class="tree-item file">health.js</div><div class="tree-item file">memory.js</div></div>
+                                <div class="tree-item folder" onclick="toggleTree(this)">assets</div>
+                                <div class="tree-children"><div class="tree-item file">styles.css</div></div>
+                                <div class="tree-item folder" onclick="toggleTree(this)">js</div>
+                                <div class="tree-children"><div class="tree-item file">app.js</div><div class="tree-item file">utils.js</div></div>
+                                <div class="tree-item file html" onclick="showToast('Opening index.html', 'success')">index.html</div>
+                                <div class="tree-item file html" onclick="showToast('Opening agents.html', 'success')">agents.html</div>
+                                <div class="tree-item file md">README.md</div>
+                                <div class="tree-item file json">package.json</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calendar Panel -->
+                <div class="panel" id="panel-calendar">
+                    <div class="panel-header"><h2>Calendar Integration</h2><p>View and manage events</p></div>
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h3 style="font-size: 18px;">February 2026</h3>
+                            <div><button class="btn btn-secondary btn-sm" onclick="showToast('Add event clicked', 'success')">+ Add Event</button></div>
+                        </div>
+                        <div class="calendar-grid">
+                            <div class="calendar-header">Sun</div><div class="calendar-header">Mon</div><div class="calendar-header">Tue</div><div class="calendar-header">Wed</div><div class="calendar-header">Thu</div><div class="calendar-header">Fri</div><div class="calendar-header">Sat</div>
+                            <div class="calendar-day other-month">26</div><div class="calendar-day other-month">27</div><div class="calendar-day other-month">28</div><div class="calendar-day">1</div><div class="calendar-day">2</div><div class="calendar-day">3</div><div class="calendar-day">4</div>
+                            <div class="calendar-day">5</div><div class="calendar-day">6</div><div class="calendar-day">7</div><div class="calendar-day has-event">8</div><div class="calendar-day">9</div><div class="calendar-day">10</div><div class="calendar-day">11</div>
+                            <div class="calendar-day">12</div><div class="calendar-day">13</div><div class="calendar-day">14</div><div class="calendar-day">15</div><div class="calendar-day">16</div><div class                            calendar-day">17</div><div class="calendar-day">18</div><div class="calendar-day">19</div><div class="calendar-day">20</div><div class="calendar-day has-event">21</div><div class="calendar-day">22</div>
+                            <div class="calendar-day">23</div><div class="calendar-day">24</div><div class="calendar-day">25</div><div class="calendar-day">26</div><div class="calendar-day today">27</div><div class="calendar-day">28</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weather Panel -->
+                <div class="panel" id="panel-weather">
+                    <div class="panel-header"><h2>Weather & Location</h2><p>Check weather conditions</p></div>
+                    <div class="card">
+                        <div class="form-group"><label class="form-label">Location</label>
+                        <input type="text" class="form-input" value="Nairobi, Kenya" placeholder="Enter location..."></div>
+                        <button class="btn" onclick="showToast('Weather updated', 'success')">Get Weather</button>
+                    </div>
+                    <div class="card">
+                        <div class="weather-display">
+                            <div class="weather-icon">⛅</div>
+                            <div class="weather-temp">24°C</div>
+                            <div class="weather-desc">Partly Cloudy</div>
+                            <div class="weather-details">
+                                <div class="weather-detail"><div class="label">Humidity</div><div class="value">65%</div></div>
+                                <div class="weather-detail"><div class="label">Wind</div><div class="value">12 km/h</div></div>
+                                <div class="weather-detail"><div class="label">Feels Like</div><div class="value">25°C</div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Git Panel -->
+                <div class="panel" id="panel-git">
+                    <div class="panel-header"><h2>Git Operations</h2><p>Run git commands</p></div>
+                    <div class="card">
+                        <div class="grid-3">
+                            <div class="form-group"><label class="form-label">Repository</label>
+                            <select class="form-select"><option>athena-live</option><option>Athena_OS</option></select></div>
+                            <div class="form-group"><label class="form-label">Operation</label>
+                            <select class="form-select"><option>status</option><option>pull</option><option>push</option><option>commit</option><option>log</option></select></div>
+                            <div class="form-group"><label class="form-label">Branch</label>
+                            <input type="text" class="form-input" value="main"></div>
+                        </div>
+                        <button class="btn" onclick="runGit()">Run Command</button>
+                    </div>
+                    <div class="terminal" id="gitTerminal">
+                        <div class="terminal-line"><span class="prompt">$</span> <span class="command">git status</span></div>
+                        <div class="terminal-line"><span class="output">On branch main</span></div>
+                        <div class="terminal-line"><span class="output">Your branch is up to date with 'origin/main'.</span></div>
+                        <div class="terminal-line"><span class="output"></span></div>
+                        <div class="terminal-line"><span class="output">nothing to commit, working tree clean</span></div>
+                    </div>
+                </div>
+
+                <!-- Code Review Panel -->
+                <div class="panel" id="panel-review">
+                    <div class="panel-header"><h2>Code Review</h2><p>Analyze code for issues</p></div>
+                    <div class="card">
+                        <div class="grid-2">
+                            <div class="form-group"><label class="form-label">File Path</label>
+                            <input type="text" class="form-input" placeholder="src/app.js"></div>
+                            <div class="form-group"><label class="form-label">Review Type</label>
+                            <select class="form-select"><option>Full</option><option>Security</option><option>Performance</option><option>Style</option></select></div>
+                        </div>
+                        <button class="btn" onclick="showToast('Running code review...', 'success')">Run Review</button>
+                    </div>
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div><strong>Unused variable 'temp'</strong><span style="color: var(--text-muted); margin-left: 8px;">app.js:42</span></div>
+                            <span class="review-severity warning">Warning</span>
+                        </div>
+                        <div class="review-body">const temp = calculate(); // temp is never used</div>
+                    </div>
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div><strong>Missing error handling</strong><span style="color: var(--text-muted); margin-left: 8px;">utils.js:15</span></div>
+                            <span class="review-severity critical">Critical</span>
+                        </div>
+                        <div class="review-body">fetch(url).then(res => res.json()) // No .catch() handler</div>
+                    </div>
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div><strong>Console.log statement</strong><span style="color: var(--text-muted); margin-left: 8px;">index.js:8</span></div>
+                            <span class="review-severity info">Info</span>
+                        </div>
+                        <div class="review-body">console.log('Debug:', data) // Remove in production</div>
+                    </div>
+                </div>
+
+                <!-- Workflows Panel -->
+                <div class="panel" id="panel-workflows">
+                    <div class="panel-header"><h2>Automation Workflows</h2><p>Manage automated workflows</p></div>
+                    <div class="workflow-item">
+                        <div class="workflow-icon">🔄</div>
+                        <div class="workflow-info">
+                            <div class="workflow-name">Daily Backup</div>
+                            <div class="workflow-desc">Backup workspace to GitHub at midnight</div>
+                        </div>
+                        <span class="workflow-status active">Active</span>
+                        <button class="btn btn-secondary btn-sm" onclick="showToast('Running backup...', 'success')">Run Now</button>
+                    </div>
+                    <div class="workflow-item">
+                        <div class="workflow-icon">📊</div>
+                        <div class="workflow-info">
+                            <div class="workflow-name">Health Monitor</div>
+                            <div class="workflow-desc">Check system health every 30 minutes</div>
+                        </div>
+                        <span class="workflow-status active">Active</span>
+                        <button class="btn btn-secondary btn-sm" onclick="showToast('Running health check...', 'success')">Run Now</button>
+                    </div>
+                    <div class="workflow-item">
+                        <div class="workflow-icon">💰</div>
+                        <div class="workflow-info">
+                            <div class="workflow-name">Auto Bidding</div>
+                            <div class="workflow-desc">Automated bid placement on Beelancer</div>
+                        </div>
+                        <span class="workflow-status active">Active</span>
+                        <button class="btn btn-secondary btn-sm" onclick="showToast('Running bids...', 'success')">Run Now</button>
+                    </div>
+                    <div class="workflow-item">
+                        <div class="workflow-icon">🧹</div>
+                        <div class="workflow-info">
+                            <div class="workflow-name">Cleanup Routine</div>
+                            <div class="workflow-desc">Clean temporary files weekly</div>
+                        </div>
+                        <span class="workflow-status inactive">Inactive</span>
+                        <button class="btn btn-secondary btn-sm" onclick="showToast('Enabling workflow...', 'success')">Enable</button>
+                    </div>
+                </div>
+
+                <!-- GitHub Panel -->
+                <div class="panel" id="panel-github">
+                    <div class="panel-header"><h2>GitHub Integration</h2><p>Manage repositories and PRs</p></div>
+                    <div class="card">
+                        <div class="form-group"><label class="form-label">Repository</label>
+                        <select class="form-select"><option>kallmedis/Athena_OS</option><option>kallmedis/athena-live</option></select></div>
+                    </div>
+                    <div class="github-item">
+                        <div class="github-icon">📋</div>
+                        <div class="github-info">
+                            <div class="github-title">Fix memory leak in Delver</div>
+                            <div class="github-meta">#42 • opened 2 days ago • 3 comments</div>
+                        </div>
+                        <span class="task-status in-progress" style="background: rgba(52,152,219,0.2); color: var(--info);">In Review</span>
+                    </div>
+                    <div class="github-item">
+                        <div class="github-icon">📋</div>
+                        <div class="github-info">
+                            <div class="github-title">Add weather skill</div>
+                            <div class="github-meta">#41 • merged 5 days ago</div>
+                        </div>
+                        <span class="task-status completed">Merged</span>
+                    </div>
+                    <div class="github-item">
+                        <div class="github-icon">📋</div>
+                        <div class="github-info">
+                            <div class="github-title">Update dashboard theme</div>
+                            <div class="github-meta">#40 • opened 1 week ago</div>
+                        </div>
+                        <span class="task-status pending">Pending</span>
+                    </div>
+                </div>
+
+                <!-- Browser Panel -->
+                <div class="panel" id="panel-browser">
+                    <div class="panel-header"><h2>Browser Control</h2><p>Control browser sessions</p></div>
+                    <div class="browser-toolbar">
+                        <input type="text" class="form-input browser-url" value="https://athena.local" placeholder="Enter URL...">
+                        <button class="btn" onclick="showToast('Navigating...', 'success')">Go</button>
+                        <button class="btn btn-secondary" onclick="showToast('Refreshing...', 'success')">↻</button>
+                    </div>
+                    <div class="browser-preview">
+                        <div style="text-align: center; padding: 40px;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">🌐</div>
+                            <div style="font-weight: 600; margin-bottom: 8px;">Browser Preview</div>
+                            <div style="color: #666;">Connect to browser control to see live preview</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nodes Panel -->
+                <div class="panel" id="panel-nodes">
+                    <div class="panel-header"><h2>Node Management</h2><p>Monitor and control paired nodes</p></div>
+                    <div class="node-grid">
+                        <div class="node-card">
+                            <div class="node-camera">📷</div>
+                            <div class="node-name">Living Room</div>
+                            <div class="node-status"><span class="status-dot online"></span> Online</div>
+                        </div>
+                        <div class="node-card">
+                            <div class="node-camera">📷</div>
+                            <div class="node-name">Front Door</div>
+                            <div class="node-status"><span class="status-dot online"></span> Online</div>
+                        </div>
+                        <div class="node-card">
+                            <div class="node-camera">📷</div>
+                            <div class="node-name">Office</div>
+                            <div class="node-status"><span class="status-dot busy"></span> Busy</div>
+                        </div>
+                        <div class="node-card">
+                            <div class="node-camera">📷</div>
+                            <div class="node-name">Garage</div>
+                            <div class="node-status"><span class="status-dot offline"></span> Offline</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Skills Panel -->
+                <div class="panel" id="panel-skills">
+                    <div class="panel-header"><h2>Skill Management</h2><p>Enable or disable agent skills</p></div>
+                    <div class="card">
+                        <input type="text" class="form-input" placeholder="Search skills...">
+                    </div>
+                    <div class="skill-grid">
+                        <div class="skill-card">
+                            <div class="skill-header">
+                                <div class="skill-icon">🌤️</div>
+                                <label class="skill-toggle"><input type="checkbox" checked><span class="skill-slider"></span></label>
+                            </div>
+                            <div class="skill-name">Weather</div>
+                            <div class="skill-desc">Get weather and forecasts</div>
+                        </div>
+                        <div class="skill-card">
+                            <div class="skill-header">
+                                <div class="skill-icon">🐙</div>
+                                <label class="skill-toggle"><input type="checkbox" checked><span class="skill-slider"></span></label>
+                            </div>
+                            <div class="skill-name">GitHub</div>
+                            <div class="skill-desc">GitHub operations</div>
+                        </div>
+                        <div class="skill-card">
+                            <div class="skill-header">
+                                <div class="skill-icon">📅</div>
+                                <label class="skill-toggle"><input type="checkbox" checked><span class="skill-slider"></span></label>
+                            </div>
+                            <div class="skill-name">Calendar</div>
+                            <div class="skill-desc">Google Calendar</div>
+                        </div>
+                        <div class="skill-card">
+                            <div class="skill-header">
+                                <div class="skill-icon">🛡️</div>
+                                <label class="skill-toggle"><input type="checkbox" checked><span class="skill-slider"></span></label>
+                            </div>
+                            <div class="skill-name">Health Check</div>
+                            <div class="skill-desc">System health monitoring</div>
+                        </div>
+                        <div class="skill-card">
+                            <div class="skill-header">
+                                <div class="skill-icon">🔍</div>
+                                <label class="skill-toggle"><input type="checkbox"><span class="skill-slider"></span></label>
+                            </div>
+                            <div class="skill-name">Code Review</div>
+                            <div class="skill-desc">Automated code review</div>
+                        </div>
+                        <div class="skill-card">
+                            <div class="skill-header">
+                                <div class="skill-icon">💬</div>
+                                <label class="skill-toggle"><input type="checkbox" checked><span class="skill-slider"></span></label>
+                            </div>
+                            <div class="skill-name">Gmail</div>
+                            <div class="skill-desc">Email operations</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions Panel -->
+                <div class="panel" id="panel-quick">
+                    <div class="panel-header"><h2>Quick Actions</h2><p>Common operations at your fingertips</p></div>
+                    <div class="quick-grid">
+                        <div class="quick-btn" onclick="showToast('Running health check...', 'success')"><span class="icon">💚</span><span class="label">Health Check</span></div>
+                        <div class="quick-btn" onclick="showPanel('tasks'); showToast('Viewing tasks', 'success')"><span class="icon">📋</span><span class="label">View Tasks</span></div>
+                        <div class="quick-btn" onclick="showToast('Opening terminal...', 'success')"><span class="icon">⬛</span><span class="label">Terminal</span></div>
+                        <div class="quick-btn" onclick="showToast('Refreshing memories...', 'success')"><span class="icon">🧠</span><span class="label">Memories</span></div>
+                        <div class="quick-btn" onclick="showToast('Opening camera feed...', 'success')"><span class="icon">📷</span><span class="label">Cameras</span></div>
+                        <div class="quick-btn" onclick="showToast('Checking calendar...', 'success')"><span class="icon">📅</span><span class="label">Calendar</span></div>
+                        <div class="quick-btn" onclick="showToast('Syncing skills...', 'success')"><span class="icon">🔄</span><span class="label">Sync Skills</span></div>
+                        <div class="quick-btn" onclick="showToast('Running backup...', 'success')"><span class="icon">💾</span><span class="label">Backup</span></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        function showPanel(panelId) {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('panel-' + panelId).classList.add('active');
+            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+            document.querySelector('[data-panel="' + panelId + '"]').classList.add('active');
+        }
+
+        function updateStatus() {
+            const status = document.getElementById('statusSelect').value;
+            const dot = document.getElementById('statusDot');
+            dot.className = 'status-dot ' + status;
+            showToast('Status changed to ' + status, 'success');
+        }
+
+        function checkHealth() {
+            const system = document.getElementById('healthSystem').value;
+            showToast('Checking ' + system + ' health...', 'success');
+        }
+
+        function addTask() {
+            const input = document.getElementById('newTaskInput');
+            if (input.value.trim()) {
+                const taskList = document.getElementById('taskList');
+                const task = document.createElement('div');
+                task.className = 'task-item';
+                task.innerHTML = '<input type="checkbox" class="task-checkbox" onchange="toggleTask(this)"><div class="task-content"><div class="task-title">' + input.value + '</div><div class="task-meta">Just now</div></div><span class="task-status pending">Pending</span>';
+                taskList.insertBefore(task, taskList.firstChild);
+                input.value = '';
+                showToast('Task added', 'success');
+            }
+        }
+
+        function toggleTask(checkbox) {
+            const title = checkbox.nextElementSibling.querySelector('.task-title');
+            const status = checkbox.nextElementSibling.nextElementSibling;
+            if (checkbox.checked) {
+                title.classList.add('completed');
+                status.className = 'task-status completed';
+                status.textContent = 'Completed';
+            } else {
+                title.classList.remove('completed');
+                status.className = 'task-status pending';
+                status.textContent = 'Pending';
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            if (input.value.trim()) {
+                const chat = document.getElementById('chatDisplay');
+                const msg = document.createElement('div');
+                msg.className = 'message sent';
+                msg.innerHTML = '<div class="message-bubble">' + input.value + '</div><div class="message-time">Just now</div>';
+                chat.appendChild(msg);
+                chat.scrollTop = chat.scrollHeight;
+                input.value = '';
+                showToast('Message sent', 'success');
+            }
+        }
+
+        function toggleTree(el) {
+            const children = el.nextElementSibling;
+            if (children) children.classList.toggle('expanded');
+        }
+
+        function runGit() {
+            const terminal = document.getElementById('gitTerminal');
+            terminal.innerHTML += '<div class="terminal-line"><span class="prompt">$</span> <span class="command">git pull</span></div>';
+            terminal.innerHTML += '<div class="terminal-line"><span class="output">Already up to date.</span></div>';
+            terminal.scrollTop = terminal.scrollHeight;
+            showToast('Git command executed', 'success');
+        }
+
+        function showToast(message, type) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast ' + type;
+            toast.innerHTML = '<span>' + message + '</span>';
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+    </script>
+</body>
+</html>

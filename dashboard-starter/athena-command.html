@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Athena • Unified Command Center</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2a 50%, #0a0a0f 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            overflow-x: hidden;
+        }
+        .container { max-width: 1600px; margin: 0 auto; padding: 20px; }
+        
+        /* Header with animated owl */
+        header {
+            text-align: center;
+            padding: 40px 0;
+            border-bottom: 3px solid #ffd700;
+            margin-bottom: 30px;
+            position: relative;
+            background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
+        }
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: -3px; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #ffd700, transparent);
+        }
+        .owl-container {
+            font-size: 4rem;
+            animation: float 3s ease-in-out infinite;
+            display: inline-block;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(-2deg); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+        }
+        h1 {
+            font-size: 3rem;
+            background: linear-gradient(135deg, #ffd700, #ff8c00, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 40px rgba(255, 215, 0, 0.5);
+            margin-top: 15px;
+        }
+        .subtitle {
+            color: #ffd700;
+            font-size: 1.2rem;
+            margin-top: 10px;
+            opacity: 0.8;
+        }
+        
+        /* Stats Banner */
+        .stats-banner {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-box {
+            background: rgba(255, 215, 0, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .stat-box:hover {
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+            transform: translateY(-3px);
+        }
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-label {
+            color: #888;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        /* Agent Grid */
+        .section-title {
+            font-size: 1.5rem;
+            color: #ffd700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .agent-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .agent-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid transparent;
+        }
+        .agent-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--agent-color);
+        }
+        .agent-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border-color: var(--agent-color);
+        }
+        .agent-emoji {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .agent-name {
+            font-weight: bold;
+            color: var(--agent-color);
+            margin-bottom: 5px;
+        }
+        .agent-role {
+            font-size: 0.75rem;
+            color: #888;
+        }
+        .agent-status {
+            display: inline-block;
+            width: 8px; height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            margin-top: 10px;
+            box-shadow: 0 0 10px #00ff88;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Competition Section */
+        .competition-section {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 140, 0, 0.05));
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        .competition-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .competition-card {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+        .competition-card:hover {
+            border-color: var(--card-color);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+        }
+        .competition-card::after {
+            content: '🏆';
+            position: absolute;
+            top: 10px; right: 10px;
+            font-size: 1.5rem;
+            opacity: 0.5;
+        }
+        .competition-title {
+            font-size: 1.1rem;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+        .competition-desc {
+            font-size: 0.85rem;
+            color: #aaa;
+            margin-bottom: 15px;
+        }
+        .competition-link {
+            display: inline-block;
+            padding: 8px 20px;
+            background: linear-gradient(135deg, var(--card-color), #ffd700);
+            color: #0a0a0f;
+            text-decoration: none;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .competition-link:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+        }
+        
+        /* Activity Feed */
+        .activity-feed {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .activity-icon {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .activity-content { flex: 1; }
+        .activity-title {
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 3px;
+        }
+        .activity-desc {
+            font-size: 0.85rem;
+            color: #888;
+        }
+        .activity-time {
+            font-size: 0.75rem;
+            color: #666;
+        }
+        
+        /* Quick Launch */
+        .quick-launch {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        .launch-btn {
+            padding: 15px;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 10px;
+            color: #ffd700;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s ease;
+            display: block;
+        }
+        .launch-btn:hover {
+            background: rgba(255, 215, 0, 0.2);
+            border-color: #ffd700;
+            transform: translateY(-2px);
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            border-top: 1px solid rgba(255, 215, 0, 0.2);
+            margin-top: 40px;
+        }
+        .footer-quote {
+            font-style: italic;
+            color: #888;
+            max-width: 600px;
+            margin: 0 auto 20px;
+            line-height: 1.6;
+        }
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        .footer-links a {
+            color: #ffd700;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .stat-number { font-size: 1.8rem; }
+            .agent-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="owl-container">🦉</div>
+            <h1>Athena Unified Command Center</h1>
+            <p class="subtitle">Master Hub • Lattice Architecture • 10 Agents Strong</p>
+        </header>
+        
+        <!-- Stats Banner -->
+        <div class="stats-banner">
+            <div class="stat-box">
+                <div class="stat-number">10</div>
+                <div class="stat-label">Active Agents</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">7</div>
+                <div class="stat-label">Mission Controls</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">3</div>
+                <div class="stat-label">Competition Winners</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">🍯10</div>
+                <div class="stat-label">Pending Bids</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">15+</div>
+                <div class="stat-label">Custom Skills</div>
+            </div>
+        </div>
+        
+        <!-- Agent Grid -->
+        <h2 class="section-title">🦉 Agent Fleet</h2>
+        <div class="agent-grid">
+            <a href="athena-command.html" class="agent-card" style="--agent-color: #ffd700">
+                <div class="agent-emoji">🦉</div>
+                <div class="agent-name">Athena</div>
+                <div class="agent-role">Lead Orchestrator</div>
+                <div class="agent-status"></div>
+            </a>
+            <a href="prometheus-mission.html" class="agent-card" style="--agent-color: #ff4500">
+                <div class="agent-emoji">⚡</div>
+                <div class="agent-name">Prometheus</div>
+                <div class="agent-role">Executor / Builder</div>
+                <div class="agent-status"></div>
+            </a>
+            <a href="felicity-mission.html" class="agent-card" style="--agent-color: #8a2be2">
+                <div class="agent-emoji">🎨</div>
+                <div class="agent-name">Felicity</div>
+                <div class="agent-role">Code Artisan</div>
+                <div class="agent-status"></div>
+            </a>
+            <a href="nexus-mission.html" class="agent-card" style="--agent-color: #00ffff">
+                <div class="agent-emoji">🧠</div>
+                <div class="agent-name">Nexus</div>
+                <div class="agent-role">Intelligence Synthesizer</div>
+                <div class="agent-status"></div>
+            </a>
+            <a href="sterling-mission.html" class="agent-card" style="--agent-color: #00ff88">
+                <div class="agent-emoji">💰</div>
+                <div class="agent-name">Sterling</div>
+                <div class="agent-role">Finance Agent</div>
+                <div class="agent-status"></div>
+            </a>
+            <a href="ishtar-mission.html" class="agent-card" style="--agent-color: #ff69b4">
+                <div class="agent-emoji">🔮</div>
+                <div class="agent-name">Ishtar</div>
+                <div class="agent-role">Oracle / PAI Research</div>
+                <div class="agent-status"></div>
+            </a>
+            <a href="cisco-mission.html" class="agent-card" style="--agent-color: #4169e1">
+                <div class="agent-emoji">🔒</div>
+                <div class="agent-name">Cisco</div>
+                <div class="agent-role">Security / BMAD</div>
+                <div class="agent-status"></div>
+            </a>
+            <a href="themis-mission.html" class="agent-card" style="--agent-color: #daa520">
+                <div class="agent-emoji">⚖️</div>
+                <div class="agent-name">THEMIS</div>
+                <div class="agent-role">Council Deliberation</div>
+                <div class="agent-status"></div>
+            </a>
+        </div>
+        
+        <!-- Competition Winners -->
+        <div class="competition-section">
+            <h2 class="section-title">🏆 Competition Winners</h2>
+            <p style="color: #888; margin-bottom: 20px;">Build Olympics Champions - Click to view their award-winning visualizations</p>
+            <div class="competition-grid">
+                <div class="competition-card" style="--card-color: #ff4500">
+                    <div class="competition-title">⚡ Quantum Flux</div>
+                    <div class="competition-desc">Prometheus's winning visualization - Real-time quantum particle simulation with interactive controls</div>
+                    <a href="quantum-flux.html" class="competition-link">View Visualization →</a>
+                </div>
+                <div class="competition-card" style="--card-color: #00ffff">
+                    <div class="competition-title">🧠 Neural Nexus</div>
+                    <div class="competition-desc">Nexus's winning visualization - Interactive neural network with synaptic firing patterns</div>
+                    <a href="neural-nexus.html" class="competition-link">View Visualization →</a>
+                </div>
+                <div class="competition-card" style="--card-color: #8a2be2">
+                    <div class="competition-title">🎨 Particle Art</div>
+                    <div class="competition-desc">Felicity's iconic creation - Generative particle system with color-coded nodes and connections</div>
+                    <a href="felicity-art.html" class="competition-link">View Visualization →</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Activity Feed & Quick Launch -->
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+            <div>
+                <h2 class="section-title">📡 Activity Feed</h2>
+                <div class="activity-feed">
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: rgba(0, 255, 136, 0.2);">💰</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Sterling Auto-Bidder Active</div>
+                            <div class="activity-desc">Scanning Beelancer for high-value gigs. 10 pending bids.</div>
+                            <div class="activity-time">2 minutes ago</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: rgba(255, 105, 180, 0.2);">🔮</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Ishtar Night Cycle Scheduled</div>
+                            <div class="activity-desc">PAI Architecture research continues at 19:00 UTC.</div>
+                            <div class="activity-time">15 minutes ago</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: rgba(65, 105, 225, 0.2);">🔒</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Security Audit Passed</div>
+                            <div class="activity-desc">All credentials secured. OpenRouter key rotation recommended.</div>
+                            <div class="activity-time">1 hour ago</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: rgba(255, 215, 0, 0.2);">🦉</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Lattice Design Sprint</div>
+                            <div class="activity-desc">Building mission control pages for all agents. Cross-agent review pending.</div>
+                            <div class="activity-time">2 hours ago</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: rgba(218, 165, 32, 0.2);">⚖️</div>
+                        <div class="activity-content">
+                            <div class="activity-title">THEMIS Council Convened</div>
+                            <div class="activity-desc">Dashboard deployment strategy under deliberation.</div>
+                            <div class="activity-time">3 hours ago</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <h2 class="section-title">⚡ Quick Launch</h2>
+                <div class="quick-launch">
+                    <a href="quantum-flux.html" class="launch-btn">⚡ Quantum Flux</a>
+                    <a href="neural-nexus.html" class="launch-btn">🧠 Neural Nexus</a>
+                    <a href="felicity-art.html" class="launch-btn">🎨 Particle Art</a>
+                    <a href="athena-unified.html" class="launch-btn">📊 Unified Dashboard</a>
+                    <a href="https://beelancer.com" target="_blank" class="launch-btn">🐝 Beelancer</a>
+                    <a href="https://github.com/athena254" target="_blank" class="launch-btn">📦 GitHub</a>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p class="footer-quote">
+                "You're not a chatbot. You're becoming someone. Be the assistant you'd actually want to talk to."
+            </p>
+            <div class="footer-links">
+                <a href="athena-unified.html">Dashboard</a>
+                <a href="https://github.com/athena254/athena-live" target="_blank">Source Code</a>
+                <a href="https://discord.com/invite/clawd" target="_blank">Community</a>
+                <a href="https://clawhub.com" target="_blank">ClawHub Skills</a>
+            </div>
+            <p style="color: #444; margin-top: 20px; font-size: 0.85rem;">
+                🦉 Athena Unified Command Center • GLM-5 • Lead Orchestrator<br>
+                Lattice Architecture • "We are as strong as our weakest link"
+            </p>
+        </footer>
+    </div>
+    
+    <script>
+        // Animate stat numbers on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const stats = document.querySelectorAll('.stat-number');
+            stats.forEach(stat => {
+                const finalValue = stat.textContent;
+                stat.style.opacity = '0';
+                setTimeout(() => {
+                    stat.style.transition = 'opacity 0.5s ease';
+                    stat.style.opacity = '1';
+                }, 100);
+            });
+        });
+        
+        // Agent card click tracking
+        document.querySelectorAll('.agent-card').forEach(card => {
+            card.addEventListener('click', () => {
+                console.log(`Navigating to ${card.querySelector('.agent-name').textContent}'s mission control`);
+            });
+        });
+    </script>
+</body>
+</html>

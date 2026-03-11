@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Athena Pulse | System Monitor</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    [data-theme="dark"] { --bg-base: #0c0f1a; --bg-surface: #111827; --bg-elevated: #1f2937; --border: #1f2937; --text-primary: #f9fafb; --text-secondary: #d1d5db; --text-muted: #9ca3af; }
+    [data-theme="light"] { --bg-base: #f8fafc; --bg-surface: #ffffff; --bg-elevated: #f1f5f9; --border: #e2e8f0; --text-primary: #0f172a; --text-secondary: #334155; --text-muted: #64748b; }
+    
+    :root {
+      --pulse-green: #10b981;
+      --pulse-yellow: #f59e0b;
+      --pulse-red: #ef4444;
+      --pulse-blue: #3b82f6;
+      --pulse-purple: #8b5cf6;
+      --pulse-cyan: #22d3ee;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: var(--font-display, 'Inter', -apple-system, sans-serif);
+      background: var(--bg-base);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Header */
+    .pulse-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .pulse-title-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .pulse-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--pulse-green), var(--pulse-cyan));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      animation: pulse-glow 2s infinite;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
+      50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.6); }
+    }
+
+    .pulse-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--text-primary), var(--pulse-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .pulse-subtitle {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .pulse-status-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--pulse-green);
+      text-transform: uppercase;
+    }
+
+    .pulse-status-badge.warning {
+      background: rgba(245, 158, 11, 0.1);
+      border-color: rgba(245, 158, 11, 0.3);
+      color: var(--pulse-yellow);
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Grid Layout */
+    .pulse-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 1024px) {
+      .pulse-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 640px) {
+      .pulse-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Metric Cards */
+    .metric-card {
+      background: linear-gradient(145deg, rgba(31, 41, 55, 0.8) 0%, rgba(17, 24, 39, 0.9) 100%);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--card-accent, var(--primary));
+      opacity: 0.6;
+    }
+
+    .metric-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--card-accent, var(--primary));
+      box-shadow: 0 0 30px rgba(99, 102, 241, 0.1);
+    }
+
+    .metric-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .metric-card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: rgba(99, 102, 2411);
+      display: flex;
+      align-items: center, 0.;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+
+    .metric-card-trend {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+
+    .metric-card-trend.up {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--pulse-green);
+    }
+
+    .metric-card-trend.down {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--pulse-red);
+    }
+
+    .metric-card-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+
+    .metric-card-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 0.25rem;
+    }
+
+    /* Agent Status Grid */
+    .agent-status-section {
+      background: linear-gradient(145deg, rgba(31, 41, 55, 0.6) 0%, rgba(17, 24, 39, 0.8) 100%);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .agent-status-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+
+    .agent-status-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      background: var(--bg-elevated);
+      border-radius: 0.5rem;
+      transition: all 0.2s;
+    }
+
+    .agent-status-item:hover {
+      background: var(--bg-hover);
+    }
+
+    .agent-status-item.active {
+      border-left: 3px solid var(--pulse-green);
+    }
+
+    .agent-status-item.idle {
+      border-left: 3px solid var(--pulse-yellow);
+    }
+
+    .agent-status-avatar {
+      font-size: 1.25rem;
+    }
+
+    .agent-status-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .agent-status-name {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .agent-status-role {
+      font-size: 0.625rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .agent-status-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .agent-status-indicator.active {
+      background: var(--pulse-green);
+      box-shadow: 0 0 8px var(--pulse-green);
+    }
+
+    .agent-status-indicator.idle {
+      background: var(--pulse-yellow);
+    }
+
+    /* Activity Feed */
+    .activity-section {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 1024px) {
+      .activity-section { grid-template-columns: 1fr; }
+    }
+
+    .activity-feed {
+      background: linear-gradient(145deg, rgba(31, 41, 55, 0.6) 0%, rgba(17, 24, 39, 0.8) 100%);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .activity-feed::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .activity-feed::-webkit-scrollbar-track {
+      background: var(--bg-base);
+      border-radius: 3px;
+    }
+
+    .activity-feed::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    .activity-item {
+      display: flex;
+      gap: 1rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+
+    .activity-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.875rem;
+      flex-shrink: 0;
+    }
+
+    .activity-icon.task { background: rgba(99, 102, 241, 0.1); }
+    .activity-icon.bid { background: rgba(245, 158, 11, 0.1); }
+    .activity-icon.alert { background: rgba(239, 68, 68, 0.1); }
+    .activity-icon.success { background: rgba(16, 185, 129, 0.1); }
+
+    .activity-content {
+      flex: 1;
+    }
+
+    .activity-text {
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .activity-text strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .activity-time {
+      font-size: 0.625rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    /* Quick Stats Panel */
+    .quick-stats {
+      background: linear-gradient(145deg, rgba(31, 41, 55, 0.6) 0%, rgba(17, 24, 39, 0.8) 100%);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.5rem;
+    }
+
+    .quick-stat-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .quick-stat-item:last-child {
+      border-bottom: none;
+    }
+
+    .quick-stat-label {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .quick-stat-value {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* Model Usage Bar */
+    .model-usage {
+      margin-top: 1rem;
+    }
+
+    .model-usage-item {
+      margin-bottom: 1rem;
+    }
+
+    .model-usage-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .model-usage-label {
+      color: var(--text-muted);
+    }
+
+    .model-usage-value {
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .model-usage-bar {
+      height: 6px;
+      background: var(--bg-base);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .model-usage-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+
+    .model-usage-fill.llama {
+      background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    }
+
+    .model-usage-fill.gemini {
+      background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      color: var(--text-secondary);
+      font-size: 0.8125rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .action-btn:hover {
+      background: var(--bg-hover);
+      border-color: var(--primary);
+      color: var(--text-primary);
+    }
+
+    .action-btn.primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    .action-btn.primary:hover {
+      background: var(--primary-dark);
+    }
+
+    /* Last Updated */
+    .last-updated {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Loading */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg-base);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.3s;
+    }
+
+    .loading-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loader {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      margin-top: 1rem;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-overlay" id="loader">
+    <div class="loader"></div>
+    <p class="loading-text">Initializing Pulse Monitor...</p>
+  </div>
+
+  <div class="container">
+    <!-- Header -->
+    <header class="pulse-header">
+      <div class="pulse-title-section">
+        <div class="pulse-icon">💓</div>
+        <div>
+          <h1 class="pulse-title">Athena Pulse</h1>
+          <p class="pulse-subtitle">Real-time system monitoring</p>
+        </div>
+      </div>
+      <div class="pulse-status-badge" id="system-status">
+        <span class="pulse-dot"></span>
+        <span>All Systems Operational</span>
+      </div>
+    </header>
+
+    <!-- Main Metrics Grid -->
+    <div class="pulse-grid">
+      <div class="metric-card" style="--card-accent: #10b981;">
+        <div class="metric-card-header">
+          <div class="metric-card-icon">🤖</div>
+          <span class="metric-card-trend up">+3</span>
+        </div>
+        <div class="metric-card-value" id="active-agents">-</div>
+        <div class="metric-card-label">Active Agents</div>
+      </div>
+
+      <div class="metric-card" style="--card-accent: #f59e0b;">
+        <div class="metric-card-header">
+          <div class="metric-card-icon">🐝</div>
+          <span class="metric-card-trend" id="bids-trend">-</span>
+        </div>
+        <div class="metric-card-value" id="pending-bids">-</div>
+        <div class="metric-card-label">Pending Bids</div>
+      </div>
+
+      <div class="metric-card" style="--card-accent: #3b82f6;">
+        <div class="metric-card-header">
+          <div class="metric-card-icon">⚡</div>
+        </div>
+        <div class="metric-card-value" id="active-sessions">-</div>
+        <div class="metric-card-label">Active Sessions</div>
+      </div>
+
+      <div class="metric-card" style="--card-accent: #8b5cf6;">
+        <div class="metric-card-header">
+          <div class="metric-card-icon">🎯</div>
+        </div>
+        <div class="metric-card-value" id="total-tasks">-</div>
+        <div class="metric-card-label">Tasks Completed</div>
+      </div>
+    </div>
+
+    <!-- Agent Status Grid -->
+    <section class="agent-status-section">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span>👥</span> Agent Status
+        </h2>
+        <div class="action-buttons">
+          <a href="index.html" class="action-btn">📊 Dashboard</a>
+          <button class="action-btn" onclick="refreshData()">🔄 Refresh</button>
+        </div>
+      </div>
+      <div class="agent-status-grid" id="agent-grid">
+        <!-- Populated by JS -->
+      </div>
+    </section>
+
+    <!-- Activity & Quick Stats -->
+    <div class="activity-section">
+      <div class="activity-feed">
+        <div class="section-header">
+          <h2 class="section-title">
+            <span>📡</span> Live Activity
+          </h2>
+        </div>
+        <div id="activity-feed">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <div class="quick-stats">
+        <div class="section-header">
+          <h2 class="section-title">
+            <span>📊</span> Quick Stats
+          </h2>
+        </div>
+        
+        <div class="quick-stat-item">
+          <span class="quick-stat-label">🛡️ Gateway Uptime</span>
+          <span class="quick-stat-value" id="gateway-uptime">-</span>
+        </div>
+        
+        <div class="quick-stat-item">
+          <span class="quick-stat-label">🎨 Active Gigs</span>
+          <span class="quick-stat-value" id="active-gigs">-</span>
+        </div>
+        
+        <div class="quick-stat-item">
+          <span class="quick-stat-label">🧠 Skills Tracked</span>
+          <span class="quick-stat-value" id="skills-tracked">-</span>
+        </div>
+        
+        <div class="quick-stat-item">
+          <span class="quick-stat-label">⚡ Token Rate</span>
+          <span class="quick-stat-value" id="token-rate">-</span>
+        </div>
+
+        <div class="model-usage">
+          <div class="model-usage-item">
+            <div class="model-usage-header">
+              <span class="model-usage-label">🦙 Llama Limit</span>
+              <span class="model-usage-value" id="llama-value">-</span>
+            </div>
+            <div class="model-usage-bar">
+              <div class="model-usage-fill llama" id="llama-bar" style="width: 0%"></div>
+            </div>
+          </div>
+          
+          <div class="model-usage-item">
+            <div class="model-usage-header">
+              <span class="model-usage-label">🌌 Gemini Limit</span>
+              <span class="model-usage-value" id="gemini-value">-</span>
+            </div>
+            <div class="model-usage-bar">
+              <div class="model-usage-fill gemini" id="gemini-bar" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="last-updated">
+      Last updated: <span id="last-updated-time">-</span>
+    </div>
+  </div>
+
+  <script>
+    // Activity log simulation
+    const activityLog = [];
+    
+    function addActivity(icon, text, time) {
+      activityLog.unshift({ icon, text, time });
+      if (activityLog.length > 15) activityLog.pop();
+    }
+
+    async function loadData() {
+      try {
+        const response = await fetch('api/data.json');
+        const data = await response.json();
+        updateDashboard(data);
+      } catch (error) {
+        console.error('Failed to load data:', error);
+        document.getElementById('system-status').classList.add('warning');
+        document.getElementById('system-status').innerHTML = '<span class="pulse-dot"></span><span>Connection Issue</span>';
+      }
+    }
+
+    function updateDashboard(data) {
+      const now = new Date();
+      
+      // Update metrics
+      const activeAgents = data.agents.filter(a => a.status === 'active').length;
+      document.getElementById('active-agents').textContent = activeAgents;
+      document.getElementById('pending-bids').textContent = data.pendingBids;
+      document.getElementById('active-sessions').textContent = data.metrics.activeSessions;
+      document.getElementById('total-tasks').textContent = data.agents.reduce((sum, a) => sum + a.tasks, 0);
+      
+      // Update quick stats
+      document.getElementById('gateway-uptime').textContent = data.metrics.gatewayUptime;
+      document.getElementById('active-gigs').textContent = data.activeGigs;
+      document.getElementById('skills-tracked').textContent = data.skillsTracked;
+      document.getElementById('token-rate').textContent = data.metrics.tokenRate;
+      
+      // Model usage
+      document.getElementById('llama-value').textContent = data.metrics.llamaLimit + '%';
+      document.getElementById('llama-bar').style.width = data.metrics.llamaLimit + '%';
+      document.getElementById('gemini-value').textContent = data.metrics.geminiLimit + '%';
+      document.getElementById('gemini-bar').style.width = data.metrics.geminiLimit + '%';
+      
+      // Update bids trend
+      const bidsTrend = document.getElementById('bids-trend');
+      if (data.pendingBids > 5) {
+        bidsTrend.textContent = 'High';
+        bidsTrend.className = 'metric-card-trend down';
+      } else {
+        bidsTrend.textContent = 'Normal';
+        bidsTrend.className = 'metric-card-trend up';
+      }
+      
+      // Update agent grid
+      const agentGrid = document.getElementById('agent-grid');
+      agentGrid.innerHTML = data.agents.slice(0, 12).map(agent => `
+        <div class="agent-status-item ${agent.status}">
+          <span class="agent-status-avatar">${agent.avatar}</span>
+          <div class="agent-status-info">
+            <div class="agent-status-name">${agent.name}</div>
+            <div class="agent-status-role">${agent.role}</div>
+          </div>
+          <div class="agent-status-indicator ${agent.status}"></div>
+        </div>
+      `).join('');
+      
+      // Generate activity feed
+      const activities = [
+        { icon: '🤖', type: 'task', text: '<strong>Athena</strong> processed 12 tasks from the queue' },
+        { icon: '🐝', type: 'bid', text: '<strong>Sterling</strong> placed 3 new bids on Beelancer' },
+        { icon: '⚡', type: 'success', text: '<strong>Prometheus</strong> completed automation workflow' },
+        { icon: '📝', type: 'task', text: '<strong>Scribe</strong> generated daily documentation' },
+        { icon: '🔒', type: 'alert', text: '<strong>Cisco</strong> completed security audit' },
+        { icon: '🧠', type: 'task', text: '<strong>Nexus</strong> answered 8 knowledge queries' },
+        { icon: '🐝', type: 'bid', text: '<strong>Beelancer</strong> found 2 new relevant gigs' },
+        { icon: '⚡', type: 'success', text: '<strong>Chronos</strong> triggered 5 scheduled tasks' },
+      ];
+      
+      const activityFeed = document.getElementById('activity-feed');
+      activityFeed.innerHTML = activities.map((a, i) => `
+        <div class="activity-item">
+          <div class="activity-icon ${a.type}">${a.icon}</div>
+          <div class="activity-content">
+            <div class="activity-text">${a.text}</div>
+            <div class="activity-time">${i * 3 + 1} minutes ago</div>
+          </div>
+        </div>
+      `).join('');
+      
+      // Update timestamp
+      document.getElementById('last-updated-time').textContent = now.toLocaleTimeString();
+    }
+
+    function refreshData() {
+      loadData();
+    }
+
+    // Auto-refresh every 30 seconds
+    setInterval(loadData, 30000);
+
+    // Initial load
+    window.addEventListener('DOMContentLoaded', () => {
+      loadData();
+      setTimeout(() => {
+        document.getElementById('loader').classList.add('hidden');
+      }, 500);
+    });
+  </script>
+</body>
+</html>

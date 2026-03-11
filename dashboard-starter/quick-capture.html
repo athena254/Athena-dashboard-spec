@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Athena | Quick Capture</title>
+  <style>
+    :root {
+      --bg: #0c0f1a;
+      --surface: #111827;
+      --elevated: #1f2937;
+      --border: #374151;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --green: #10b981;
+      --yellow: #f59e0b;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --purple: #8b5cf6;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 1.5rem;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      background: var(--elevated);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+      color: var(--text);
+      font-size: 0.9375rem;
+      font-family: inherit;
+      resize: vertical;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: var(--blue);
+    }
+
+    .destination-select {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .dest-btn {
+      padding: 0.375rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 0.375rem;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .dest-btn:hover, .dest-btn.active {
+      background: var(--elevated);
+      color: var(--text);
+      border-color: var(--blue);
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+
+    .btn-primary { background: var(--blue); color: white; }
+    .btn-primary:hover { background: #2563eb; }
+    .btn-secondary { background: var(--elevated); color: var(--text); }
+    .btn-secondary:hover { background: var(--border); }
+    .btn-success { background: var(--green); color: #000; }
+    .btn-success:hover { background: #059669; }
+
+    .notes-list {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .note-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .note-item:last-child { border-bottom: none; }
+
+    .note-time {
+      font-size: 0.625rem;
+      color: var(--muted);
+      min-width: 50px;
+    }
+
+    .note-content {
+      flex: 1;
+      font-size: 0.8125rem;
+      line-height: 1.4;
+    }
+
+    .note-dest {
+      font-size: 0.5625rem;
+      padding: 0.125rem 0.375rem;
+      border-radius: 0.25rem;
+      background: var(--elevated);
+      color: var(--muted);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.875rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 1000;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .toast.success { border-bottom: 3px solid var(--green); }
+    .toast.error { border-bottom: 3px solid var(--red); }
+
+    .empty-state {
+      text-align: center;
+      padding: 2rem;
+      color: var(--muted);
+      font-size: 0.8125rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="title">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Quick Capture
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📝 New Note</div>
+      <div class="destination-select">
+        <button class="dest-btn active" data-dest="memory" onclick="setDest('memory')">📅 Today's Memory</button>
+        <button class="dest-btn" data-dest="longterm" onclick="setDest('longterm')">🧠 Long-term Memory</button>
+        <button class="dest-btn" data-dest="tasks" onclick="setDest('tasks')">✅ Task List</button>
+      </div>
+      <textarea id="note-input" placeholder="Type your note here... (Ctrl+Enter to save)"></textarea>
+      <div class="actions">
+        <button class="btn btn-primary" onclick="saveNote()">💾 Save Note</button>
+        <button class="btn btn-secondary" onclick="clearNote()">🗑️ Clear</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📜 Recent Notes</div>
+      <div class="notes-list" id="notes-list">
+        <div class="empty-state">No notes yet</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    let currentDest = 'memory';
+    let notes = [];
+
+    // Get today's date for default filename
+    const today = new Date().toISOString().slice(0, 10);
+
+    function setDest(dest) {
+      currentDest = dest;
+      document.querySelectorAll('.dest-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.dest === dest);
+      });
+    }
+
+    function showToast(msg, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.className = 'toast ' + type;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    function saveNote() {
+      const input = document.getElementById('note-input');
+      const content = input.value.trim();
+      
+      if (!content) {
+        showToast('Please enter a note first', 'error');
+        return;
+      }
+
+      const note = {
+        id: Date.now(),
+        content,
+        dest: currentDest,
+        time: new Date(),
+        timestamp: new Date().toISOString()
+      };
+
+      notes.unshift(note);
+      if (notes.length > 20) notes.pop();
+
+      // Save to localStorage for persistence
+      localStorage.setItem('quick-notes', JSON.stringify(notes));
+
+      renderNotes();
+      clearNote();
+      showToast('Note saved! ✓', 'success');
+    }
+
+    function clearNote() {
+      document.getElementById('note-input').value = '';
+    }
+
+    function renderNotes() {
+      const list = document.getElementById('notes-list');
+      
+      if (notes.length === 0) {
+        list.innerHTML = '<div class="empty-state">No notes yet</div>';
+        return;
+      }
+
+      list.innerHTML = notes.map(n => `
+        <div class="note-item">
+          <span class="note-time">${n.time.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+          <span class="note-content">${escapeHtml(n.content)}</span>
+          <span class="note-dest">${getDestLabel(n.dest)}</span>
+        </div>
+      `).join('');
+    }
+
+    function getDestLabel(dest) {
+      const labels = {
+        memory: '📅 Today',
+        longterm: '🧠 Long-term',
+        tasks: '✅ Tasks'
+      };
+      return labels[dest] || dest;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Load saved notes
+    function loadNotes() {
+      const saved = localStorage.getItem('quick-notes');
+      if (saved) {
+        try {
+          notes = JSON.parse(saved).map(n => ({
+            ...n,
+            time: new Date(n.timestamp)
+          }));
+        } catch (e) {
+          notes = [];
+        }
+      }
+      renderNotes();
+    }
+
+    // Keyboard shortcut
+    document.getElementById('note-input').addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.key === 'Enter') {
+        saveNote();
+      }
+    });
+
+    // Initialize
+    loadNotes();
+  </script>
+</body>
+</html>

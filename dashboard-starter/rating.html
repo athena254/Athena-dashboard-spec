@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rating Component</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .container {
+      text-align: center;
+      padding: 2rem;
+    }
+
+    h1 {
+      color: #fff;
+      margin-bottom: 0.5rem;
+      font-size: 1.5rem;
+      opacity: 0.9;
+    }
+
+    p {
+      color: #8a8ab0;
+      margin-bottom: 2rem;
+      font-size: 0.9rem;
+    }
+
+    /* Rating Component */
+    .rating-wrapper {
+      display: inline-block;
+      margin-bottom: 2rem;
+    }
+
+    .rating {
+      display: flex;
+      flex-direction: row-reverse;
+      gap: 0.5rem;
+    }
+
+    .rating-input {
+      display: none;
+    }
+
+    .rating-label {
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease;
+    }
+
+    .rating-label svg {
+      width: 100%;
+      height: 100%;
+      fill: #3a3a5c;
+      transition: fill 0.2s ease, filter 0.2s ease;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    }
+
+    /* Hover effect - fills stars up to hovered position */
+    .rating-input:checked ~ .rating-label svg,
+    .rating-input:checked ~ .rating-label svg {
+      fill: #ffd700;
+      filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
+    }
+
+    /* Hover effect */
+    .rating-label:hover {
+      transform: scale(1.15);
+    }
+
+    .rating-label:hover svg,
+    .rating-label:hover ~ .rating-label svg {
+      fill: #ffd700;
+      filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.8));
+    }
+
+    /* Active state */
+    .rating-input:checked + .rating-label svg {
+      fill: #ffd700;
+      filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.8));
+    }
+
+    /* Rating value display */
+    .rating-value {
+      margin-top: 1.5rem;
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .rating-value span {
+      color: #00d9ff;
+    }
+
+    /* Reset button */
+    .reset-btn {
+      margin-top: 1.5rem;
+      padding: 0.75rem 1.5rem;
+      background: transparent;
+      border: 2px solid #3a3a5c;
+      border-radius: 8px;
+      color: #8a8ab0;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .reset-btn:hover {
+      border-color: #00d9ff;
+      color: #00d9ff;
+      background: rgba(0, 217, 255, 0.1);
+    }
+
+    .reset-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Size variants */
+    .rating-wrapper.small .rating-label {
+      width: 28px;
+      height: 28px;
+    }
+
+    .rating-wrapper.large .rating-label {
+      width: 56px;
+      height: 56px;
+    }
+
+    /* Color variants */
+    .rating-wrapper.heart .rating-label svg {
+      fill: #ff4757;
+    }
+
+    .rating-wrapper.heart .rating-input:checked ~ .rating-label svg,
+    .rating-wrapper.heart .rating-label:hover svg,
+    .rating-wrapper.heart .rating-label:hover ~ .rating-label svg,
+    .rating-wrapper.heart .rating-input:checked + .rating-label svg {
+      fill: #ff4757;
+      filter: drop-shadow(0 0 8px rgba(255, 71, 87, 0.6));
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>⭐ Rating Component</h1>
+    <p>Click to rate, hover to preview</p>
+
+    <div class="rating-wrapper">
+      <div class="rating" id="rating">
+        <!-- 5 stars, reverse order for CSS sibling selector -->
+        <input type="radio" name="rating" id="star5" class="rating-input" value="5">
+        <label for="star5" class="rating-label" aria-label="5 stars">
+          <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+        </label>
+        
+        <input type="radio" name="rating" id="star4" class="rating-input" value="4">
+        <label for="star4" class="rating-label" aria-label="4 stars">
+          <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+        </label>
+        
+        <input type="radio" name="rating" id="star3" class="rating-input" value="3">
+        <label for="star3" class="rating-label" aria-label="3 stars">
+          <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+        </label>
+        
+        <input type="radio" name="rating" id="star2" class="rating-input" value="2">
+        <label for="star2" class="rating-label" aria-label="2 stars">
+          <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+        </label>
+        
+        <input type="radio" name="rating" id="star1" class="rating-input" value="1">
+        <label for="star1" class="rating-label" aria-label="1 star">
+          <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+        </label>
+      </div>
+    </div>
+
+    <div class="rating-value">
+      Rating: <span id="rating-text">None</span>
+    </div>
+
+    <br>
+    <button class="reset-btn" onclick="resetRating()">Reset Rating</button>
+  </div>
+
+  <script>
+    const ratingInputs = document.querySelectorAll('.rating-input');
+    const ratingText = document.getElementById('rating-text');
+
+    // Update rating display
+    ratingInputs.forEach(input => {
+      input.addEventListener('change', function() {
+        if (this.checked) {
+          ratingText.textContent = this.value + ' / 5';
+        }
+      });
+    });
+
+    // Reset function
+    function resetRating() {
+      ratingInputs.forEach(input => {
+        input.checked = false;
+      });
+      ratingText.textContent = 'None';
+    }
+
+    // Keyboard accessibility
+    ratingInputs.forEach(input => {
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          this.checked = true;
+          ratingText.textContent = this.value + ' / 5';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Athena's Automation Scripts Dashboard</title>
+    <style>
+        /* Basic styling for the table and its elements */
+        table {
+            font-family: Arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        
+        td, th {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #f0f0f0;
+        }
+        
+        .running {
+            background-color: #ccffcc;
+        }
+        
+        .stopped {
+            background-color: #ffc0c0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Athena's Automation Scripts Dashboard</h1>
+    <table id="automationScripts">
+        <tr>
+            <th>Script Name</th>
+            <th>Schedule</th>
+            <th>Status</th>
+            <th>Last Run Time</th>
+            <th>Next Scheduled Run</th>
+            <th>Enable/Disable</th>
+        </tr>
+        <tr>
+            <td>Beelancer Poll</td>
+            <td>every 3 min</td>
+            <td class="running">Running</td>
+            <td>2024-03-16 10:00 UTC</td>
+            <td>2024-03-16 10:03 UTC</td>
+            <td><button onclick="toggleScript('beelancerPoll')">Disable</button></td>
+        </tr>
+        <tr>
+            <td>Sterling Auto-Bidder</td>
+            <td>every 30 min</td>
+            <td class="running">Running</td>
+            <td>2024-03-16 10:00 UTC</td>
+            <td>2024-03-16 10:30 UTC</td>
+            <td><button onclick="toggleScript('sterlingAutoBidder')">Disable</button></td>
+        </tr>
+        <tr>
+            <td>Daily Backup</td>
+            <td>00:00 UTC</td>
+            <td class="running">Running</td>
+            <td>2024-03-16 00:00 UTC</td>
+            <td>2024-03-17 00:00 UTC</td>
+            <td><button onclick="toggleScript('dailyBackup')">Disable</button></td>
+        </tr>
+        <tr>
+            <td>Morning Report</td>
+            <td>04:00 UTC</td>
+            <td class="running">Running</td>
+            <td>2024-03-16 04:00 UTC</td>
+            <td>2024-03-17 04:00 UTC</td>
+            <td><button onclick="toggleScript('morningReport')">Disable</button></td>
+        </tr>
+        <tr>
+            <td>Evening Report</td>
+            <td>17:00 UTC</td>
+            <td class="running">Running</td>
+            <td>2024-03-16 17:00 UTC</td>
+            <td>2024-03-16 17:00 UTC</td>
+            <td><button onclick="toggleScript('eveningReport')">Disable</button></td>
+        </tr>
+        <tr>
+            <td>Dashboard Refresh</td>
+            <td>every 5 min</td>
+            <td class="running">Running</td>
+            <td>2024-03-16 10:00 UTC</td>
+            <td>2024-03-16 10:05 UTC</td>
+            <td><button onclick="toggleScript('dashboardRefresh')">Disable</button></td>
+        </tr>
+    </table>
+    
+    <script>
+        function toggleScript(scriptName) {
+            // This is a placeholder for the actual logic to toggle the script
+            console.log(`Toggling script: ${scriptName}`);
+        }
+    </script>
+</body>
+</html>

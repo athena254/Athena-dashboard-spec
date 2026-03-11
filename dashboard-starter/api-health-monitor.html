@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Health Monitor | Athena Live</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    :root {
+      --api-green: #10b981;
+      --api-green-glow: rgba(16, 185, 129, 0.4);
+      --api-yellow: #f59e0b;
+      --api-yellow-glow: rgba(245, 158, 11, 0.4);
+      --api-red: #ef4444;
+      --api-red-glow: rgba(239, 68, 68, 0.4);
+      --api-blue: #3b82f6;
+      --api-purple: #8b5cf6;
+    }
+    
+    [data-theme="dark"] { 
+      --bg-base: #0a0e17; 
+      --bg-surface: #111827; 
+      --bg-elevated: #1a2234; 
+      --border: #2a3548; 
+      --text-primary: #f1f5f9; 
+      --text-secondary: #94a3b8; 
+      --text-muted: #64748b; 
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(ellipse at 20% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(34, 211, 238, 0.05) 0%, transparent 50%);
+    }
+
+    .monitor-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Header */
+    .monitor-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-left h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: linear-gradient(135deg, #f1f5f9 0%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-left h1::before {
+      content: "🔬";
+      -webkit-text-fill-color: initial;
+    }
+
+    .header-left p {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .last-updated {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      background: var(--bg-elevated);
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      border: 1px solid var(--border);
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--api-green);
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 4px var(--api-green-glow); }
+      50% { box-shadow: 0 0 12px var(--api-green-glow), 0 0 20px var(--api-green-glow); }
+    }
+
+    .refresh-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1.25rem;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      border: none;
+      border-radius: 0.5rem;
+      color: white;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .refresh-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+    }
+
+    .refresh-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .refresh-btn.spinning span {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Stats Overview */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: linear-gradient(145deg, rgba(26, 34, 52, 0.9) 0%, rgba(17, 24, 39, 0.9) 100%);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+    }
+
+    .stat-card.total::before { background: linear-gradient(90deg, #6366f1, #8b5cf6); }
+    .stat-card.active::before { background: linear-gradient(90deg, #10b981, #34d399); }
+    .stat-card.warning::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .stat-card.blocked::before { background: linear-gradient(90deg, #ef4444, #f87171); }
+
+    .stat-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 0.5rem;
+    }
+
+    /* Fallback Chain Visualization */
+    .fallback-section {
+      background: linear-gradient(145deg, rgba(26, 34, 52, 0.9) 0%, rgba(17, 24, 39, 0.9) 100%);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .fallback-chain {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .chain-link {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 2rem;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      transition: all 0.2s ease;
+    }
+
+    .chain-link.active {
+      border-color: var(--api-green);
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--api-green);
+    }
+
+    .chain-arrow {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    .chain-status {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--api-green);
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    .chain-status.warning {
+      background: var(--api-yellow);
+      animation: pulse-warning 2s ease-in-out infinite;
+    }
+
+    .chain-status.blocked {
+      background: var(--api-red);
+    }
+
+    @keyframes pulse-warning {
+      0%, 100% { box-shadow: 0 0 4px var(--api-yellow-glow); }
+      50% { box-shadow: 0 0 10px var(--api-yellow-glow); }
+    }
+
+    /* Model Usage Stats */
+    .usage-section {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .usage-card {
+      background: linear-gradient(145deg, rgba(26, 34, 52, 0.9) 0%, rgba(17, 24, 39, 0.9) 100%);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.25rem;
+    }
+
+    .usage-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .usage-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .usage-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .usage-bar {
+      height: 6px;
+      background: var(--bg-base);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 0.75rem;
+    }
+
+    .usage-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+
+    .usage-fill.green { background: linear-gradient(90deg, #10b981, #34d399); }
+    .usage-fill.blue { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+    .usage-fill.purple { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+
+    .usage-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.5rem;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    /* API Grid */
+    .api-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1rem;
+    }
+
+    .api-card {
+      background: linear-gradient(145deg, rgba(26, 34, 52, 0.9) 0%, rgba(17, 24, 39, 0.9) 100%);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .api-card:hover {
+      transform: translateY(-4px);
+      border-color: #6366f1;
+      box-shadow: 0 12px 40px rgba(99, 102, 241, 0.15);
+    }
+
+    .api-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+    }
+
+    .api-card.active::before {
+      background: linear-gradient(90deg, #10b981, #34d399);
+      animation: status-bar-active 2s ease-in-out infinite;
+    }
+
+    .api-card.warning::before {
+      background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    }
+
+    .api-card.blocked::before {
+      background: linear-gradient(90deg, #ef4444, #f87171);
+    }
+
+    @keyframes status-bar-active {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    .api-card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .api-icon-wrapper {
+      width: 44px;
+      height: 44px;
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      position: relative;
+    }
+
+    .api-status-indicator {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid var(--bg-surface);
+    }
+
+    .api-status-indicator.active {
+      background: var(--api-green);
+      animation: pulse-indicator 2s ease-in-out infinite;
+    }
+
+    .api-status-indicator.warning {
+      background: var(--api-yellow);
+      animation: pulse-warning 2s ease-in-out infinite;
+    }
+
+    .api-status-indicator.blocked {
+      background: var(--api-red);
+    }
+
+    @keyframes pulse-indicator {
+      0%, 100% { box-shadow: 0 0 0 0 var(--api-green-glow); }
+      50% { box-shadow: 0 0 0 4px var(--api-green-glow); }
+    }
+
+    .api-info {
+      flex: 1;
+    }
+
+    .api-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+    }
+
+    .api-model {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-family: monospace;
+    }
+
+    .api-status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .api-status-badge.active {
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+    }
+
+    .api-status-badge.warning {
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+    }
+
+    .api-status-badge.blocked {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+    }
+
+    .api-metrics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .api-metric {
+      background: var(--bg-base);
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      text-align: center;
+    }
+
+    .metric-value {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .metric-label {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-top: 0.25rem;
+    }
+
+    .api-agent {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--bg-elevated);
+      border-radius: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .agent-avatar {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6rem;
+      color: white;
+    }
+
+    .rate-limit-bar {
+      height: 4px;
+      background: var(--bg-base);
+      border-radius: 2px;
+      margin-top: 0.75rem;
+      overflow: hidden;
+    }
+
+    .rate-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.5s ease;
+    }
+
+    .rate-fill.healthy { background: linear-gradient(90deg, #10b981, #34d399); }
+    .rate-fill.warning { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .rate-fill.critical { background: linear-gradient(90deg, #ef4444, #f87171); }
+
+    @media (max-width: 1024px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .usage-section { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .monitor-container { padding: 1rem; }
+      .monitor-header { flex-direction: column; gap: 1rem; align-items: flex-start; }
+      .header-controls { width: 100%; justify-content: space-between; }
+      .api-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="monitor-container">
+    <!-- Header -->
+    <header class="monitor-header">
+      <div class="header-left">
+        <h1>API Health Monitor</h1>
+        <p>Real-time status of Athena's 9 API providers</p>
+      </div>
+      <div class="header-controls">
+        <div class="last-updated">
+          <div class="pulse-dot"></div>
+          <span>Last updated: <strong id="last-updated-time">--:--:--</strong></span>
+        </div>
+        <button class="refresh-btn" id="refresh-btn" onclick="refreshAll()">
+          <span>🔄</span> Refresh
+        </button>
+      </div>
+    </header>
+
+    <!-- Stats Overview -->
+    <div class="stats-row">
+      <div class="stat-card total">
+        <div class="stat-icon">📊</div>
+        <div class="stat-value" id="total-count">9</div>
+        <div class="stat-label">Total Providers</div>
+      </div>
+      <div class="stat-card active">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value" id="active-count">0</div>
+        <div class="stat-label">Active</div>
+      </div>
+      <div class="stat-card warning">
+        <div class="stat-icon">⚠️</div>
+        <div class="stat-value" id="warning-count">0</div>
+        <div class="stat-label">Warning</div>
+      </div>
+      <div class="stat-card blocked">
+        <div class="stat-icon">🚫</div>
+        <div class="stat-value" id="blocked-count">0</div>
+        <div class="stat-label">Blocked</div>
+      </div>
+    </div>
+
+    <!-- Fallback Chain -->
+    <div class="fallback-section">
+      <div class="section-title">
+        <span>🔗</span> Fallback Chain Visualization
+      </div>
+      <div class="fallback-chain" id="fallback-chain">
+        <!-- Generated by JS -->
+      </div>
+    </div>
+
+    <!-- Usage Stats -->
+    <div class="usage-section">
+      <div class="usage-card">
+        <div class="usage-header">
+          <span class="usage-title">Requests Today</span>
+          <span style="font-size: 1.25rem;">📈</span>
+        </div>
+        <div class="usage-value" id="requests-today">0</div>
+        <div class="usage-bar">
+          <div class="usage-fill green" id="requests-bar" style="width: 0%"></div>
+        </div>
+        <div class="usage-meta">
+          <span>Daily limit: 10,000</span>
+          <span id="requests-pct">0%</span>
+        </div>
+      </div>
+      <div class="usage-card">
+        <div class="usage-header">
+          <span class="usage-title">Tokens Used</span>
+          <span style="font-size: 1.25rem;">🔢</span>
+        </div>
+        <div class="usage-value" id="tokens-used">0</div>
+        <div class="usage-bar">
+          <div class="usage-fill blue" id="tokens-bar" style="width: 0%"></div>
+        </div>
+        <div class="usage-meta">
+          <span>Monthly limit: 5M</span>
+          <span id="tokens-pct">0%</span>
+        </div>
+      </div>
+      <div class="usage-card">
+        <div class="usage-header">
+          <span class="usage-title">Avg Latency</span>
+          <span style="font-size: 1.25rem;">⚡</span>
+        </div>
+        <div class="usage-value" id="avg-latency">0ms</div>
+        <div class="usage-bar">
+          <div class="usage-fill purple" id="latency-bar" style="width: 0%"></div>
+        </div>
+        <div class="usage-meta">
+          <span>Target: &lt;500ms</span>
+          <span id="latency-status">Good</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- API Grid -->
+    <div class="api-grid" id="api-grid">
+      <!-- Generated by JS -->
+    </div>
+  </div>
+
+  <script>
+    // API Providers Configuration
+    const apiProviders = [
+      { 
+        id: 'modal-glm5-1', 
+        name: 'Modal GLM-5', 
+        provider: 'Modal', 
+        model: 'glm-5-fp8',
+        icon: '🔷',
+        color: '#6366f1',
+        agent: 'Athena',
+        rateLimit: 500,
+        requestsPerMin: 120
+      },
+      { 
+        id: 'modal-glm5-2', 
+        name: 'Modal GLM-5 (Backup)', 
+        provider: 'Modal', 
+        model: 'glm-5-fp8',
+        icon: '💎',
+        color: '#8b5cf6',
+        agent: 'Sterling',
+        rateLimit: 500,
+        requestsPerMin: 85
+      },
+      { 
+        id: 'nvidia-qwen', 
+        name: 'NVIDIA Qwen', 
+        provider: 'NVIDIA', 
+        model: 'qwen2.5-72b-instruct',
+        icon: '🔱',
+        color: '#76b900',
+        agent: 'Ishtar',
+        rateLimit: 1000,
+        requestsPerMin: 200
+      },
+      { 
+        id: 'groq-llama', 
+        name: 'Groq Llama', 
+        provider: 'Groq', 
+        model: 'llama-3.3-70b',
+        icon: '⚡',
+        color: '#f97316',
+        agent: 'Delver',
+        rateLimit: 600,
+        requestsPerMin: 180
+      },
+      { 
+        id: 'openrouter', 
+        name: 'OpenRouter', 
+        provider: 'OpenRouter', 
+        model: 'multiple',
+        icon: '🔗',
+        color: '#3b82f6',
+        agent: 'Squire',
+        rateLimit: 800,
+        requestsPerMin: 150
+      },
+      { 
+        id: 'minimax-1', 
+        name: 'MiniMax', 
+        provider: 'MiniMax', 
+        model: 'abab6.5s-chat',
+        icon: '🟣',
+        color: '#a855f7',
+        agent: 'Felicity',
+        rateLimit: 400,
+        requestsPerMin: 90
+      },
+      { 
+        id: 'minimax-2', 
+        name: 'MiniMax (Backup)', 
+        provider: 'MiniMax', 
+        model: 'abab6.5s-chat',
+        icon: '🟣',
+        color: '#c084fc',
+        agent: 'Prometheus',
+        rateLimit: 400,
+        requestsPerMin: 45
+      },
+      { 
+        id: 'gemini', 
+        name: 'Gemini', 
+        provider: 'Google', 
+        model: 'gemini-2.0-flash',
+        icon: '🔵',
+        color: '#4285f4',
+        agent: 'Cisco',
+        rateLimit: 1500,
+        requestsPerMin: 300
+      },
+      { 
+        id: 'openai', 
+        name: 'OpenAI', 
+        provider: 'OpenAI', 
+        model: 'gpt-4o',
+        icon: '🤖',
+        color: '#10b981',
+        agent: 'THEMIS',
+        rateLimit: 500,
+        requestsPerMin: 75
+      }
+    ];
+
+    // Fallback chain configuration
+    const fallbackChain = [
+      { id: 'modal-glm5-1', name: 'Modal GLM-5', priority: 1 },
+      { id: 'modal-glm5-2', name: 'Modal GLM-5 Backup', priority: 2 },
+      { id: 'nvidia-qwen', name: 'NVIDIA Qwen', priority: 3 },
+      { id: 'groq-llama', name: 'Groq Llama', priority: 4 },
+      { id: 'openrouter', name: 'OpenRouter', priority: 5 },
+      { id: 'minimax-1', name: 'MiniMax', priority: 6 },
+      { id: 'gemini', name: 'Gemini', priority: 7 },
+      { id: 'openai', name: 'OpenAI', priority: 8 }
+    ];
+
+    // Simulated API status data
+    let apiStatus = {};
+    let usageStats = {
+      requests: 3247,
+      tokens: 1245000,
+      latency: 342
+    };
+
+    // Initialize
+    function init() {
+      refreshAll();
+    }
+
+    // Refresh all APIs
+    function refreshAll() {
+      const btn = document.getElementById('refresh-btn');
+      btn.classList.add('spinning');
+      btn.disabled = true;
+      
+      // Update timestamp
+      document.getElementById('last-updated-time').textContent = new Date().toLocaleTimeString();
+      
+      // Simulate API checks
+      setTimeout(() => {
+        checkAllApis();
+        updateStats();
+        renderFallbackChain();
+        renderApiGrid();
+        updateUsageStats();
+        
+        btn.classList.remove('spinning');
+        btn.disabled = false;
+      }, 800);
+    }
+
+    // Check all APIs (simulated)
+    function checkAllApis() {
+      apiProviders.forEach(api => {
+        // Simulate realistic status based on API
+        const hash = api.id.split('').reduce((a, b) => ((a << 5) - a + b.charCodeAt(0)) | 0, 0);
+        const rand = Math.abs(Math.sin(hash + Date.now() / 60000) * 10000) % 100;
+        
+        let status = 'active';
+        let headroom = Math.round(100 - (api.requestsPerMin / api.rateLimit * 100));
+        
+        if (rand > 90) status = 'blocked';
+        else if (rand > 75) status = 'warning';
+        
+        // Ensure some APIs are always active for demo
+        if (['modal-glm5-1', 'gemini', 'openai'].includes(api.id)) {
+          status = 'active';
+          headroom = 40 + Math.floor(Math.random() * 40);
+        }
+        
+        apiStatus[api.id] = {
+          status,
+          headroom,
+          latency: 100 + Math.floor(Math.random() * 400),
+          lastCheck: new Date().toISOString()
+        };
+      });
+    }
+
+    // Update summary stats
+    function updateStats() {
+      const statuses = Object.values(apiStatus);
+      const active = statuses.filter(s => s.status === 'active').length;
+      const warning = statuses.filter(s => s.status === 'warning').length;
+      const blocked = statuses.filter(s => s.status === 'blocked').length;
+      
+      document.getElementById('active-count').textContent = active;
+      document.getElementById('warning-count').textContent = warning;
+      document.getElementById('blocked-count').textContent = blocked;
+    }
+
+    // Render fallback chain
+    function renderFallbackChain() {
+      const container = document.getElementById('fallback-chain');
+      container.innerHTML = fallbackChain.map((api, index) => {
+        const status = apiStatus[api.id];
+        const isActive = status && status.status === 'active';
+        const isWarning = status && status.status === 'warning';
+        
+        let chainStatus = 'active';
+        if (isWarning) chainStatus = 'warning';
+        else if (!isActive && status) chainStatus = 'blocked';
+        
+        return `
+          <div class="chain-link ${isActive ? 'active' : ''}">
+            <div class="chain-status ${chainStatus}"></div>
+            <span>${api.name}</span>
+          </div>
+          ${index < fallbackChain.length - 1 ? '<span class="chain-arrow">→</span>' : ''}
+        `;
+      }).join('');
+    }
+
+    // Render API grid
+    function renderApiGrid() {
+      const grid = document.getElementById('api-grid');
+      grid.innerHTML = apiProviders.map(api => {
+        const status = apiStatus[api.id] || { status: 'active', headroom: 50, latency: 200 };
+        const headroomPct = status.headroom;
+        const ratePct = (api.requestsPerMin / api.rateLimit) * 100;
+        
+        let rateClass = 'healthy';
+        if (ratePct > 80) rateClass = 'warning';
+        if (ratePct > 95) rateClass = 'critical';
+        
+        return `
+          <div class="api-card ${status.status}">
+            <div class="api-card-header">
+              <div class="api-icon-wrapper" style="background: ${api.color}20;">
+                ${api.icon}
+                <div class="api-status-indicator ${status.status}"></div>
+              </div>
+              <div class="api-info">
+                <div class="api-name">${api.name}</div>
+                <div class="api-model">${api.model}</div>
+              </div>
+              <span class="api-status-badge ${status.status}">${status.status}</span>
+            </div>
+            <div class="api-metrics">
+              <div class="api-metric">
+                <div class="metric-value">${status.latency}ms</div>
+                <div class="metric-label">Latency</div>
+              </div>
+              <div class="api-metric">
+                <div class="metric-value">${headroomPct}%</div>
+                <div class="metric-label">Headroom</div>
+              </div>
+            </div>
+            <div class="rate-limit-bar">
+              <div class="rate-fill ${rateClass}" style="width: ${ratePct}%"></div>
+            </div>
+            <div class="api-agent" style="margin-top: 0.75rem;">
+              <div class="agent-avatar">${api.agent.charAt(0)}</div>
+              <span>Assigned: ${api.agent}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Update usage statistics
+    function updateUsageStats() {
+      // Simulate some variation
+      usageStats.requests += Math.floor(Math.random() * 50);
+      usageStats.tokens += Math.floor(Math.random() * 10000);
+      usageStats.latency = 200 + Math.floor(Math.random() * 200);
+      
+      // Update requests
+      const requestsPct = (usageStats.requests / 10000) * 100;
+      document.getElementById('requests-today').textContent = usageStats.requests.toLocaleString();
+      document.getElementById('requests-bar').style.width = `${requestsPct}%`;
+      document.getElementById('requests-pct').textContent = `${Math.round(requestsPct)}%`;
+      
+      // Update tokens
+      const tokensPct = (usageStats.tokens / 5000000) * 100;
+      document.getElementById('tokens-used').textContent = (usageStats.tokens / 1000000).toFixed(2) + 'M';
+      document.getElementById('tokens-bar').style.width = `${tokensPct}%`;
+      document.getElementById('tokens-pct').textContent = `${Math.round(tokensPct)}%`;
+      
+      // Update latency
+      const latencyPct = Math.min(100, (usageStats.latency / 1000) * 100);
+      document.getElementById('avg-latency').textContent = `${usageStats.latency}ms`;
+      document.getElementById('latency-bar').style.width = `${latencyPct}%`;
+      document.getElementById('latency-status').textContent = usageStats.latency < 500 ? 'Good' : 'High';
+    }
+
+    // Auto-refresh every 30 seconds
+    setInterval(refreshAll, 30000);
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

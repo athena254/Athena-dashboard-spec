@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🦉 Athena | Terminal</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⌨️</text></svg>">
+  <style>
+    :root {
+      --bg: #0a0e17;
+      --surface: #0d1117;
+      --elevated: #161b22;
+      --border: #30363d;
+      --text: #c9d1d9;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --green: #3fb950;
+      --yellow: #d29922;
+      --red: #f85149;
+      --purple: #a371f7;
+      --cyan: #39c5cf;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(ellipse at top, rgba(88, 166, 255, 0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom right, rgba(57, 197, 207, 0.03) 0%, transparent 50%);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--accent), var(--cyan));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+
+    .logo-text {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .logo-text span {
+      color: var(--accent);
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.375rem 0.75rem;
+      background: rgba(63, 185, 80, 0.1);
+      border: 1px solid rgba(63, 185, 80, 0.3);
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      color: var(--green);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Terminal */
+    .terminal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .terminal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background: var(--elevated);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .terminal-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .terminal-btn {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+    }
+
+    .terminal-btn.close { background: #ff5f56; }
+    .terminal-btn.minimize { background: #ffbd2e; }
+    .terminal-btn.maximize { background: #27ca40; }
+
+    .terminal-title {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .terminal-body {
+      padding: 1rem;
+      min-height: 400px;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+
+    .output {
+      white-space: pre-wrap;
+      word-break: break-all;
+      font-size: 0.8125rem;
+      line-height: 1.5;
+    }
+
+    .output-line {
+      margin-bottom: 0.25rem;
+    }
+
+    .output-line.error { color: var(--red); }
+    .output-line.success { color: var(--green); }
+    .output-line.info { color: var(--accent); }
+    .output-line.warning { color: var(--yellow); }
+    .output-line.system { color: var(--purple); }
+
+    .output-line .prompt {
+      color: var(--green);
+      margin-right: 0.5rem;
+    }
+
+    .output-line .timestamp {
+      color: var(--muted);
+      font-size: 0.625rem;
+      margin-right: 0.5rem;
+      opacity: 0.6;
+    }
+
+    .input-line {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      background: var(--elevated);
+      border-top: 1px solid var(--border);
+    }
+
+    .input-prompt {
+      color: var(--green);
+      margin-right: 0.5rem;
+      font-weight: 600;
+    }
+
+    .input-field {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.875rem;
+      outline: none;
+    }
+
+    .input-field::placeholder {
+      color: var(--muted);
+    }
+
+    .run-btn {
+      padding: 0.375rem 0.75rem;
+      background: var(--accent);
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-left: 0.5rem;
+    }
+
+    .run-btn:hover {
+      background: #79b8ff;
+      transform: translateY(-1px);
+    }
+
+    .run-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Quick Commands */
+    .quick-commands {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .quick-commands-label {
+      width: 100%;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .quick-cmd {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.375rem 0.625rem;
+      background: var(--elevated);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .quick-cmd:hover {
+      border-color: var(--accent);
+      background: rgba(88, 166, 255, 0.1);
+    }
+
+    .quick-cmd-icon {
+      font-size: 0.875rem;
+    }
+
+    /* History */
+    .history-panel {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .history-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+
+    .history-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .history-clear {
+      font-size: 0.75rem;
+      color: var(--muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .history-clear:hover {
+      color: var(--red);
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem;
+      background: var(--elevated);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .history-item:hover {
+      background: rgba(88, 166, 255, 0.1);
+    }
+
+    .history-cmd {
+      font-size: 0.8125rem;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+
+    .history-status {
+      font-size: 0.625rem;
+      padding: 0.125rem 0.375rem;
+      border-radius: 4px;
+      margin-left: 0.5rem;
+    }
+
+    .history-status.success {
+      background: rgba(63, 185, 80, 0.1);
+      color: var(--green);
+    }
+
+    .history-status.error {
+      background: rgba(248, 81, 73, 0.1);
+      color: var(--red);
+    }
+
+    .history-time {
+      font-size: 0.625rem;
+      color: var(--muted);
+      margin-left: 0.5rem;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--surface);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--muted);
+    }
+
+    /* Loading */
+    .loading {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--accent);
+    }
+
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <div class="logo-icon">⌨️</div>
+        <div class="logo-text">Athena <span>Terminal</span></div>
+      </div>
+      <div class="status-badge">
+        <span class="status-dot"></span>
+        <span>Ready</span>
+      </div>
+    </header>
+
+    <div class="quick-commands">
+      <span class="quick-commands-label">Quick Commands (click to run)</span>
+      <button class="quick-cmd" onclick="runCommand('ping')">
+        <span class="quick-cmd-icon">🏓</span> ping
+      </button>
+      <button class="quick-cmd" onclick="runCommand('health')">
+        <span class="quick-cmd-icon">💚</span> health
+      </button>
+      <button class="quick-cmd" onclick="runCommand('refresh')">
+        <span class="quick-cmd-icon">🔄</span> refresh
+      </button>
+      <button class="quick-cmd" onclick="loadStatus()">
+        <span class="quick-cmd-icon">📊</span> status
+      </button>
+      <button class="quick-cmd" onclick="loadActivity()">
+        <span class="quick-cmd-icon">📡</span> activity
+      </button>
+      <button class="quick-cmd" onclick="loadAgents()">
+        <span class="quick-cmd-icon">🤖</span> agents
+      </button>
+    </div>
+
+    <div class="terminal">
+      <div class="terminal-header">
+        <div class="terminal-buttons">
+          <div class="terminal-btn close"></div>
+          <div class="terminal-btn minimize"></div>
+          <div class="terminal-btn maximize"></div>
+        </div>
+        <div class="terminal-title">athena@terminal</div>
+        <div></div>
+      </div>
+      <div class="terminal-body" id="output">
+        <div class="output-line system">
+          <span class="timestamp">[SYSTEM]</span>
+          Athena Terminal v1.0 initialized
+        </div>
+        <div class="output-line info">
+          <span class="timestamp">[INFO]</span>
+          Type a command and press Enter or click Run
+        </div>
+        <div class="output-line info">
+          <span class="timestamp">[INFO]</span>
+          Quick commands available above for common tasks
+        </div>
+      </div>
+      <div class="input-line">
+        <span class="input-prompt">$</span>
+        <input type="text" class="input-field" id="command-input" placeholder="Enter command..." autocomplete="off">
+        <button class="run-btn" id="run-btn" onclick="executeFromInput()">Run</button>
+      </div>
+    </div>
+
+    <div class="history-panel">
+      <div class="history-header">
+        <span class="history-title">📜 Command History</span>
+        <button class="history-clear" onclick="clearHistory()">Clear</button>
+      </div>
+      <div class="history-list" id="history-list">
+        <div class="history-item" style="justify-content: center; color: var(--muted);">
+          No commands yet
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const output = document.getElementById('output');
+    const input = document.getElementById('command-input');
+    const runBtn = document.getElementById('run-btn');
+    const historyList = document.getElementById('history-list');
+
+    let commandHistory = [];
+    let historyIndex = -1;
+
+    // Load history from localStorage
+    const saved = localStorage.getItem('athena-terminal-history');
+    if (saved) {
+      try {
+        commandHistory = JSON.parse(saved);
+        renderHistory();
+      } catch (e) {}
+    }
+
+    // Focus input on load
+    input.focus();
+
+    // Handle Enter key
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        executeFromInput();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        navigateHistory(-1);
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        navigateHistory(1);
+      }
+    });
+
+    function navigateHistory(direction) {
+      if (commandHistory.length === 0) return;
+      
+      historyIndex += direction;
+      if (historyIndex < 0) historyIndex = 0;
+      if (historyIndex >= commandHistory.length) {
+        historyIndex = commandHistory.length;
+        input.value = '';
+        return;
+      }
+      
+      input.value = commandHistory[historyIndex].command;
+    }
+
+    function executeFromInput() {
+      const cmd = input.value.trim();
+      if (cmd) {
+        runCommand(cmd);
+        input.value = '';
+      }
+    }
+
+    function addOutput(text, type = '') {
+      const line = document.createElement('div');
+      line.className = `output-line ${type}`;
+      
+      const time = new Date().toLocaleTimeString();
+      line.innerHTML = `<span class="timestamp">[${time}]</span>${escapeHtml(text)}`;
+      
+      output.appendChild(line);
+      output.scrollTop = output.scrollHeight;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    async function runCommand(cmd) {
+      // Handle built-in data commands
+      if (cmd === 'status') {
+        await loadStatus();
+        return;
+      }
+      if (cmd === 'activity') {
+        await loadActivity();
+        return;
+      }
+      if (cmd === 'agents') {
+        await loadAgents();
+        return;
+      }
+
+      // Add to history
+      const historyItem = { command: cmd, status: 'running', time: new Date().toISOString() };
+      commandHistory.push(historyItem);
+      historyIndex = commandHistory.length;
+      localStorage.setItem('athena-terminal-history', JSON.stringify(commandHistory.slice(-50)));
+      renderHistory();
+
+      // Show command being run
+      addOutput(`$ ${cmd}`, '');
+      
+      // Disable input while running
+      input.disabled = true;
+      runBtn.disabled = true;
+      runBtn.innerHTML = '<span class="spinner"></span>';
+
+      try {
+        const response = await fetch(`/api/command?cmd=${encodeURIComponent(cmd)}`);
+        const result = await response.json();
+        
+        if (result.error) {
+          addOutput(result.error, 'error');
+          historyItem.status = 'error';
+        } else if (result.output) {
+          addOutput(result.output, 'success');
+          historyItem.status = 'success';
+        } else {
+          addOutput('Command completed', 'success');
+          historyItem.status = 'success';
+        }
+      } catch (e) {
+        // Fallback to direct execution
+        try {
+          const proc = await runDirect(cmd);
+          if (proc.error) {
+            addOutput(proc.error, 'error');
+            historyItem.status = 'error';
+          } else {
+            addOutput(proc.output || 'Done', 'success');
+            historyItem.status = 'success';
+          }
+        } catch (err) {
+          addOutput(`Error: ${err.message}`, 'error');
+          historyItem.status = 'error';
+        }
+      }
+
+      // Re-enable input
+      input.disabled = false;
+      runBtn.disabled = false;
+      runBtn.textContent = 'Run';
+      input.focus();
+      
+      renderHistory();
+    }
+
+    async function runDirect(cmd) {
+      // Simple direct execution via eval (limited)
+      const allowed = {
+        'date': () => new Date().toString(),
+        'uptime': () => 'Uptime: ' + (performance.now() / 1000).toFixed(1) + 's (browser)',
+        'ls': () => 'Use file browser for directory listing',
+        'status': () => 'System operational',
+        'health': () => 'All systems healthy',
+        'ping': () => 'pong',
+      };
+      
+      const parts = cmd.toLowerCase().split(' ')[0];
+      if (allowed[parts]) {
+        return { output: allowed[parts]() };
+      }
+      
+      return { error: 'Command not available in browser mode. Use API endpoint.' };
+    }
+
+    // Data loading functions
+    async function loadStatus() {
+      addOutput('$ status', '');
+      addOutput('Loading system status...', 'info');
+      try {
+        const res = await fetch('api/data.json');
+        const data = await res.json();
+        const output = [
+          `System: ${data.status}`,
+          `Pending Bids: ${data.pendingBids}`,
+          `Active Gigs: ${data.activeGigs}`,
+          `Active Sessions: ${data.metrics.activeSessions}`,
+          `Gateway Uptime: ${data.metrics.gatewayUptime}`,
+          `LLM Rate: ${data.metrics.tokenRate}`,
+          `Last Updated: ${new Date(data.lastUpdated).toLocaleString()}`
+        ].join('\n');
+        addOutput(output, 'success');
+      } catch (e) {
+        addOutput(`Error: ${e.message}`, 'error');
+      }
+    }
+
+    async function loadActivity() {
+      addOutput('$ activity', '');
+      addOutput('Loading activity feed...', 'info');
+      try {
+        const res = await fetch('api/activity.json');
+        const data = await res.json();
+        if (data.activities && data.activities.length > 0) {
+          const output = data.activities.map(a => 
+            `[${new Date(a.time).toLocaleTimeString()}] ${a.agent}: ${a.action} → ${a.target}`
+          ).join('\n');
+          addOutput(output, 'success');
+        } else {
+          addOutput('No recent activity', 'warning');
+        }
+      } catch (e) {
+        addOutput(`Error: ${e.message}`, 'error');
+      }
+    }
+
+    async function loadAgents() {
+      addOutput('$ agents', '');
+      addOutput('Loading agent list...', 'info');
+      try {
+        const res = await fetch('api/data.json');
+        const data = await res.json();
+        const active = data.agents.filter(a => a.status === 'active');
+        const idle = data.agents.filter(a => a.status === 'idle');
+        const output = [
+          `Total Agents: ${data.agents.length}`,
+          `Active: ${active.length} (${active.map(a => a.name).join(', ')})`,
+          `Idle: ${idle.length} (${idle.map(a => a.name).join(', ')})`
+        ].join('\n');
+        addOutput(output, 'success');
+      } catch (e) {
+        addOutput(`Error: ${e.message}`, 'error');
+      }
+    }
+
+    function renderHistory() {
+      if (commandHistory.length === 0) {
+        historyList.innerHTML = '<div class="history-item" style="justify-content: center; color: var(--muted);">No commands yet</div>';
+        return;
+      }
+
+      historyList.innerHTML = commandHistory.slice().reverse().map((item, i) => `
+        <div class="history-item" onclick="runCommand('${escapeHtml(item.command)}')">
+          <span class="history-cmd">${escapeHtml(item.command)}</span>
+          <span class="history-status ${item.status}">${item.status === 'running' ? '...' : item.status}</span>
+          <span class="history-time">${new Date(item.time).toLocaleTimeString()}</span>
+        </div>
+      `).join('');
+    }
+
+    function clearHistory() {
+      commandHistory = [];
+      historyIndex = -1;
+      localStorage.removeItem('athena-terminal-history');
+      renderHistory();
+      addOutput('History cleared', 'system');
+    }
+  </script>
+</body>
+</html>

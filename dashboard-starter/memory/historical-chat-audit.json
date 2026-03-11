@@ -1,0 +1,68 @@
+[
+  {
+    "timestamp": "2026-03-03T09:18:45.034Z",
+    "action": "chat_request",
+    "figureId": "lincoln",
+    "msgLen": 29,
+    "api_keys_used": [],
+    "models_used": [
+      "wikipedia-api"
+    ],
+    "agents_used": [
+      "retrieval",
+      "verification",
+      "persona",
+      "citation"
+    ]
+  },
+  {
+    "timestamp": "2026-03-03T09:20:04.407Z",
+    "action": "chat_request",
+    "figureId": "lincoln",
+    "msgLen": 29,
+    "api_keys_used": [],
+    "models_used": [
+      "wikipedia-api",
+      "fallback-kb"
+    ],
+    "agents_used": [
+      "retrieval",
+      "verification",
+      "persona",
+      "citation"
+    ]
+  },
+  {
+    "timestamp": "2026-03-03T09:20:23.656Z",
+    "action": "chat_request",
+    "figureId": "curie",
+    "msgLen": 31,
+    "api_keys_used": [],
+    "models_used": [
+      "wikipedia-api",
+      "fallback-kb"
+    ],
+    "agents_used": [
+      "retrieval",
+      "verification",
+      "persona",
+      "citation"
+    ]
+  },
+  {
+    "timestamp": "2026-03-03T09:29:05.380Z",
+    "action": "figure_added",
+    "id": "socrates",
+    "name": "Socrates",
+    "api_keys_used": [],
+    "models_used": [
+      "wikipedia-api"
+    ],
+    "agents_used": [
+      "retrieval",
+      "verification",
+      "persona",
+      "citation"
+    ]
+  }
+]

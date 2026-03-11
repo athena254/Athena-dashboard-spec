@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progress Ring</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .progress-ring {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+        }
+
+        .progress-ring svg {
+            transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
+        }
+
+        .progress-ring__track {
+            fill: none;
+            stroke: #2a2a4a;
+            stroke-width: 8;
+        }
+
+        .progress-ring__indicator {
+            fill: none;
+            stroke: url(#gradient);
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-dasharray: 502.4;
+            stroke-dashoffset: 502.4;
+            transition: stroke-dashoffset 0.5s ease;
+        }
+
+        .progress-ring__percentage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-set {
+            background: #4a9eff;
+            color: #fff;
+        }
+
+        .btn-set:hover {
+            background: #3a8eef;
+        }
+
+        .btn-animate {
+            background: #00d9a5;
+            color: #1a1a2e;
+        }
+
+        .btn-animate:hover {
+            background: #00c995;
+        }
+
+        .btn-reset {
+            background: #ff6b6b;
+            color: #fff;
+        }
+
+        .btn-reset:hover {
+            background: #ff5555;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            font-size: 1rem;
+            border: 2px solid #4a9eff;
+            border-radius: 8px;
+            width: 80px;
+            text-align: center;
+            background: #1a1a2e;
+            color: #fff;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #00d9a5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="progress-ring">
+            <svg>
+                <defs>
+                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#4a9eff"/>
+                        <stop offset="100%" style="stop-color:#00d9a5"/>
+                    </linearGradient>
+                </defs>
+                <circle class="progress-ring__track" cx="100" cy="100" r="80"/>
+                <circle class="progress-ring__indicator" cx="100" cy="100" r="80"/>
+            </svg>
+            <div class="progress-ring__percentage">0%</div>
+        </div>
+
+        <div class="controls">
+            <input type="number" id="progressInput" min="0" max="100" value="0" placeholder="%">
+            <button class="btn-set" onclick="setProgress()">Set</button>
+            <button class="btn-animate" onclick="animateProgress()">Animate</button>
+            <button class="btn-reset" onclick="resetProgress()">Reset</button>
+        </div>
+    </div>
+
+    <script>
+        const indicator = document.querySelector('.progress-ring__indicator');
+        const percentageText = document.querySelector('.progress-ring__percentage');
+        const progressInput = document.getElementById('progressInput');
+        
+        // Circumference = 2 * π * r = 2 * π * 80 ≈ 502.4
+        const circumference = 502.4;
+
+        function setProgressValue(value) {
+            value = Math.max(0, Math.min(100, value));
+            const offset = circumference - (value / 100) * circumference;
+            indicator.style.strokeDashoffset = offset;
+            percentageText.textContent = `${Math.round(value)}%`;
+            progressInput.value = Math.round(value);
+        }
+
+        function setProgress() {
+            const value = parseFloat(progressInput.value) || 0;
+            setProgressValue(value);
+        }
+
+        function resetProgress() {
+            setProgressValue(0);
+        }
+
+        function animateProgress() {
+            let current = 0;
+            const target = parseFloat(progressInput.value) || 100;
+            const increment = target > 0 ? 1 : -1;
+            
+            const animate = () => {
+                if (target >= 0 && current <= target) {
+                    setProgressValue(current);
+                    current += increment;
+                    requestAnimationFrame(animate);
+                } else if (target < 0 && current >= target) {
+                    setProgressValue(current);
+                    current += increment;
+                    requestAnimationFrame(animate);
+                }
+            };
+            
+            setProgressValue(0);
+            current = 0;
+            animate();
+        }
+
+        // Initialize
+        setProgressValue(0);
+    </script>
+</body>
+</html>
