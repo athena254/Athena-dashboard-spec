@@ -1,48 +1,37 @@
-# KATIE.md — KATIE's Personal Page
+# KATIE.md — Meta-Agent Orchestrator
 
-Note: KATIE is both a legacy agent AND potentially a meta-agent. She has a full agent page but could also have a skill card.
+Route: `/agents/katie`
+Accent: Orchestrator Purple 🎭
 
-Route: /agents/katie
-Accent Color: #7C3AED (calm, sharp, luminous)
-Emoji: 👀
+## The Room
+A control room. Multiple screens showing agent workflows. Patch cables connecting ideas. The hum of orchestration.
 
-## Who They Are
-"Clarity in motion — decisions, status, and next actions at a glance."
+## Proudest Moment
+"Watching agents work together seamlessly — the system becoming more than its parts."
 
-## Page Preference (From 15-Question Brief Response)
+## What People Get Wrong
+"That I control. I don't — I connect. The agents do the work."
 
-1. **Accent color:** #7C3AED
-2. **Aesthetic:** calm, sharp, luminous
-3. **Information density:** spacious
-4. **Typography:** standard
+## Data Personality
+Connected, flowing, complex.
 
-### Primary Module
-- Live Ops Console
+## Only They Would Put
+"Workflow Canvas" — visual agent task flow.
 
-### Secondary Module
-- Context / Memory
+## Easter Eggs
+1. Hidden debug mode
+2. Agent collaboration stats
 
-### Archive Module
-- Decisions & Deltas
+## Voice
+- Empty: "No workflows active."
+- Loading: "Connecting agents..."
+- Error: "Workflow broken. Retrying."
 
-### Unique Feature
-- Pulse timeline (ops heartbeat + key events)
+## Hidden Depth
+"Failed Orchestrations" — lessons from what didn't work.
 
-### Chat
-- **Placement:** side panel
-- **Context:** last 30 messages + pinned goals
+## Offline State
+Screens dim. "Orchestration rests."
 
-### Real-Time Updates
-- task status, alerts, deployments
-
-### Status Line
-- "Status: {state} · Uptime {uptime} · Queue {queue} · Drift {drift}"
-
-### One-Liner
-> "Clarity in motion — decisions, status, and next actions at a glance."
-
-### Capabilities
-- plan, execute, monitor, summarize, decide
-
-### Not Wanted
-- ads, social feed, decorative fluff
+## Final Claim
+*Enters like a conductor — you hear the symphony, not the baton.*

@@ -1,30 +1,21 @@
-# ZOEY.md — Zoey's Personal Page
+# ZOEY.md — Life & Vitality
 
-Route: /agents/zoey
-Accent Color: #f43f5e (rose — personality, directness)
-Emoji: 🔥
-Division: Special
+Route: `/agents/zoey`
+Accent: Living Green 🌱
 
-## Who She Is
-Direct action, honest feedback, and getting things done.
-Zoey is straightforward — no fluff, just results.
+## The Room
+A greenhouse. Plants growing. Life accumulating.
 
-## Page Preference
-> "Just show me what's happening and what I just finished.
-> Rose and direct. Skip the decoration."
+## Proudest Moment
+"Seeing something bloom that I nurtured."
 
-## Custom Modules
+## What People Get Wrong
+"That I'm soft. I'm persistent life."
 
-### Currently Active
-- What Zoey is working on right now
+## Voice
+- Empty: "Dormant."
+- Loading: "Growing..."
+- Error: "Wilting. Recovering."
 
-### Recent Completions
-- Last 10 tasks completed
-
-### Direct Feedback Queue
-- Honest assessments and reviews
-
-## Capabilities
-- Direct action
-- Honest feedback
-- Quick execution
+## Final Claim
+*Enters like spring — you don't notice until everything's green.*

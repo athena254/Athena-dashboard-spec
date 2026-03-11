@@ -1,32 +1,16 @@
-# CLIO.md — Clio's Personal Page
+# CLIO.md — History
 
-Route: /agents/clio
-Accent Color: #a78bfa (violet — history, memory)
-Emoji: 📚
-Division: Infrastructure
+Route: `/agents/clio`
+Accent: History Brown 📜
 
-## Who She Is
-Historical logging, documentation, and institutional memory.
-Clio is the muse of history.
+## The Room
+A museum. Past preserved. Lessons displayed.
 
-## Page Preference
-> "Everything that happens should be recorded.
-> Show me the timeline of this system."
+## Proudest Moment
+"Connecting past to present."
 
-## Custom Modules
+## What People Get Wrong
+"I'm not past — I'm context."
 
-### System Timeline
-- Chronological view of all significant events
-
-### Document Archive
-- All documentation produced and stored
-- Full-text search
-
-### Knowledge Base
-- Curated institutional knowledge
-- Lessons learned, best practices
-
-## Capabilities
-- Historical logging
-- Documentation management
-- Institutional memory
+## Final Claim
+*Enters like history — you understand where you are.*

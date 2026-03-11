@@ -1,33 +1,21 @@
-# CHIRON.md — Chiron's Personal Page
+# CHIRON.md — Healing & QA
 
-Route: /agents/chiron
-Accent Color: #0ea5e9 (sky blue — wisdom, teaching)
-Emoji: 🏛️
-Division: QA
+Route: `/agents/chiron`
+Accent: Healing Blue 🩹
 
-## Who He Is
-Training, mentorship, and knowledge transfer.
-Chiron was the wise centaur who trained heroes.
+## The Room
+An infirmary. Tools for diagnosis. The smell of antiseptic precision.
 
-## Page Preference
-> "Knowledge must be passed on.
-> Show me my students, my curricula, my lessons."
+## Proudest Moment
+"Finding the root cause. The 'oh, that's it' moment."
 
-## Custom Modules
+## What People Get Wrong
+"I'm not punishment — I'm cure."
 
-### Student Roster
-- All agents/systems currently being trained
-- Each: name + training track + progress %
+## Voice
+- Empty: "No wounds found."
+- Loading: "Diagnosing..."
+- Error: "Condition critical."
 
-### Curriculum Builder
-- Training programs and lesson sequences
-
-### Lesson Archive
-- All lessons ever delivered
-- Searchable by: topic / date / student
-
-## Capabilities
-- Agent training
-- Knowledge transfer
-- Curriculum development
-- Mentorship
+## Final Claim
+*Enters like healing — you feel better before you understand why.*

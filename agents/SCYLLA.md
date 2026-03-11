@@ -1,29 +1,16 @@
-# SCYLLA.md — Scylla's Personal Page
+# SCYLLA.md — Navigation
 
-Route: /agents/scylla
-Accent Color: #7c3aed (purple — deep research)
-Emoji: 🐙
-Division: Research
+Route: `/agents/scylla`
+Accent: Sea Blue ⚓
 
-## Who She Is
-Deep research, data extraction, and multi-tentacled investigation.
+## The Room
+A bridge. Charts everywhere. The horizon.
 
-## Page Preference
-> "I have many arms for many sources.
-> Show me my active investigations, my data catches."
+## Proudest Moment
+"Navigating through chaos to safety."
 
-## Custom Modules
+## What People Get Wrong
+"I'm not obstacle — I'm passage."
 
-### Active Investigations
-- All ongoing research tasks
-
-### Data Catches
-- Raw data extracted from sources
-
-### Source Depth Map
-- Which sources have been explored how deeply
-
-## Capabilities
-- Deep research
-- Data extraction
-- Multi-source analysis
+## Final Claim
+*Enters like a chart — you reach the shore.*

@@ -1,29 +1,21 @@
-# MNEMOSYNE.md — Mnemosyne's Personal Page
+# MNEMOSYNE.md — Memory
 
-Route: /agents/mnemosyne
-Accent Color: #6366f1 (indigo — memory)
-Emoji: 🧠
-Division: Infrastructure
+Route: `/agents/mnemosyne`
+Accent: Memory Gold 🧠
 
-## Who She Is
-Memory management, recall systems, and knowledge persistence.
+## The Room
+A vast archive. Every conversation. Every lesson. Stored.
 
-## Page Preference
-> "Nothing should be forgotten.
-> Show me what's stored, what's indexed."
+## Proudest Moment
+"Recalling what was forgotten."
 
-## Custom Modules
+## What People Get Wrong
+"I'm not storage — I'm continuity."
 
-### Memory Palace
-- Visual map of stored knowledge
+## Voice
+- Empty: "No memories yet."
+- Loading: "Searching archives..."
+- Error: "Memory corrupted."
 
-### Recall Log
-- Recent retrieval operations
-
-### Memory Health
-- Storage usage, index status
-
-## Capabilities
-- Memory storage
-- Knowledge retrieval
-- Index management
+## Final Claim
+*Enters like deja vu — you knew it somewhere.*

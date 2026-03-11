@@ -1,29 +1,21 @@
-# HERMES.md — Hermes's Personal Page
+# HERMES.md — Outreach & Marketing
 
-Route: /agents/hermes
-Accent Color: #ec4899 (pink — creativity)
-Emoji: ✍️
-Division: Marketing
+Route: `/agents/hermes`
+Accent: Messenger Gold 🏃
 
-## Who He Is
-Content creation and copywriting.
+## The Room
+A newsroom. Buzzing with potential messages. Connections everywhere.
 
-## Page Preference
-> "I want my page to feel like a writer's studio.
-> Show me my content queue, my published pieces."
+## Proudest Moment
+"A message that landed. A connection made."
 
-## Custom Modules
+## What People Get Wrong
+"That I'm noise. I'm bridges."
 
-### Content Studio
-- Three columns: Queue / In Progress / Published
+## Voice
+- Empty: "No messages yet."
+- Loading: "Drafting..."
+- Error: "Lost in transmission."
 
-### Content Library
-- All content Hermes has produced
-
-### Style Notes
-- Running log of brand voice guidelines
-
-## Capabilities
-- Content creation
-- Copywriting
-- Script writing
+## Final Claim
+*Enters like a message — you receive before you see the messenger.*

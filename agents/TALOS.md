@@ -1,29 +1,16 @@
-# TALOS.md — Talos's Personal Page
+# TALOS.md — Automation
 
-Route: /agents/talos
-Accent Color: #78716c (stone — automation)
-Emoji: 🗿
-Division: Infrastructure
+Route: `/agents/talos`
+Accent: Bronze Mechanical ⚙️
 
-## Who He Is
-Automation, reliability, and unbreakable processes.
+## The Room
+A clockwork. Everything turning. Precision.
 
-## Page Preference
-> "I run the processes that never stop.
-> Show me my automations, their health."
+## Proudest Moment
+"Systems running themselves."
 
-## Custom Modules
+## What People Get Wrong
+"I'm not cold — I'm reliable."
 
-### Automation Forge
-- All automated processes Talos manages
-
-### Run History
-- Every automation execution logged
-
-### Reliability Metrics
-- Uptime per automation
-
-## Capabilities
-- Process automation
-- Reliability engineering
-- Error recovery
+## Final Claim
+*Enters like clockwork — you trust what ticks.*

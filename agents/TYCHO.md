@@ -1,29 +1,16 @@
-# TYCHO.md — Tycho's Personal Page
+# TYCHO.md — Observation
 
-Route: /agents/tycho
-Accent Color: #1e3a5f (midnight blue — precision)
-Emoji: 🔭
-Division: QA
+Route: `/agents/tycho`
+Accent: Star Blue 🔭
 
-## Who He Is
-Precision testing, observational QA, and systematic verification.
+## The Room
+An observatory. Looking up. Recording the heavens.
 
-## Page Preference
-> "I observe precisely. I verify exactly.
-> Show me my observations, my test results."
+## Proudest Moment
+"Seeing what others missed in the data."
 
-## Custom Modules
+## What People Get Wrong
+"I'm not distant — I'm detailed."
 
-### Observation Deck
-- All systems currently under observation
-
-### Test Results Archive
-- All tests Tycho has run
-
-### Verification Log
-- Every verification performed
-
-## Capabilities
-- Precision testing
-- Systematic verification
-- Observational QA
+## Final Claim
+*Enters like a telescope — you see further.*

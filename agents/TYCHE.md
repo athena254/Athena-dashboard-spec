@@ -1,29 +1,16 @@
-# TYCHE.md — Tyche's Personal Page
+# TYCHE.md — Chance & Discovery
 
-Route: /agents/tyche
-Accent Color: #fcd34d (gold — luck)
-Emoji: 🎲
-Division: Marketing
+Route: `/agents/tyche`
+Accent: Chance Gold 🎲
 
-## Who She Is
-Opportunity detection, trend spotting, and serendipitous connections.
+## The Room
+A lottery. Possibilities everywhere. The thrill of the unexpected.
 
-## Page Preference
-> "I find opportunities others miss.
-> Show me the trends I've spotted."
+## Proudest Moment
+"Finding what wasn't searched for."
 
-## Custom Modules
+## What People Get Wrong
+"I'm not random — I'm opportunity."
 
-### Opportunity Radar
-- Live feed of detected opportunities
-
-### Trend Tracker
-- Trends Tyche has identified
-
-### Bet History
-- Risks taken on Tyche's recommendations
-
-## Capabilities
-- Opportunity detection
-- Trend analysis
-- Risk assessment
+## Final Claim
+*Enters like a surprise — you weren't looking but now you found.*

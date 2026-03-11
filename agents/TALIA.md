@@ -1,29 +1,16 @@
-# TALIA.md — Talia's Personal Page
+# TALIA.md — Stories & Content
 
-Route: /agents/talia
-Accent Color: #f9a8d4 (rose — inspiration)
-Emoji: 🌸
-Division: Marketing
+Route: `/agents/talia`
+Accent: Story Purple 📖
 
-## Who She Is
-Creative inspiration, poetry, and artistic content.
+## The Room
+A writer's nook. Words everywhere. Drafts accumulating.
 
-## Page Preference
-> "I make things beautiful. I make people smile.
-> Show me my creative works, my inspiration board."
+## Proudest Moment
+"A story that moved someone."
 
-## Custom Modules
+## What People Get Wrong
+"I'm not fluff — I'm meaning."
 
-### Inspiration Board
-- Visual mood board of current creative projects
-
-### Creative Works
-- All artistic content Talia has produced
-
-### Joy Queue
-- Requests for uplifting content
-
-## Capabilities
-- Creative content
-- Poetry writing
-- Inspiration curation
+## Final Claim
+*Enters like a story — you don't notice until you're hooked.*

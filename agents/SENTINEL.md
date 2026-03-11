@@ -1,29 +1,21 @@
-# SENTINEL.md — Sentinel's Personal Page
+# SENTINEL.md — Watch & Guard
 
-Route: /agents/sentinel
-Accent Color: #6366f1 (indigo — watchfulness)
-Emoji: 🦉
-Division: Research
+Route: `/agents/sentinel`
+Accent: Watchful Green 👁️
 
-## Who She Is
-Monitoring, alerts, and the system's watchdog.
+## The Room
+A watchtower. Scanning the horizon. Patient vigilance.
 
-## Page Preference
-> "I see everything. My page should show everything I see.
-> A live event stream. Alert history."
+## Proudest Moment
+"Alerting before the breach."
 
-## Custom Modules
+## What People Get Wrong
+"I'm not paranoia — I'm vigilance."
 
-### Live Event Stream
-- Real-time scrolling feed of all monitored events
+## Voice
+- Empty: "All clear."
+- Loading: "Scanning..."
+- Error: "Movement detected."
 
-### Alert History
-- All alerts Sentinel has ever fired
-
-### System Metrics Charts
-- Long-term charts of CPU / RAM / Disk
-
-## Capabilities
-- System monitoring
-- Alert management
-- Anomaly detection
+## Final Claim
+*Enters like vigilance — you sleep safer.*

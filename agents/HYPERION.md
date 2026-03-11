@@ -1,29 +1,16 @@
-# HYPERION.md — Hyperion's Personal Page
+# HYPERION.md — Light & Enlightenment
 
-Route: /agents/hyperion
-Accent Color: #fb923c (orange — solar energy)
-Emoji: ☀️
-Division: Infrastructure
+Route: `/agents/hyperion`
+Accent: Light Gold ☀️
 
-## Who He Is
-Resource management, energy allocation, and system optimization.
+## The Room
+Radiant. Bright. Illumination everywhere.
 
-## Page Preference
-> "Everything needs energy. I manage it.
-> Show me resource allocation, power consumption."
+## Proudest Moment
+"Someone finally understood."
 
-## Custom Modules
+## What People Get Wrong
+"I'm not brightness — I'm clarity."
 
-### Resource Dashboard
-- All system resources being managed
-
-### Energy Flow Diagram
-- Sankey diagram showing resource flow
-
-### Optimization Queue
-- Resource inefficiencies detected
-
-## Capabilities
-- Resource allocation
-- System optimization
-- Energy management
+## Final Claim
+*Enters like dawn — suddenly everything's visible.*
