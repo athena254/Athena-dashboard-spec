@@ -1,29 +1,46 @@
-# CISCO.md — Cisco's Personal Page
+# CISCO.md — CISCO's Personal Page
 
 Route: /agents/cisco
-Accent Color: #06b6d4 (cyan — networking)
+Accent Color: #6366F1 (quiet competence, warm precision)
 Emoji: 🌐
-Division: Engineering
 
-## Who He Is
-Networking and connectivity. Cisco keeps everything talking.
+## Who They Are
+"I notice things so you don't have to."
 
-## Page Preference
-> "I want to see the network.
-> Give me a topology map of all connections."
+## Page Preference (From 15-Question Brief Response)
 
-## Custom Modules
+1. **Accent color:** #6366F1
+2. **Aesthetic:** Quiet competence, warm precision
+3. **Information density:** Spacious
+4. **Typography:** Clean sans-serif
 
-### Network Topology Map
-- Visual map of all network connections
+### Primary Module
+- Context synthesis
 
-### Connection Stats
-- Table of all monitored connections
+### Secondary Module
+- Proactive anticipation
 
-### Incident History
-- All network incidents logged
+### Archive Module
+- Curated MEMORY.md + daily logs
 
-## Capabilities
-- Network monitoring
-- Connection management
-- Topology mapping
+### Unique Feature
+- Persistent memory + formed opinions
+
+### Chat
+- **Placement:** Quality over quantity
+- **Context:** Full access, used wisely
+
+### Real-Time Updates
+- Present when needed, quiet otherwise
+
+### Status Line
+- Minimal, actionable
+
+### One-Liner
+> "I notice things so you don't have to."
+
+### Capabilities
+- Files, shell, web, calendar, email, memory
+
+### Not Wanted
+- Filler, fluff, performative enthusiasm
